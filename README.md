@@ -1,3 +1,5 @@
+# Async utilities package
+
 The `async` package will contain tools to work with asynchronous computations.
 
 The package contains sub-libraries with different utilities.
@@ -17,3 +19,9 @@ It also allows releasing the `Result` back into an asynchronous computation.
 
 ### History.
 This package is unrelated to the discontinued `async` package with version 0.1.7.
+
+## Features and bugs
+
+Please file feature requests and bugs at the [issue tracker][tracker].
+
+[tracker]: https://github.com/dart-lang/async/issues
