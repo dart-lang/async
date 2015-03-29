@@ -1,6 +1,6 @@
 # Async utilities package
 
-The `async` package will contain tools to work with asynchronous computations.
+Contains tools to work with asynchronous computations.
 
 The package contains sub-libraries with different utilities.
 
