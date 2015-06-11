@@ -4,7 +4,7 @@
 
 import "dart:async";
 import "package:async/stream_zip.dart";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 /// Create an error with the same values as [base], except that it throwsA
 /// when seeing the value [errorValue].

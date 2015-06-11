@@ -4,12 +4,13 @@
 
 import "dart:async";
 import "dart:collection";
+
 import "package:async/result.dart";
-import "package:unittest/unittest.dart";
+import "package:stack_trace/stack_trace.dart";
+import "package:test/test.dart";
 
 void main() {
-  StackTrace stack;
-  try { throw 0; } catch (e, s) { stack = s; }
+  var stack = new Trace.current();
 
   test("create result value", () {
     Result<int> result = new Result<int>.value(42);
@@ -192,13 +193,16 @@ void main() {
                    new Result<int>.error("BAD", stack),
                    new Result<int>.value(37)];
     // Expect the data events, and an extra error event.
-    var expectedList = new Queue.from(events)..add(new Result.error("BAD2"));
+    var expectedList = new Queue.from(events)
+        ..add(new Result.error("BAD2", stack));
+
     void dataListener(int v) {
       expect(expectedList.isEmpty, isFalse);
       Result expected = expectedList.removeFirst();
       expect(expected.isValue, isTrue);
       expect(v, equals(expected.asValue.value));
     }
+
     void errorListener(error, StackTrace stackTrace) {
       expect(expectedList.isEmpty, isFalse);
       Result expected = expectedList.removeFirst();
@@ -206,13 +210,14 @@ void main() {
       expect(error, equals(expected.asError.error));
       expect(stackTrace, same(expected.asError.stackTrace));
     }
+
     stream.listen(expectAsync(dataListener, count: 2),
                   onError: expectAsync(errorListener, count: 2),
                   onDone: expectAsync((){}));
     for (Result<int> result in events) {
       c.add(result);  // Result value or error in data line.
     }
-    c.addError("BAD2");  // Error in error line.
+    c.addError("BAD2", stack);  // Error in error line.
     c.close();
   });
 

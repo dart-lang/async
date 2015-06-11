@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import "dart:async";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 // Test that stream listener callbacks all happen in the zone where the
 // listen occurred.
