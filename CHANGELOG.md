@@ -1,4 +1,7 @@
-# Changelog
+## 1.2.0
+
+- Added a `FutureGroup` class for waiting for a group of futures, potentially of
+  unknown size, to complete.
 
 ## 1.1.1
 
