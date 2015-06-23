@@ -6,5 +6,6 @@ library dart.pkg.async;
 
 export "src/future_group.dart";
 export "src/stream_group.dart";
+export "src/stream_splitter.dart";
 export "stream_zip.dart";
 export "result.dart";
