@@ -95,11 +95,9 @@ main() {
     expect(() => branch.listen(null), throwsStateError);
   });
 
-  test("creates branches with the correct reified type", () async {
-    var branch = splitter.split();
-    expect(branch, new isInstanceOf<Stream<int>>());
-    expect(branch, isNot(new isInstanceOf<Stream<String>>()));
-  });
+  // TODO(nweiz): Test that branches have the correct reified type once Dart
+  // 1.11 is released. In 1.10, the stream exposed by a StreamController didn't
+  // have a reified type.
 
   test("multiple branches each replay the stream", () async {
     var branch1 = splitter.split();
