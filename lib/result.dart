@@ -97,7 +97,7 @@ abstract class Result<T> {
    * Release a stream of [result] values into a stream of the results.
    *
    * `Result` values of the source stream become value or error events in
-   * the retuned stream as appropriate.
+   * the returned stream as appropriate.
    * Errors from the source stream become errors in the returned stream.
    *
    * Shorthand for transforming the stream using [ReleaseStreamTransformer].

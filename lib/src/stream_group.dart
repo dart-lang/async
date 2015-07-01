@@ -14,11 +14,11 @@ import 'dart:async';
 /// this means that events emitted by broadcast streams will be dropped until
 /// [stream] has a listener.**
 ///
-/// If the `StreamGroup` is construced using [new StreamGroup], [stream] will be
+/// If the `StreamGroup` is constructed using [new StreamGroup], [stream] will be
 /// single-subscription. In this case, if [stream] is paused or canceled, all
 /// streams in the group will likewise be paused or canceled, respectively.
 ///
-/// If the `StreamGroup` is construced using [new StreamGroup.broadcast],
+/// If the `StreamGroup` is constructed using [new StreamGroup.broadcast],
 /// [stream] will be a broadcast stream. In this case, the streams in the group
 /// will never be paused and single-subscription streams in the group will never
 /// be canceled. **Note that single-subscription streams in a broadcast group
