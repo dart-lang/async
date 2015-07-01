@@ -155,8 +155,6 @@ main() {
   });
 
   test("Pause/Resume", () {
-    var done = expectAsync((){});  // Call to complete test.
-
     int sc1p = 0;
     StreamController c1 = new StreamController(
       onPause: () {
@@ -174,6 +172,12 @@ main() {
       onResume: () {
         sc2p--;
       });
+
+    var done = expectAsync((){
+      expect(sc1p, equals(1));
+      expect(sc2p, equals(0));
+    });  // Call to complete test.
+
     Stream zip = new StreamZip([c1.stream, c2.stream]);
 
     const ms25 = const Duration(milliseconds: 25);

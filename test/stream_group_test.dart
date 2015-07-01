@@ -472,9 +472,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
     });
 
     group("while active", () {
-      var subscription;
       setUp(() async {
-        subscription = streamGroup.stream.listen(null);
+        streamGroup.stream.listen(null);
         await flushMicrotasks();
       });
 

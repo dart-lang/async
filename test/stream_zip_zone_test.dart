@@ -41,7 +41,6 @@ void testStream(String name, StreamController controller, Stream stream) {
             expect(v, 37);
             expect(Zone.current, newZone1);
             runZoned(() {
-              Zone newZone2 = Zone.current;
               sub.onData(expectAsync((v) {
                 expect(v, 87);
                 expect(Zone.current, newZone1);
