@@ -6,6 +6,7 @@
 library async.test.util;
 
 import "dart:async";
+import "package:test/test.dart";
 
 /// A zero-millisecond timer should wait until after all microtasks.
 Future flushMicrotasks() => new Future.delayed(Duration.ZERO);

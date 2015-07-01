@@ -83,10 +83,10 @@ main() {
         test("- subscriptionStream: no", () async {
           var done = new Completer();
           var events = [];
-          var subscription = subscriptionStream.listen(events.add,
-                                                       onError: events.add,
-                                                       onDone: done.complete,
-                                                       cancelOnError: false);
+          subscriptionStream.listen(events.add,
+                                    onError: events.add,
+                                    onDone: done.complete,
+                                    cancelOnError: false);
           var expected = [1, 2, "To err is divine!"];
           if (sourceCancels) {
             var timeout = done.future.timeout(const Duration(milliseconds: 5),

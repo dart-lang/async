@@ -37,7 +37,7 @@ main() {
       expect(controller.hasListener, isTrue);
       expect(controller.isPaused, isTrue);
 
-      var cancel = events.cancel();
+      events.cancel();
       expect(controller.hasListener, isFalse);
     });
   });
@@ -283,6 +283,7 @@ main() {
       expect(() => events.take(1), throwsStateError);
       expect(() => events.rest, throwsStateError);
       expect(() => events.cancel(), throwsStateError);
+      expect(stream.toList(), completion([1, 2, 3, 4]));
     });
 
     test("forwards to underlying stream", () async {
@@ -454,9 +455,9 @@ main() {
     test("- next after true, enqueued", () async {
       var events = new StreamQueue<int>(createStream());
       var responses = [];
-      var first = events.next.then(responses.add);
-      var hasSecond = events.hasNext.then(responses.add);
-      var second = events.next.then(responses.add);
+      events.next.then(responses.add);
+      events.hasNext.then(responses.add);
+      events.next.then(responses.add);
       do {
         await flushMicrotasks();
       } while (responses.length < 3);

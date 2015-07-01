@@ -75,7 +75,6 @@ main() {
 
   test("cancel new stream before source is done", () async {
     var completer = new StreamCompleter();
-    var listened = false;
     var lastEvent = -1;
     var controller = new StreamController();
     var subscription;
@@ -146,11 +145,9 @@ main() {
 
   test("cancelOnError true when listening before linking stream", () async {
     var completer = new StreamCompleter();
-    var listened = false;
-    var canceled = false;
     var lastEvent = -1;
     var controller = new StreamController();
-    var subscription = completer.stream.listen(
+    completer.stream.listen(
         (value) {
           expect(value, lessThan(3));
           lastEvent = value;
@@ -191,7 +188,7 @@ main() {
     controller.add(1);
     expect(controller.hasListener, isFalse);
 
-    var subscription = completer.stream.listen(
+    completer.stream.listen(
         (value) {
           expect(value, lessThan(3));
           lastEvent = value;
@@ -222,62 +219,62 @@ main() {
   test("linking a stream after setSourceStream before listen", () async {
     var completer = new StreamCompleter();
     completer.setSourceStream(createStream());
-    expect(() => completer.setSourceStream(createStream()), throws);
-    expect(() => completer.setEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
     await completer.stream.toList();
     // Still fails after source is done
-    expect(() => completer.setSourceStream(createStream()), throws);
-    expect(() => completer.setEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
   });
 
   test("linking a stream after setSourceStream after listen", () async {
     var completer = new StreamCompleter();
     var list = completer.stream.toList();
     completer.setSourceStream(createStream());
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
     await list;
     // Still fails after source is done.
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
   });
 
   test("linking a stream after setEmpty before listen", () async {
     var completer = new StreamCompleter();
     completer.setEmpty();
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
     await completer.stream.toList();
     // Still fails after source is done
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
   });
 
   test("linking a stream after setEmpty() after listen", () async {
     var completer = new StreamCompleter();
     var list = completer.stream.toList();
     completer.setEmpty();
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
     await list;
     // Still fails after source is done.
-    expect(() => completer.setSoureStream(createStream()), throws);
-    expect(() => completer.stEmpty(createStream()), throws);
+    expect(() => completer.setSourceStream(createStream()), throwsStateError);
+    expect(() => completer.setEmpty(), throwsStateError);
   });
 
   test("listening more than once after setting stream", () async {
     var completer = new StreamCompleter();
     completer.setSourceStream(createStream());
     var list = completer.stream.toList();
-    expect(() => completer.stream.oList(), throws);
+    expect(() => completer.stream.toList(), throwsStateError);
     await list;
-    expect(() => completer.stream.oList(), throws);
+    expect(() => completer.stream.toList(), throwsStateError);
   });
 
   test("listening more than once before setting stream", () async {
     var completer = new StreamCompleter();
-    var list = completer.stream.toList();
-    expect(() => completer.stream.oList(), throws);
+    completer.stream.toList();
+    expect(() => completer.stream.toList(), throwsStateError);
   });
 
   test("setting onData etc. before and after setting stream", () async {
@@ -313,7 +310,6 @@ main() {
     var completer = new StreamCompleter();
     var resume = new Completer();
     var subscription = completer.stream.listen(unreachable("data"));
-    var lastEvent = 0;
     subscription.pause(resume.future);
     await flushMicrotasks();
     completer.setSourceStream(createStream());
@@ -351,21 +347,4 @@ Stream<int> createStream() async* {
   yield 3;
   await flushMicrotasks();
   yield 4;
-}
-
-/// A zero-millisecond timer should wait until after all microtasks.
-Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
-
-/// A generic unreachable callback function.
-///
-/// Returns a function that fails the test if it is ever called.
-unreachable(String name) => ([a, b]) => fail("Unreachable: $name");
-
-/// A badly behaved stream which throws if it's ever listened to.
-///
-/// Can be used to test cases where a stream should not be used.
-class UnusableStream extends Stream {
-  listen(onData, {onError, onDone, cancelOnError}) {
-    throw new UnimplementedError("Gotcha!");
-  }
 }
