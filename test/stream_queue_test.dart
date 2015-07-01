@@ -142,7 +142,6 @@ main() {
       expect(events.skip(2), completion(1));
       await events.cancel();
     });
-
     test("multiple skips at same time complete in order.", () async {
       var events = new StreamQueue<int>(createStream());
       var skip1 = events.skip(1);
@@ -155,7 +154,7 @@ main() {
         expect(value, expectedValue);
         expect(index, sequenceIndex);
         index++;
-      }
+      };
       await Future.wait([skip1.then(sequence(0, 0)),
                          skip2.then(sequence(0, 1)),
                          skip3.then(sequence(1, 2)),
