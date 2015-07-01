@@ -286,7 +286,7 @@ class StreamQueue<T> {
   /// Ensures that we are listening on events from [_sourceStream].
   ///
   /// Resumes subscription on [_sourceStream], or creates it if necessary.
-  StreamSubscription _ensureListening() {
+  void _ensureListening() {
     assert(!_isDone);
     if (_subscription == null) {
       _subscription =
@@ -354,7 +354,7 @@ class StreamQueue<T> {
 ///
 /// The [close] method is also called immediately when the source stream
 /// is done.
-abstract class _EventRequest implements EventSink {
+abstract class _EventRequest {
   /// Handle available events.
   ///
   /// The available events are provided as a queue. The `addEvents` function
@@ -471,7 +471,7 @@ class _TakeRequest<T> implements _EventRequest {
   /// The future completed when the correct number of events have been captured.
   Future get future => _completer.future;
 
-  bool addEvents(Queue<Events> events) {
+  bool addEvents(Queue<Result> events) {
     while (_list.length < _eventsToTake) {
       if (events.isEmpty) return false;
       var result = events.removeFirst();
@@ -485,7 +485,7 @@ class _TakeRequest<T> implements _EventRequest {
     return true;
   }
 
-  void close(Queue<Events> events) {
+  void close(Queue<Result> events) {
     _completer.complete(_list);
   }
 }
