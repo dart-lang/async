@@ -1,3 +1,19 @@
+## 1.3.0
+
+- Added `StreamCompleter` class for creating a stream now and providing its
+  events later as another stream.
+
+- Added `StreamQueue` class which allows requesting events from a stream
+  before they are avilable. It is like a `StreamIterator` that can queue
+  requests.
+
+- Added `DelegatingStreamSubscription` which is a simple wrapper around
+  a `StreamSubscription` that forwards all call to the wrapped subscription.
+  It can be extended to wrap extra functionality around a subscription.
+
+- Added `SubscriptionStream` which creates a single-subscription stream
+  from an existing stream subscription.
+
 ## 1.2.0
 
 - Added a `FutureGroup` class for waiting for a group of futures, potentially of

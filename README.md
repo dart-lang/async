@@ -2,7 +2,8 @@
 
 Contains tools to work with asynchronous computations.
 
-The package contains sub-libraries with different utilities.
+The package contains `Stream` and `Future` related functionality,
+as well as sub-libraries with different utilities.
 
 ### Zipping streams
 
