@@ -257,6 +257,54 @@ void main() {
         new Result<Result<int>>.value(new Result<int>.value(42));
     expectResult(Result.flatten(result), new Result<int>.value(42));
   });
+
+  test("handle unary", () {
+    var result = new Result.error("error", stack);
+    bool called = false;
+    result.handle((error) {
+      called = true;
+      expect(error, "error");
+    });
+    expect(called, isTrue);
+  });
+
+  test("handle binary", () {
+    var result = new Result.error("error", stack);
+    bool called = false;
+    result.handle((error, stackTrace) {
+      called = true;
+      expect(error, "error");
+      expect(stackTrace, same(stack));
+    });
+    expect(called, isTrue);
+  });
+
+  test("handle unary and binary", () {
+    var result = new Result.error("error", stack);
+    bool called = false;
+    result.handle((error, [stackTrace]) {
+      called = true;
+      expect(error, "error");
+      expect(stackTrace, same(stack));
+    });
+    expect(called, isTrue);
+  });
+
+  test("handle neither unary nor binary", () {
+    var result = new Result.error("error", stack);
+    expect(() => result.handle(() => fail("unreachable")),
+           throws);
+    expect(() => result.handle((a, b, c) => fail("unreachable")),
+           throws);
+    expect(() => result.handle((a, b, {c}) => fail("unreachable")),
+           throws);
+    expect(() => result.handle((a, {b}) => fail("unreachable")),
+           throws);
+    expect(() => result.handle(({a, b}) => fail("unreachable")),
+           throws);
+    expect(() => result.handle(({a}) => fail("unreachable")),
+           throws);
+  });
 }
 
 void expectResult(Result actual, Result expected) {
