@@ -14,6 +14,9 @@
 - Added `SubscriptionStream` which creates a single-subscription stream
   from an existing stream subscription.
 
+- Added `FutureGroup.onIdle` and `FutureGroup.isIdle`, which provide visibility
+  into whether a group is actively waiting on any futures.
+
 ## 1.2.0
 
 - Added a `FutureGroup` class for waiting for a group of futures, potentially of

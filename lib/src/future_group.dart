@@ -35,6 +35,22 @@ class FutureGroup<T> implements Sink<Future<T>> {
   Future<List<T>> get future => _completer.future;
   final _completer = new Completer<List<T>>();
 
+  /// Whether this group is waiting on any futures.
+  bool get isIdle => _pending == 0;
+
+  /// A broadcast stream that emits a `null` event whenever the last pending
+  /// future in this group completes.
+  ///
+  /// Once this group isn't waiting on any futures *and* [close] has been
+  /// called, this stream will close.
+  Stream get onIdle {
+    if (_onIdleController == null) {
+      _onIdleController = new StreamController.broadcast(sync: true);
+    }
+    return _onIdleController.stream;
+  }
+  StreamController _onIdleController;
+
   /// The values emitted by the futures that have been added to the group, in
   /// the order they were added.
   ///
@@ -58,7 +74,12 @@ class FutureGroup<T> implements Sink<Future<T>> {
       _pending--;
       _values[index] = value;
 
-      if (_pending == 0 && _closed) _completer.complete(_values);
+      if (_pending != 0) return;
+      if (_onIdleController != null) _onIdleController.add(null);
+
+      if (!_closed) return;
+      if (_onIdleController != null) _onIdleController.close();
+      _completer.complete(_values);
     }).catchError((error, stackTrace) {
       if (_completer.isCompleted) return;
       _completer.completeError(error, stackTrace);
