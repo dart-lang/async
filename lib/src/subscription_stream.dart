@@ -6,7 +6,7 @@ library async.subscription_stream;
 
 import 'dart:async';
 
-import "delegating_stream_subscription.dart";
+import "delegate/stream_subscription.dart";
 
 /// A [Stream] adapter for a [StreamSubscription].
 ///

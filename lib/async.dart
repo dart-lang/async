@@ -4,12 +4,17 @@
 
 library dart.pkg.async;
 
-export "stream_zip.dart";
 export "result.dart";
-export "src/delegating_stream_subscription.dart";
+export "src/delegate/event_sink.dart";
+export "src/delegate/future.dart";
+export "src/delegate/sink.dart";
+export "src/delegate/stream_consumer.dart";
+export "src/delegate/stream_sink.dart";
+export "src/delegate/stream_subscription.dart";
 export "src/future_group.dart";
 export "src/stream_completer.dart";
 export "src/stream_group.dart";
 export "src/stream_queue.dart";
 export "src/stream_splitter.dart";
 export "src/subscription_stream.dart";
+export "stream_zip.dart";

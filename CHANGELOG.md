@@ -7,15 +7,18 @@
   before they are avilable. It is like a `StreamIterator` that can queue
   requests.
 
-- Added `DelegatingStreamSubscription` which is a simple wrapper around
-  a `StreamSubscription` that forwards all call to the wrapped subscription.
-  It can be extended to wrap extra functionality around a subscription.
-
 - Added `SubscriptionStream` which creates a single-subscription stream
   from an existing stream subscription.
 
 - Added `FutureGroup.onIdle` and `FutureGroup.isIdle`, which provide visibility
   into whether a group is actively waiting on any futures.
+
+- Added delegating wrapper classes for a number of core async types:
+  `DelegatingFuture`, `DelegatingStreamConsumer`, `DelegatingStreamController`,
+  `DelegatingSink`, `DelegatingEventSink`, `DelegatingStreamSink`, and
+  `DelegatingStreamSubscription`. These are all simple wrappers that forward all
+  calls to the wrapped objects. They can be used to expose only the desired
+  interface for subclasses, or extended to add extra functionality.
 
 ## 1.2.0
 
