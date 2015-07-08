@@ -35,7 +35,7 @@ class StreamSplitter<T> {
 
   /// The buffer of events or errors that have already been emitted by
   /// [_stream].
-  final _buffer = new Queue<Result<T>>();
+  final _buffer = new List<Result<T>>();
 
   /// The controllers for branches that are listening for future events from
   /// [_stream].
