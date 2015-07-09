@@ -91,7 +91,7 @@ class StreamQueue<T> {
 
   /// Whether a closing operation has been performed on the stream queue.
   ///
-  /// Closing operations are [cancel] and [rest].
+  /// Closing operations are [cancel], [cancelImmediately], and [rest].
   bool _isClosed = false;
 
   /// Queue of events not used by a request yet.
@@ -238,10 +238,31 @@ class StreamQueue<T> {
     throw _failClosed();
   }
 
+  /// Cancels the underlying stream subscription immediately.
+  ///
+  /// Any pending events will complete as though the stream had closed when
+  /// [cancel] was called.
+  ///
+  /// The returned future completes with the result of calling
+  /// `StreamSubscription.cancel`.
+  ///
+  /// After calling `cancelImmediately`, no further events can be requested.
+  /// None of [next], [rest], [skip], [take] or [cancel] may be called again.
+  Future cancelImmediately() {
+    if (_isClosed) throw _failClosed();
+    _isClosed = true;
+
+    if (_isDone) return new Future.value();
+    if (_subscription == null) _subscription = _sourceStream.listen(null);
+    var future = _subscription.cancel();
+    _onDone();
+    return future;
+  }
+
   /// Returns an error for when a request is made after cancel.
   ///
   /// Returns a [StateError] with a message saying that either
-  /// [cancel] or [rest] have already been called.
+  /// [cancel], [cancelImmediately], or [rest] have already been called.
   Error _failClosed() {
     return new StateError("Already cancelled");
   }
@@ -280,7 +301,6 @@ class StreamQueue<T> {
       _ensureListening();
     }
     _requestQueue.add(request);
-
   }
 
   /// Ensures that we are listening on events from [_sourceStream].
