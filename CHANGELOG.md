@@ -13,6 +13,9 @@
 - Added `FutureGroup.onIdle` and `FutureGroup.isIdle`, which provide visibility
   into whether a group is actively waiting on any futures.
 
+- Add an `AsyncMemoizer` class for running an asynchronous block of code exactly
+  once.
+
 - Added delegating wrapper classes for a number of core async types:
   `DelegatingFuture`, `DelegatingStreamConsumer`, `DelegatingStreamController`,
   `DelegatingSink`, `DelegatingEventSink`, `DelegatingStreamSink`, and
