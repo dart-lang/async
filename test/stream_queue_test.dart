@@ -352,59 +352,60 @@ main() {
       expect(await events.next, 1);
       expect(await events.cancel(), 42);
     });
-  });
 
-  group("cancelImmediately()", () async {
-    test("closes the events, prevents any other operation", () async {
-      var events = new StreamQueue<int>(createStream());
-      await events.cancelImmediately();
-      expect(() => events.next, throwsStateError);
-      expect(() => events.skip(1), throwsStateError);
-      expect(() => events.take(1), throwsStateError);
-      expect(() => events.rest, throwsStateError);
-      expect(() => events.cancel(), throwsStateError);
-    });
+    group("with immediate: true", () async {
+      test("closes the events, prevents any other operation", () async {
+        var events = new StreamQueue<int>(createStream());
+        await events.cancel(immediate: true);
+        expect(() => events.next, throwsStateError);
+        expect(() => events.skip(1), throwsStateError);
+        expect(() => events.take(1), throwsStateError);
+        expect(() => events.rest, throwsStateError);
+        expect(() => events.cancel(), throwsStateError);
+      });
 
-    test("cancels the underlying subscription immediately", () async {
-      var controller = new StreamController();
-      controller.add(1);
+      test("cancels the underlying subscription immediately", () async {
+        var controller = new StreamController();
+        controller.add(1);
 
-      var events = new StreamQueue<int>(controller.stream);
-      expect(await events.next, 1);
-      expect(controller.hasListener, isTrue);
+        var events = new StreamQueue<int>(controller.stream);
+        expect(await events.next, 1);
+        expect(controller.hasListener, isTrue);
 
-      events.cancelImmediately();
-      await expect(controller.hasListener, isFalse);
-    });
+        events.cancel(immediate: true);
+        await expect(controller.hasListener, isFalse);
+      });
 
-    test("closes pending requests", () async {
-      var events = new StreamQueue<int>(createStream());
-      expect(await events.next, 1);
-      expect(events.next, throwsStateError);
-      expect(events.hasNext, completion(isFalse));
+      test("closes pending requests", () async {
+        var events = new StreamQueue<int>(createStream());
+        expect(await events.next, 1);
+        expect(events.next, throwsStateError);
+        expect(events.hasNext, completion(isFalse));
 
-      await events.cancelImmediately();
-    });
+        await events.cancel(immediate: true);
+      });
 
-    test("returns the result of closing the underlying subscription", () async {
-      var controller = new StreamController(
-          onCancel: () => new Future.value(42));
-      var events = new StreamQueue<int>(controller.stream);
-      expect(await events.cancelImmediately(), 42);
-    });
+      test("returns the result of closing the underlying subscription",
+          () async {
+        var controller = new StreamController(
+            onCancel: () => new Future.value(42));
+        var events = new StreamQueue<int>(controller.stream);
+        expect(await events.cancel(immediate: true), 42);
+      });
 
-    test("listens and then cancels a stream that hasn't been listened to yet",
-        () async {
-      var wasListened = false;
-      var controller = new StreamController(
-          onListen: () => wasListened = true);
-      var events = new StreamQueue<int>(controller.stream);
-      expect(wasListened, isFalse);
-      expect(controller.hasListener, isFalse);
+      test("listens and then cancels a stream that hasn't been listened to yet",
+          () async {
+        var wasListened = false;
+        var controller = new StreamController(
+            onListen: () => wasListened = true);
+        var events = new StreamQueue<int>(controller.stream);
+        expect(wasListened, isFalse);
+        expect(controller.hasListener, isFalse);
 
-      await events.cancelImmediately();
-      expect(wasListened, isTrue);
-      expect(controller.hasListener, isFalse);
+        await events.cancel(immediate: true);
+        expect(wasListened, isTrue);
+        expect(controller.hasListener, isFalse);
+      });
     });
   });
 
