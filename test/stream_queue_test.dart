@@ -344,6 +344,14 @@ main() {
       expect(() => events.cancel(), throwsStateError);
     });
 
+    test("cancels underlying subscription when called before any event",
+        () async {
+      var cancelFuture = new Future.value(42);
+      var controller = new StreamController(onCancel: () => cancelFuture);
+      var events = new StreamQueue<int>(controller.stream);
+      expect(await events.cancel(), 42);
+    });
+
     test("cancels underlying subscription, returns result", () async {
       var cancelFuture = new Future.value(42);
       var controller = new StreamController(onCancel: () => cancelFuture);
@@ -353,7 +361,7 @@ main() {
       expect(await events.cancel(), 42);
     });
 
-    group("with immediate: true", () async {
+    group("with immediate: true", () {
       test("closes the events, prevents any other operation", () async {
         var events = new StreamQueue<int>(createStream());
         await events.cancel(immediate: true);
@@ -374,6 +382,15 @@ main() {
 
         events.cancel(immediate: true);
         await expect(controller.hasListener, isFalse);
+      });
+
+      test("cancels the underlying subscription when called before any event",
+          () async {
+        var cancelFuture = new Future.value(42);
+        var controller = new StreamController(onCancel: () => cancelFuture);
+
+        var events = new StreamQueue<int>(controller.stream);
+        expect(await events.cancel(immediate: true), 42);
       });
 
       test("closes pending requests", () async {

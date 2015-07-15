@@ -530,9 +530,10 @@ class _CancelRequest implements _EventRequest {
   }
 
   void _shutdown() {
-    if (_streamQueue._subscription == null) {
+    if (_streamQueue._isDone) {
       _completer.complete();
     } else {
+      _streamQueue._ensureListening();
       _completer.complete(_streamQueue._dispose().cancel());
     }
   }
