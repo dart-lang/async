@@ -10,9 +10,6 @@
 - Added `SubscriptionStream` which creates a single-subscription stream
   from an existing stream subscription.
 
-- Added `ForkableStream` which wraps a stream and allows independent forks to be
-  created that emit the same events as the original.
-
 - Added a `ResultFuture` class for synchronously accessing the result of a
   wrapped future.
 

@@ -7,7 +7,6 @@ library async.stream_events;
 import 'dart:async';
 import 'dart:collection';
 
-import "forkable_stream.dart";
 import "subscription_stream.dart";
 import "stream_completer.dart";
 import "../result.dart";
@@ -79,7 +78,7 @@ class StreamQueue<T> {
   // by the content of the fifth event.
 
   /// Source of events.
-  final ForkableStream _sourceStream;
+  final Stream _sourceStream;
 
   /// Subscription on [_sourceStream] while listening for events.
   ///
@@ -105,9 +104,7 @@ class StreamQueue<T> {
 
   /// Create a `StreamQueue` of the events of [source].
   StreamQueue(Stream source)
-      : _sourceStream = source is ForkableStream
-          ? source
-          : new ForkableStream(source);
+      : _sourceStream = source;
 
   /// Asks if the stream has any more events.
   ///
@@ -219,22 +216,6 @@ class StreamQueue<T> {
     throw _failClosed();
   }
 
-  /// Creates a new stream queue in the same position as this one.
-  ///
-  /// The fork is subscribed to the same underlying stream as this queue, but
-  /// it's otherwise wholly independent. If requests are made on one, they don't
-  /// move the other forward; if one is closed, the other is still open.
-  ///
-  /// The underlying stream will only be paused when all forks have no
-  /// outstanding requests, and only canceled when all forks are canceled.
-  StreamQueue<T> fork() {
-    if (_isClosed) throw _failClosed();
-
-    var request = new _ForkRequest<T>(this);
-    _addRequest(request);
-    return request.queue;
-  }
-
   /// Cancels the underlying stream subscription.
   ///
   /// If [immediate] is `false` (the default), the cancel operation waits until
@@ -255,15 +236,14 @@ class StreamQueue<T> {
     if (_isClosed) throw _failClosed();
     _isClosed = true;
 
-    if (_isDone) return new Future.value();
-    if (_subscription == null) _subscription = _sourceStream.listen(null);
-
     if (!immediate) {
       var request = new _CancelRequest(this);
       _addRequest(request);
       return request.future;
     }
 
+    if (_isDone) return new Future.value();
+    if (_subscription == null) _subscription = _sourceStream.listen(null);
     var future = _subscription.cancel();
     _onDone();
     return future;
@@ -353,7 +333,6 @@ class StreamQueue<T> {
         return;
       }
     }
-
     if (!_isDone) {
       _subscription.pause();
     }
@@ -647,52 +626,5 @@ class _HasNextRequest<T> implements _EventRequest {
 
   void close(_) {
     _completer.complete(false);
-  }
-}
-
-/// Request for a [StreamQueue.fork] call.
-class _ForkRequest<T> implements _EventRequest {
-  /// Completer for the stream used by the queue by the `fork` call.
-  StreamCompleter _completer;
-
-  StreamQueue<T> queue;
-
-  /// The [StreamQueue] object that has this request queued.
-  final StreamQueue _streamQueue;
-
-  _ForkRequest(this._streamQueue) {
-    _completer = new StreamCompleter<T>();
-    queue = new StreamQueue<T>(_completer.stream);
-  }
-
-  bool addEvents(Queue<Result> events) {
-    _completeStream(events);
-    return true;
-  }
-
-  void close(Queue<Result> events) {
-    _completeStream(events);
-  }
-
-  void _completeStream(Queue<Result> events) {
-    if (events.isEmpty) {
-      if (_streamQueue._isDone) {
-        _completer.setEmpty();
-      } else {
-        _completer.setSourceStream(_streamQueue._sourceStream.fork());
-      }
-    } else {
-      // There are prefetched events which need to be added before the
-      // remaining stream.
-      var controller = new StreamController<T>();
-      for (var event in events) {
-        event.addTo(controller);
-      }
-
-      var fork = _streamQueue._sourceStream.fork();
-      controller.addStream(fork, cancelOnError: false)
-          .whenComplete(controller.close);
-      _completer.setSourceStream(controller.stream);
-    }
   }
 }
