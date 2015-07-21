@@ -223,8 +223,8 @@ class StreamQueue<T> {
   /// subscription providing the events.
   ///
   /// If [immediate] is `true`, the subscription is instead canceled
-  /// immediately. Any pending events are completed as though the underlying
-  /// stream had closed.
+  /// immediately. Any pending events complete with a 'closed'-event, as though
+  /// the stream had closed by itself.
   ///
   /// The returned future completes with the result of calling
   /// `cancel`.
