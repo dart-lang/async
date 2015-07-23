@@ -15,7 +15,11 @@ class DelegatingSink<T> implements Sink<T> {
   DelegatingSink(Sink sink)
       : _sink = sink;
 
-  void add(T data) => _sink.add(data);
+  void add(T data) {
+    _sink.add(data);
+  }
 
-  void close() => _sink.close();
+  void close() {
+    _sink.close();
+  }
 }

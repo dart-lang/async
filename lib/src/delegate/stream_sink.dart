@@ -19,10 +19,13 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   DelegatingStreamSink(StreamSink sink)
       : _sink = sink;
 
-  void add(T data) => _sink.add(data);
+  void add(T data) {
+    _sink.add(data);
+  }
 
-  void addError(error, [StackTrace stackTrace]) =>
-      _sink.addError(error, stackTrace);
+  void addError(error, [StackTrace stackTrace]) {
+    _sink.addError(error, stackTrace);
+  }
 
   Future addStream(Stream<T> stream) => _sink.addStream(stream);
 

@@ -16,10 +16,15 @@ class DelegatingEventSink<T> implements EventSink<T> {
   /// Create a delegating sink forwarding calls to [sink].
   DelegatingEventSink(EventSink sink) : _sink = sink;
 
-  void add(T data) => _sink.add(data);
+  void add(T data) {
+    _sink.add(data);
+  }
 
-  void addError(error, [StackTrace stackTrace]) =>
-      _sink.addError(error, stackTrace);
+  void addError(error, [StackTrace stackTrace]) {
+    _sink.addError(error, stackTrace);
+  }
 
-  void close() => _sink.close();
+  void close() {
+    _sink.close();
+  }
 }
