@@ -6,6 +6,7 @@ library dart.pkg.async;
 
 export "result.dart";
 export "src/async_memoizer.dart";
+export "src/cancelable_operation.dart";
 export "src/delegate/event_sink.dart";
 export "src/delegate/future.dart";
 export "src/delegate/sink.dart";
