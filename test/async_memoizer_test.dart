@@ -21,16 +21,19 @@ main() {
   });
 
   test("forwards the return value from the function", () async {
+    expect(cache.future, completion(equals("value")));
     expect(cache.runOnce(() => "value"), completion(equals("value")));
     expect(cache.runOnce(() {}), completion(equals("value")));
   });
 
   test("forwards the return value from an async function", () async {
+    expect(cache.future, completion(equals("value")));
     expect(cache.runOnce(() async => "value"), completion(equals("value")));
     expect(cache.runOnce(() {}), completion(equals("value")));
   });
 
   test("forwards the error from an async function", () async {
+    expect(cache.future, throwsA("error"));
     expect(cache.runOnce(() async => throw "error"), throwsA("error"));
     expect(cache.runOnce(() {}), throwsA("error"));
   });

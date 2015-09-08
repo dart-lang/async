@@ -1,3 +1,8 @@
+## 1.4.0
+
+- Added `AsyncMemoizer.future`, which allows the result to be accessed before
+  `runOnce()` is called.
+
 ## 1.3.0
 
 - Added `StreamCompleter` class for creating a stream now and providing its

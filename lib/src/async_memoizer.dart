@@ -31,17 +31,18 @@ import 'dart:async';
 class AsyncMemoizer<T> {
   /// The future containing the method's result.
   ///
-  /// This will be `null` if [run] hasn't been called yet.
-  Future<T> _future;
+  /// This can be accessed at any time, and will fire once [runOnce] is called.
+  Future<T> get future => _completer.future;
+  final _completer = new Completer();
 
   /// Whether [run] has been called yet.
-  bool get hasRun => _future != null;
+  bool get hasRun => _completer.isCompleted;
 
   /// Runs the function, [computation], if it hasn't been run before.
   ///
   /// If [run] has already been called, this returns the original result.
   Future<T> runOnce(computation()) {
-    if (_future == null) _future = new Future.sync(computation);
-    return _future;
+    if (!hasRun) _completer.complete(new Future.sync(computation));
+    return future;
   }
 }
