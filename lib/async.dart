@@ -14,6 +14,7 @@ export "src/delegate/stream_consumer.dart";
 export "src/delegate/stream_sink.dart";
 export "src/delegate/stream_subscription.dart";
 export "src/future_group.dart";
+export "src/restartable_timer.dart";
 export "src/result_future.dart";
 export "src/stream_completer.dart";
 export "src/stream_group.dart";

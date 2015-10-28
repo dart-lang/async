@@ -3,6 +3,9 @@
 - Added `AsyncMemoizer.future`, which allows the result to be accessed before
   `runOnce()` is called.
 
+- Added `RestartableTimer`, a non-periodic timer that can be reset over and
+  over.
+
 ## 1.3.0
 
 - Added `StreamCompleter` class for creating a stream now and providing its
