@@ -3,6 +3,9 @@
 - Added `AsyncMemoizer.future`, which allows the result to be accessed before
   `runOnce()` is called.
 
+- Added `CancelableOperation`, an asynchronous operation that can be canceled.
+  It can be created using a `CancelableCompleter`.
+
 - Added `RestartableTimer`, a non-periodic timer that can be reset over and
   over.
 

@@ -8,7 +8,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 
-/// An asynchronuos operation that can be cancelled.
+/// An asynchronous operation that can be cancelled.
 ///
 /// The value of this operation is exposed as [value]. When this operation is
 /// cancelled, [value] won't complete either successfully or with an error. If
