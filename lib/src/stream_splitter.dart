@@ -5,7 +5,6 @@
 library async.stream_splitter;
 
 import 'dart:async';
-import 'dart:collection';
 
 import '../result.dart';
 import 'future_group.dart';

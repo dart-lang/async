@@ -10,7 +10,7 @@ import "delegate/stream_subscription.dart";
 
 /// A [Stream] adapter for a [StreamSubscription].
 ///
-/// This class allows as `StreamSubscription` to be treated as a `Stream`.
+/// This class allows a `StreamSubscription` to be treated as a `Stream`.
 ///
 /// The subscription is paused until the stream is listened to,
 /// then it is resumed and the events are passed on to the

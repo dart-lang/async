@@ -1,5 +1,10 @@
 ## 1.4.0
 
+- Added `LazyStream`, which forwards to the return value of a callback that's
+  only called when the stream is listened to.
+
+## 1.4.0
+
 - Added `AsyncMemoizer.future`, which allows the result to be accessed before
   `runOnce()` is called.
 
