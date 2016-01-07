@@ -45,6 +45,16 @@ void main() {
       expect(completer.isCompleted, isTrue);
     });
 
+    test("sends values to valueOrCancellation", () {
+      expect(completer.operation.valueOrCancellation(), completion(equals(1)));
+      completer.complete(1);
+    });
+
+    test("sends errors to valueOrCancellation", () {
+      expect(completer.operation.valueOrCancellation(), throwsA("error"));
+      completer.completeError("error");
+    });
+
     group("throws a StateError if completed", () {
       test("successfully twice", () {
         completer.complete(1);
@@ -167,6 +177,38 @@ void main() {
       await completer.operation.cancel();
       completer.complete(1);
       expect(() => completer.complete(1), throwsStateError);
+    });
+
+    test("fires valueOrCancellation with the given value", () {
+      var completer = new CancelableCompleter();
+      expect(completer.operation.valueOrCancellation(1), completion(equals(1)));
+      completer.operation.cancel();
+    });
+
+    test("pipes an error through valueOrCancellation", () {
+      var completer = new CancelableCompleter(onCancel: () {
+        throw "error";
+      });
+      expect(completer.operation.valueOrCancellation(1), throwsA("error"));
+      completer.operation.cancel();
+    });
+
+    test("valueOrCancellation waits on the onCancel future", () async {
+      var innerCompleter = new Completer();
+      var completer = new CancelableCompleter(onCancel: () => innerCompleter.future);
+
+      var fired = false;
+      completer.operation.valueOrCancellation().then((_) {
+        fired = true;
+      });
+
+      completer.operation.cancel();
+      await flushMicrotasks();
+      expect(fired, isFalse);
+
+      innerCompleter.complete();
+      await flushMicrotasks();
+      expect(fired, isTrue);
     });
   });
 

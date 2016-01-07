@@ -1,4 +1,9 @@
-## 1.4.0
+## 1.6.0
+
+- Added `CancelableOperation.valueOrCancellation()`, which allows users to be
+  notified when an operation is canceled elsewhere.
+
+## 1.5.0
 
 - Added `LazyStream`, which forwards to the return value of a callback that's
   only called when the stream is listened to.

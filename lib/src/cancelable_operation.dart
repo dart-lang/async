@@ -57,6 +57,24 @@ class CancelableOperation<T> {
     return controller.stream;
   }
 
+  /// Creates a [Future] that completes when this operation completes *or* when
+  /// it's cancelled.
+  ///
+  /// If this operation completes, this completes to the same result as [value].
+  /// If this operation is cancelled, the returned future waits for the future
+  /// returned by [cancel], then completes to [cancellationValue].
+  Future valueOrCancellation([T cancellationValue]) {
+    var completer = new Completer.sync();
+
+    value.then(completer.complete, onError: completer.completeError);
+
+    _completer._cancelMemo.future.then((_) {
+      completer.complete(cancellationValue);
+    }, onError: completer.completeError);
+
+    return completer.future;
+  }
+
   /// Cancels this operation.
   ///
   /// This returns the [Future] returned by the [CancelableCompleter]'s
@@ -140,9 +158,12 @@ class CancelableCompleter<T> {
   }
 
   /// Cancel the completer.
-  Future _cancel() => _cancelMemo.runOnce(() {
-    if (_inner.isCompleted) return null;
-    _isCanceled = true;
-    if (_onCancel != null) return _onCancel();
-  });
+  Future _cancel() {
+    if (_inner.isCompleted) return new Future.value();
+
+    return _cancelMemo.runOnce(() {
+      _isCanceled = true;
+      if (_onCancel != null) return _onCancel();
+    });
+  }
 }
