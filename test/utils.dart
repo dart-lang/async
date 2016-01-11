@@ -24,3 +24,19 @@ class UnusableStream extends Stream {
     throw new UnimplementedError("Gotcha!");
   }
 }
+
+/// A dummy [StreamSink] for testing the routing of the [done] and [close]
+/// futures.
+///
+/// The [completer] field allows the user to control the future returned by
+/// [done] and [close].
+class CompleterStreamSink<T> implements StreamSink<T> {
+  final completer = new Completer();
+
+  Future get done => completer.future;
+
+  void add(T event) {}
+  void addError(error, [StackTrace stackTrace]) {}
+  Future addStream(Stream<T> stream) async {}
+  Future close() => completer.future;
+}

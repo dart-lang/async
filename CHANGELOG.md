@@ -3,6 +3,10 @@
 - Added `CancelableOperation.valueOrCancellation()`, which allows users to be
   notified when an operation is canceled elsewhere.
 
+- Added `StreamSinkTransformer` which transforms events before they're passed to
+  a `StreamSink`, similarly to how `StreamTransformer` transforms events after
+  they're emitted by a stream.
+
 ## 1.5.0
 
 - Added `LazyStream`, which forwards to the return value of a callback that's
