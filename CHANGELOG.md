@@ -1,3 +1,8 @@
+## 1.7.0
+
+- Added `SingleSubscriptionTransformer`, a `StreamTransformer` that converts a
+  broadcast stream into a single-subscription stream.
+
 ## 1.6.0
 
 - Added `CancelableOperation.valueOrCancellation()`, which allows users to be

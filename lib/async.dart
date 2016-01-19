@@ -17,6 +17,7 @@ export "src/future_group.dart";
 export "src/lazy_stream.dart";
 export "src/restartable_timer.dart";
 export "src/result_future.dart";
+export "src/single_subscription_transformer.dart";
 export "src/stream_completer.dart";
 export "src/stream_group.dart";
 export "src/stream_queue.dart";
