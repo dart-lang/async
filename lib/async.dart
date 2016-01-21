@@ -21,6 +21,7 @@ export "src/single_subscription_transformer.dart";
 export "src/stream_completer.dart";
 export "src/stream_group.dart";
 export "src/stream_queue.dart";
+export "src/stream_sink_completer.dart";
 export "src/stream_sink_transformer.dart";
 export "src/stream_splitter.dart";
 export "src/subscription_stream.dart";

@@ -1,3 +1,8 @@
+## 1.8.0
+
+- Added `StreamSinkCompleter`, for creating a `StreamSink` now and providing its
+  destination later as another sink.
+
 ## 1.7.0
 
 - Added `SingleSubscriptionTransformer`, a `StreamTransformer` that converts a
