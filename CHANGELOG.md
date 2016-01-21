@@ -69,6 +69,9 @@
 - Added a `StreamGroup` class for merging the events of a group of streams,
   potentially of unknown size.
 
+- Added a `StreamSplitter` class for splitting a stream into multiple new
+  streams.
+
 ## 1.1.1
 
 - Updated SDK version constraint to at least 1.9.0.
