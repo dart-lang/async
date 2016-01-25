@@ -3,6 +3,12 @@
 - Added `StreamSinkCompleter`, for creating a `StreamSink` now and providing its
   destination later as another sink.
 
+- Added `StreamCompleter.setError`, a shortcut for emitting a single error event
+  on the resulting stream.
+
+- Added `NullStreamSink`, an implementation of `StreamSink` that discards all
+  events.
+
 ## 1.7.0
 
 - Added `SingleSubscriptionTransformer`, a `StreamTransformer` that converts a

@@ -6,6 +6,8 @@ library async.stream_sink_completer;
 
 import 'dart:async';
 
+import 'null_stream_sink.dart';
+
 /// A [sink] where the destination is provided later.
 ///
 /// The [sink] is a normal sink that you can add events to to immediately, but
@@ -29,6 +31,20 @@ class StreamSinkCompleter<T> {
   /// Returns [sink] typed as a [_CompleterSink].
   _CompleterSink<T> get _sink => sink;
 
+  /// Convert a `Future<StreamSink>` to a `StreamSink`.
+  ///
+  /// This creates a sink using a sink completer, and sets the destination sink
+  /// to the result of the future when the future completes.
+  ///
+  /// If the future completes with an error, the returned sink will instead
+  /// be closed. Its [Sink.done] future will contain the error.
+  static StreamSink fromFuture(Future<StreamSink> sinkFuture) {
+    var completer = new StreamSinkCompleter();
+    sinkFuture.then(completer.setDestinationSink,
+        onError: completer.setError);
+    return completer.sink;
+  }
+
   /// Sets a sink as the destination for events from the [StreamSinkCompleter]'s
   /// [sink].
   ///
@@ -41,11 +57,24 @@ class StreamSinkCompleter<T> {
   /// buffered until the destination is available.
   ///
   /// A destination sink may be set at most once.
+  ///
+  /// Either of [setDestinationSink] or [setError] may be called at most once.
+  /// Trying to call either of them again will fail.
   void setDestinationSink(StreamSink<T> destinationSink) {
     if (_sink._destinationSink != null) {
       throw new StateError("Destination sink already set");
     }
     _sink._setDestinationSink(destinationSink);
+  }
+
+  /// Completes this to a closed sink whose [Sink.done] future emits [error].
+  ///
+  /// This is useful when the process of loading the sink fails.
+  ///
+  /// Either of [setDestinationSink] or [setError] may be called at most once.
+  /// Trying to call either of them again will fail.
+  void setError(error, [StackTrace stackTrace]) {
+    setDestinationSink(new NullStreamSink.error(error, stackTrace));
   }
 }
 

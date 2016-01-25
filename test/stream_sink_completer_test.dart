@@ -245,6 +245,48 @@ main() {
     expect(completer.sink.close(), completes);
   });
 
+  group("fromFuture()", () {
+    test("with a successful completion", () async {
+      var futureCompleter = new Completer();
+      var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
+      sink.add(1);
+      sink.add(2);
+      sink.add(3);
+      sink.close();
+
+      var testSink = new TestSink();
+      futureCompleter.complete(testSink);
+      await testSink.done;
+
+      expect(testSink.results[0].asValue.value, equals(1));
+      expect(testSink.results[1].asValue.value, equals(2));
+      expect(testSink.results[2].asValue.value, equals(3));
+    });
+
+    test("with an error", () async {
+      var futureCompleter = new Completer();
+      var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
+      expect(sink.done, throwsA("oh no"));
+      futureCompleter.completeError("oh no");
+    });
+  });
+
+  group("setError()", () {
+    test("produces a closed sink with the error", () {
+      completer.setError("oh no");
+      expect(completer.sink.done, throwsA("oh no"));
+      expect(completer.sink.close(), throwsA("oh no"));
+    });
+
+    test("produces an error even if done was accessed earlier", () async {
+      expect(completer.sink.done, throwsA("oh no"));
+      expect(completer.sink.close(), throwsA("oh no"));
+      await flushMicrotasks();
+
+      completer.setError("oh no");
+    });
+  });
+
   test("doesn't allow the destination sink to be set multiple times", () {
     completer.setDestinationSink(new TestSink());
     expect(() => completer.setDestinationSink(new TestSink()),

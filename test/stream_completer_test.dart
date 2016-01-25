@@ -337,6 +337,34 @@ main() {
     });
     expect(controller.hasListener, isFalse);
   });
+
+  group("setError()", () {
+    test("produces a stream that emits a single error", () {
+      var completer = new StreamCompleter();
+      completer.stream.listen(
+          unreachable("data"),
+          onError: expectAsync((error, stackTrace) {
+            expect(error, equals("oh no"));
+          }),
+          onDone: expectAsync(() {}));
+
+      completer.setError("oh no");
+    });
+
+    test("produces a stream that emits a single error on a later listen",
+        () async {
+      var completer = new StreamCompleter();
+      completer.setError("oh no");
+      await flushMicrotasks();
+
+      completer.stream.listen(
+          unreachable("data"),
+          onError: expectAsync((error, stackTrace) {
+            expect(error, equals("oh no"));
+          }),
+          onDone: expectAsync(() {}));
+    });
+  });
 }
 
 Stream<int> createStream() async* {

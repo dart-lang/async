@@ -15,6 +15,7 @@ export "src/delegate/stream_sink.dart";
 export "src/delegate/stream_subscription.dart";
 export "src/future_group.dart";
 export "src/lazy_stream.dart";
+export "src/null_stream_sink.dart";
 export "src/restartable_timer.dart";
 export "src/result_future.dart";
 export "src/single_subscription_transformer.dart";

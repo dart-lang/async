@@ -39,9 +39,7 @@ class StreamCompleter<T> {
   static Stream fromFuture(Future<Stream> streamFuture) {
     var completer = new StreamCompleter();
     streamFuture.then(completer.setSourceStream,
-                      onError: (e, s) {
-                        completer.setSourceStream(streamFuture.asStream());
-                      });
+        onError: completer.setError);
     return completer.stream;
   }
 
@@ -76,8 +74,8 @@ class StreamCompleter<T> {
   /// it is immediately listened to, and its events are forwarded to the
   /// existing subscription.
   ///
-  /// Either [setSourceStream] or [setEmpty] may be called at most once.
-  /// Trying to call either of them again will fail.
+  /// Any one of [setSourceStream], [setEmpty], and [setError] may be called at
+  /// most once. Trying to call any of them again will fail.
   void setSourceStream(Stream<T> sourceStream) {
     if (_stream._isSourceStreamSet) {
       throw new StateError("Source stream already set");
@@ -87,13 +85,23 @@ class StreamCompleter<T> {
 
   /// Equivalent to setting an empty stream using [setSourceStream].
   ///
-  /// Either [setSourceStream] or [setEmpty] may be called at most once.
-  /// Trying to call either of them again will fail.
+  /// Any one of [setSourceStream], [setEmpty], and [setError] may be called at
+  /// most once. Trying to call any of them again will fail.
   void setEmpty() {
     if (_stream._isSourceStreamSet) {
       throw new StateError("Source stream already set");
     }
     _stream._setEmpty();
+  }
+
+  /// Completes this to a stream that emits [error] and then closes.
+  ///
+  /// This is useful when the process of creating the data for the stream fails.
+  ///
+  /// Any one of [setSourceStream], [setEmpty], and [setError] may be called at
+  /// most once. Trying to call any of them again will fail.
+  void setError(error, [StackTrace stackTrace]) {
+    setSourceStream(new Stream.fromFuture(new Future.error(error, stackTrace)));
   }
 }
 
