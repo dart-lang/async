@@ -2,14 +2,12 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.stream_events;
-
 import 'dart:async';
 import 'dart:collection';
 
+import "result.dart";
 import "subscription_stream.dart";
 import "stream_completer.dart";
-import "../result.dart";
 
 /// An asynchronous pull-based interface for accessing stream events.
 ///

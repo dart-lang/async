@@ -5,7 +5,7 @@
 import "dart:async";
 import "dart:collection";
 
-import "package:async/result.dart";
+import "package:async/async.dart";
 import "package:stack_trace/stack_trace.dart";
 import "package:test/test.dart";
 

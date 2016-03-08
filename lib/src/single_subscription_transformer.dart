@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.single_subscription_transformer;
-
 import 'dart:async';
 
 /// A transformer that converts a broadcast stream into a single-subscription

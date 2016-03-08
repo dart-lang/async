@@ -1,3 +1,16 @@
+## 1.9.0
+
+* Deprecate top-level libraries other than `package:async/async.dart`, which
+  exports these libraries' interfaces.
+
+* Add `Result.captureStreamTransformer`, `Result.releaseStreamTransformer`,
+  `Result.captureSinkTransformer`, and `Result.releaseSinkTransformer`.
+
+* Deprecate `CaptureStreamTransformer`, `ReleaseStreamTransformer`,
+  `CaptureSink`, and `ReleaseSink`. `Result.captureStreamTransformer`,
+  `Result.releaseStreamTransformer`, `Result.captureSinkTransformer`, and
+  `Result.releaseSinkTransformer` should be used instead.
+
 ## 1.8.0
 
 - Added `StreamSinkCompleter`, for creating a `StreamSink` now and providing its

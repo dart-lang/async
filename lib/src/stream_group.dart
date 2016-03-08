@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.stream_group;
-
 import 'dart:async';
 
 /// A collection of streams whose events are unified and sent through a central

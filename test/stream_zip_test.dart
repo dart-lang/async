@@ -3,7 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import "dart:async";
-import "package:async/stream_zip.dart";
+
+import "package:async/async.dart";
 import "package:test/test.dart";
 
 /// Create an error with the same values as [base], except that it throwsA

@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.future_group;
-
 import 'dart:async';
 
 /// A collection of futures waits until all added [Future]s complete.
@@ -35,7 +33,7 @@ class FutureGroup<T> implements Sink<Future<T>> {
   Future<List<T>> get future => _completer.future;
   final _completer = new Completer<List<T>>();
 
-  /// Whether this group is waiting on any futures.
+  /// Whether this group has no pending futures.
   bool get isIdle => _pending == 0;
 
   /// A broadcast stream that emits a `null` event whenever the last pending

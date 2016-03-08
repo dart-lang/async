@@ -2,12 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.result_future;
-
 import 'dart:async';
 
+import '../delegate/future.dart';
 import '../result.dart';
-import 'delegate/future.dart';
 
 /// A [Future] wrapper that provides synchronous access to the result of the
 /// wrapped [Future] once it's completed.

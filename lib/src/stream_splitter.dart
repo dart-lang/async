@@ -2,12 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library async.stream_splitter;
-
 import 'dart:async';
 
-import '../result.dart';
 import 'future_group.dart';
+import 'result.dart';
 
 /// A class that splits a single source stream into an arbitrary number of
 /// (single-subscription) streams (called "branch") that emit the same events.
