@@ -54,11 +54,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 
   void add(S event) {
     if (_transformer._handleData == null) {
-      // [event] is an S and [_inner.add] takes a T. This style of conversion
-      // will throw an error in checked mode if [_inner] is actually a
-      // [StreamSink<T>], but will work if [_inner] isn't reified and won't add
-      // an extra check in unchecked mode.
-      _inner.add(event as dynamic);
+      _inner.add(event as T);
     } else {
       _transformer._handleData(event, _safeCloseInner);
     }

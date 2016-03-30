@@ -17,22 +17,22 @@ class StreamZip<T> extends Stream<List<T>> {
 
   StreamZip(Iterable<Stream<T>> streams) : _streams = streams;
 
-  StreamSubscription<List<T>> listen(void onData(List data), {
+  StreamSubscription<List<T>> listen(void onData(List<T> data), {
                                   Function onError,
                                   void onDone(),
                                   bool cancelOnError}) {
     cancelOnError = identical(true, cancelOnError);
-    List<StreamSubscription> subscriptions = <StreamSubscription>[];
-    StreamController controller;
-    List current;
+    var subscriptions = <StreamSubscription<T>>[];
+    StreamController<List<T>> controller;
+    List<T> current;
     int dataCount = 0;
 
     /// Called for each data from a subscription in [subscriptions].
-    void handleData(int index, data) {
+    void handleData(int index, T data) {
       current[index] = data;
       dataCount++;
       if (dataCount == subscriptions.length) {
-        List data = current;
+        var data = current;
         current = new List(subscriptions.length);
         dataCount = 0;
         for (int i = 0; i < subscriptions.length; i++) {
@@ -70,7 +70,7 @@ class StreamZip<T> extends Stream<List<T>> {
     }
 
     try {
-      for (Stream stream in _streams) {
+      for (var stream in _streams) {
         int index = subscriptions.length;
         subscriptions.add(stream.listen(
             (data) { handleData(index, data); },
@@ -87,7 +87,7 @@ class StreamZip<T> extends Stream<List<T>> {
 
     current = new List(subscriptions.length);
 
-    controller = new StreamController<List>(
+    controller = new StreamController<List<T>>(
       onPause: () {
         for (int i = 0; i < subscriptions.length; i++) {
           // This may pause some subscriptions more than once.

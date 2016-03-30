@@ -14,7 +14,7 @@ class ValueResult<T> implements Result<T> {
   bool get isValue => true;
   bool get isError => false;
   ValueResult<T> get asValue => this;
-  ErrorResult get asError => null;
+  ErrorResult<T> get asError => null;
 
   ValueResult(this.value);
 

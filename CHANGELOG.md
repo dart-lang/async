@@ -1,3 +1,21 @@
+## 1.9.1
+
+* Fix all strong mode warnings and add generic method annotations.
+
+* `new StreamQueue()` now takes a `Stream<T>` rather than a `Stream<dynamic>`.
+  Passing a type that wasn't `is`-compatible with `Stream<T>` would already
+  throw an error under some circumstances, so this is not considered a breaking
+  change.
+
+* `new SubscriptionStream()` now takes a `Stream<T>` rather than a
+  `Stream<dynamic>`. Passing a type that wasn't `is`-compatible with `Stream<T>`
+  would already throw an error under some circumstances, so this is not
+  considered a breaking change.
+
+* `ErrorResult` now takes a type parameter.
+
+* `Result.asError` now returns a `Result<T>`.
+
 ## 1.9.0
 
 * Deprecate top-level libraries other than `package:async/async.dart`, which

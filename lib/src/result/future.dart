@@ -20,11 +20,12 @@ class ResultFuture<T> extends DelegatingFuture<T> {
   Result<T> _result;
 
   factory ResultFuture(Future<T> future) {
-    var resultFuture;
-    resultFuture = new ResultFuture._(Result.capture(future).then((result) {
+    ResultFuture<T> resultFuture;
+    resultFuture = new ResultFuture._(() async {
+      var result = await Result.capture(future);
       resultFuture._result = result;
-      return result.asFuture;
-    }));
+      return await result.asFuture;
+    }());
     return resultFuture;
   }
 

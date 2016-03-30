@@ -31,7 +31,7 @@ class AsyncMemoizer<T> {
   ///
   /// This can be accessed at any time, and will fire once [runOnce] is called.
   Future<T> get future => _completer.future;
-  final _completer = new Completer();
+  final _completer = new Completer<T>();
 
   /// Whether [runOnce] has been called yet.
   bool get hasRun => _completer.isCompleted;

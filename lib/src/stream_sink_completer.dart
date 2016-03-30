@@ -36,8 +36,9 @@ class StreamSinkCompleter<T> {
   ///
   /// If the future completes with an error, the returned sink will instead
   /// be closed. Its [Sink.done] future will contain the error.
-  static StreamSink fromFuture(Future<StreamSink> sinkFuture) {
-    var completer = new StreamSinkCompleter();
+  static StreamSink/*<T>*/ fromFuture/*<T>*/(
+      Future<StreamSink/*<T>*/> sinkFuture) {
+    var completer = new StreamSinkCompleter/*<T>*/();
     sinkFuture.then(completer.setDestinationSink,
         onError: completer.setError);
     return completer.sink;

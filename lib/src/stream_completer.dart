@@ -24,7 +24,7 @@ import "dart:async";
 /// the listen is performed directly on the source stream.
 class StreamCompleter<T> {
   /// The stream doing the actual work, is returned by [stream].
-  final _CompleterStream _stream = new _CompleterStream<T>();
+  final _stream = new _CompleterStream<T>();
 
   /// Convert a `Future<Stream>` to a `Stream`.
   ///
@@ -34,8 +34,8 @@ class StreamCompleter<T> {
   ///
   /// If the future completes with an error, the returned stream will
   /// instead contain just that error.
-  static Stream fromFuture(Future<Stream> streamFuture) {
-    var completer = new StreamCompleter();
+  static Stream/*<T>*/ fromFuture/*<T>*/(Future<Stream/*<T>*/> streamFuture) {
+    var completer = new StreamCompleter/*<T>*/();
     streamFuture.then(completer.setSourceStream,
         onError: completer.setError);
     return completer.stream;
@@ -109,13 +109,13 @@ class _CompleterStream<T> extends Stream<T> {
   ///
   /// Created if the user listens on this stream before the source stream
   /// is set, or if using [_setEmpty] so there is no source stream.
-  StreamController _controller;
+  StreamController<T> _controller;
 
   /// Source stream for the events provided by this stream.
   ///
   /// Set when the completer sets the source stream using [_setSourceStream]
   /// or [_setEmpty].
-  Stream _sourceStream;
+  Stream<T> _sourceStream;
 
   StreamSubscription<T> listen(onData(T data),
                                {Function onError,

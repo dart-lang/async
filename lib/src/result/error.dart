@@ -8,14 +8,14 @@ import '../result.dart';
 import 'value.dart';
 
 /// A result representing a thrown error.
-class ErrorResult implements Result {
+class ErrorResult<T> implements Result<T> {
   final error;
   final StackTrace stackTrace;
 
   bool get isValue => false;
   bool get isError => true;
-  ValueResult get asValue => null;
-  ErrorResult get asError => this;
+  ValueResult<T> get asValue => null;
+  ErrorResult<T> get asError => this;
 
   ErrorResult(this.error, this.stackTrace);
 
@@ -27,7 +27,7 @@ class ErrorResult implements Result {
     sink.addError(error, stackTrace);
   }
 
-  Future get asFuture => new Future.error(error, stackTrace);
+  Future<T> get asFuture => new Future.error(error, stackTrace);
 
   /// Calls an error handler with the error and stacktrace.
   ///

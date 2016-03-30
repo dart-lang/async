@@ -12,8 +12,8 @@ import 'dart:async';
 /// this means that events emitted by broadcast streams will be dropped until
 /// [stream] has a listener.**
 ///
-/// If the `StreamGroup` is constructed using [new StreamGroup], [stream] will be
-/// single-subscription. In this case, if [stream] is paused or canceled, all
+/// If the `StreamGroup` is constructed using [new StreamGroup], [stream] will
+/// be single-subscription. In this case, if [stream] is paused or canceled, all
 /// streams in the group will likewise be paused or canceled, respectively.
 ///
 /// If the `StreamGroup` is constructed using [new StreamGroup.broadcast],
@@ -53,8 +53,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// This is equivalent to adding [streams] to a group, closing that group, and
   /// returning its stream.
-  static Stream merge(Iterable<Stream> streams) {
-    var group = new StreamGroup();
+  static Stream/*<T>*/ merge/*<T>*/(Iterable<Stream/*<T>*/> streams) {
+    var group = new StreamGroup/*<T>*/();
     streams.forEach(group.add);
     group.close();
     return group.stream;
@@ -192,7 +192,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// Starts actively forwarding events from [stream] to [_controller].
   ///
   /// This will pause the resulting subscription if [this] is paused.
-  StreamSubscription _listenToStream(Stream stream) {
+  StreamSubscription<T> _listenToStream(Stream<T> stream) {
     var subscription = stream.listen(
         _controller.add,
         onError: _controller.addError,

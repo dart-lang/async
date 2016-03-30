@@ -72,20 +72,14 @@ abstract class Result<T> {
   factory Result.error(Object error, [StackTrace stackTrace]) =>
       new ErrorResult(error, stackTrace);
 
-  // Helper functions.
-  static _captureValue(value) => new ValueResult(value);
-  static _captureError(error, stack) => new ErrorResult(error, stack);
-  static _release(Result v) {
-    if (v.isValue) return v.asValue.value;  // Avoid wrapping in future.
-    return v.asFuture;
-  }
-
   /// Capture the result of a future into a `Result` future.
   ///
   /// The resulting future will never have an error.
   /// Errors have been converted to an [ErrorResult] value.
-  static Future<Result> capture(Future future) {
-    return future.then(_captureValue, onError: _captureError);
+  static Future<Result/*<T>*/> capture/*<T>*/(Future/*<T>*/ future) {
+    return future.then((value) => new ValueResult(value),
+        onError: (error, stackTrace) =>
+            new ErrorResult/*<T>*/(error, stackTrace));
   }
 
   /// Release the result of a captured future.
@@ -95,30 +89,23 @@ abstract class Result<T> {
   ///
   /// If [future] completes with an error, the returned future completes with
   /// the same error.
-  static Future release(Future<Result> future) {
-    return future.then(_release);
-  }
+  static Future/*<T>*/ release/*<T>*/(Future<Result/*<T>*/> future) =>
+      future.then/*<Future<T>>*/((result) => result.asFuture);
 
   /// Capture the results of a stream into a stream of [Result] values.
   ///
   /// The returned stream will not have any error events.
   /// Errors from the source stream have been converted to [ErrorResult]s.
-  ///
-  /// Shorthand for transforming the stream using [captureStreamTransformer].
-  static Stream<Result> captureStream(Stream source) {
-    return source.transform(captureStreamTransformer);
-  }
+  static Stream<Result/*<T>*/> captureStream/*<T>*/(Stream/*<T>*/ source) =>
+      source.transform(new CaptureStreamTransformer/*<T>*/());
 
   /// Release a stream of [result] values into a stream of the results.
   ///
   /// `Result` values of the source stream become value or error events in
   /// the returned stream as appropriate.
   /// Errors from the source stream become errors in the returned stream.
-  ///
-  /// Shorthand for transforming the stream using [releaseStreamTransformer].
-  static Stream releaseStream(Stream<Result> source) {
-    return source.transform(releaseStreamTransformer);
-  }
+  static Stream/*<T>*/ releaseStream/*<T>*/(Stream<Result/*<T>*/> source) =>
+      source.transform(new ReleaseStreamTransformer/*<T>*/());
 
   /// Converts a result of a result to a single result.
   ///
@@ -126,9 +113,10 @@ abstract class Result<T> {
   /// which is then an error, then a result with that error is returned.
   /// Otherwise both levels of results are value results, and a single
   /// result with the value is returned.
-  static Result flatten(Result<Result> result) {
-    if (result.isError) return result;
-    return result.asValue.value;
+  static Result/*<T>*/ flatten/*<T>*/(Result<Result/*<T>*/> result) {
+    if (result.isValue) return result.asValue.value;
+    return new ErrorResult/*<T>*/(
+        result.asError.error, result.asError.stackTrace);
   }
 
   /// Whether this result is a value result.
@@ -149,7 +137,7 @@ abstract class Result<T> {
   /// If this is an error result, return itself.
   ///
   /// Otherwise return `null`.
-  ErrorResult get asError;
+  ErrorResult<T> get asError;
 
   /// Complete a completer with this result.
   void complete(Completer<T> completer);

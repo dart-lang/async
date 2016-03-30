@@ -57,10 +57,11 @@ class StreamSplitter<T> {
   ///
   /// [count] defaults to 2. This is the same as creating [count] branches and
   /// then closing the [StreamSplitter].
-  static List<Stream> splitFrom(Stream stream, [int count]) {
+  static List<Stream/*<T>*/> splitFrom/*<T>*/(Stream/*<T>*/ stream,
+      [int count]) {
     if (count == null) count = 2;
-    var splitter = new StreamSplitter(stream);
-    var streams = new List.generate(count, (_) => splitter.split());
+    var splitter = new StreamSplitter/*<T>*/(stream);
+    var streams = new List<Stream>.generate(count, (_) => splitter.split());
     splitter.close();
     return streams;
   }
@@ -75,12 +76,11 @@ class StreamSplitter<T> {
       throw new StateError("Can't call split() on a closed StreamSplitter.");
     }
 
-    var controller;
-    controller = new StreamController<T>(
+    var controller = new StreamController<T>(
         onListen: _onListen,
         onPause: _onPause,
-        onResume: _onResume,
-        onCancel: () => _onCancel(controller));
+        onResume: _onResume);
+    controller.onCancel = () => _onCancel(controller);
 
     for (var result in _buffer) {
       result.addTo(controller);

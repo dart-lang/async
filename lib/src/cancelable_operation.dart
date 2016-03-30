@@ -62,9 +62,9 @@ class CancelableOperation<T> {
   /// If this operation is cancelled, the returned future waits for the future
   /// returned by [cancel], then completes to [cancellationValue].
   Future valueOrCancellation([T cancellationValue]) {
-    var completer = new Completer.sync();
-
-    value.then(completer.complete, onError: completer.completeError);
+    var completer = new Completer<T>.sync();
+    value.then((result) => completer.complete(result),
+        onError: completer.completeError);
 
     _completer._cancelMemo.future.then((_) {
       completer.complete(cancellationValue);
