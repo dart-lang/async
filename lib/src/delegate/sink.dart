@@ -10,8 +10,18 @@ class DelegatingSink<T> implements Sink<T> {
   final Sink _sink;
 
   /// Create a delegating sink forwarding calls to [sink].
-  DelegatingSink(Sink sink)
-      : _sink = sink;
+  DelegatingSink(Sink<T> sink) : _sink = sink;
+
+  DelegatingSink._(this._sink);
+
+  /// Creates a wrapper that coerces the type of [sink].
+  ///
+  /// Unlike [new DelegatingSink], this only requires its argument to be an
+  /// instance of `Sink`, not `Sink<T>`. This means that calls to [add] may
+  /// throw a [CastError] if the argument type doesn't match the reified type of
+  /// [sink].
+  static Sink/*<T>*/ typed/*<T>*/(Sink sink) =>
+      sink is Sink/*<T>*/ ? sink : new DelegatingSink._(sink);
 
   void add(T data) {
     _sink.add(data);

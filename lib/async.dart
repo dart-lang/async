@@ -7,6 +7,7 @@ export "src/cancelable_operation.dart";
 export "src/delegate/event_sink.dart";
 export "src/delegate/future.dart";
 export "src/delegate/sink.dart";
+export "src/delegate/stream.dart";
 export "src/delegate/stream_consumer.dart";
 export "src/delegate/stream_sink.dart";
 export "src/delegate/stream_subscription.dart";

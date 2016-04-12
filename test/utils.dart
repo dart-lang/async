@@ -16,6 +16,29 @@ Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
 /// Returns a function that fails the test if it is ever called.
 unreachable(String name) => ([a, b]) => fail("Unreachable: $name");
 
+// TODO(nweiz): Use the version of this in test when test#418 is fixed.
+/// A matcher that runs a callback in its own zone and asserts that that zone
+/// emits an error that matches [matcher].
+Matcher throwsZoned(matcher) => predicate((callback) {
+  var firstError = true;
+  runZoned(callback, onError: expectAsync((error, stackTrace) {
+    if (firstError) {
+      expect(error, matcher);
+      firstError = false;
+    } else {
+      registerException(error, stackTrace);
+    }
+  }, max: -1));
+  return true;
+});
+
+/// A matcher that runs a callback in its own zone and asserts that that zone
+/// emits a [CastError].
+final throwsZonedCastError = throwsZoned(new isInstanceOf<CastError>());
+
+/// A matcher that matches a callback or future that throws a [CastError].
+final throwsCastError = throwsA(new isInstanceOf<CastError>());
+
 /// A badly behaved stream which throws if it's ever listened to.
 ///
 /// Can be used to test cases where a stream should not be used.

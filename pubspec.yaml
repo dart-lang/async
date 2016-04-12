@@ -1,8 +1,10 @@
 name: async
-version: 1.9.1-dev
+version: 1.10.0
 author: Dart Team <misc@dartlang.org>
 description: Utility functions and classes related to the 'dart:async' library.
 homepage: https://www.github.com/dart-lang/async
+dependencies:
+  collection: "^1.5.0"
 dev_dependencies:
   fake_async: "^0.1.2"
   stack_trace: "^1.0.0"

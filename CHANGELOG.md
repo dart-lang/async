@@ -1,14 +1,23 @@
-## 1.9.1
+## 1.10.0
+
+* Add `DelegatingFuture.typed()`, `DelegatingStreamSubscription.typed()`,
+  `DelegatingStreamConsumer.typed()`, `DelegatingSink.typed()`,
+  `DelegatingEventSink.typed()`, and `DelegatingStreamSink.typed()` static
+  methods. These wrap untyped instances of these classes with the correct type
+  parameter, and assert the types of values as they're accessed.
+
+* Add a `DelegatingStream` class. This is behaviorally identical to `StreamView`
+  from `dart:async`, but it follows this package's naming conventions and
+  provides a `DelegatingStream.typed()` static method.
 
 * Fix all strong mode warnings and add generic method annotations.
 
-* `new StreamQueue()` now takes a `Stream<T>` rather than a `Stream<dynamic>`.
-  Passing a type that wasn't `is`-compatible with `Stream<T>` would already
-  throw an error under some circumstances, so this is not considered a breaking
-  change.
-
-* `new SubscriptionStream()` now takes a `Stream<T>` rather than a
-  `Stream<dynamic>`. Passing a type that wasn't `is`-compatible with `Stream<T>`
+* `new StreamQueue()`, `new SubscriptionStream()`, `new
+  DelegatingStreamSubscription()`, `new DelegatingStreamConsumer()`, `new
+  DelegatingSink()`, `new DelegatingEventSink()`, and `new
+  DelegatingStreamSink()` now take arguments with generic type arguments (for
+  example `Stream<T>`) rather than without (for example `Stream<dynamic>`).
+  Passing a type that wasn't `is`-compatible with the fully-specified generic
   would already throw an error under some circumstances, so this is not
   considered a breaking change.
 

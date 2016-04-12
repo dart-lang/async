@@ -5,6 +5,7 @@
 import "dart:async";
 
 import "stream_completer.dart";
+import "delegate/stream.dart";
 
 /// A [Stream] wrapper that forwards to another [Stream] that's initialized
 /// lazily.
@@ -39,9 +40,14 @@ class LazyStream<T> extends Stream<T> {
     _callback = null;
     var result = callback();
 
-    Stream stream = result is Future
-        ? StreamCompleter.fromFuture(result)
-        : result;
+    Stream<T> stream;
+    if (result is Future) {
+      stream = StreamCompleter.fromFuture(result.then((stream) {
+        return DelegatingStream.typed/*<T>*/(stream as Stream);
+      }));
+    } else {
+      stream = DelegatingStream.typed/*<T>*/(result as Stream);
+    }
 
     return stream.listen(onData,
         onError: onError, onDone: onDone, cancelOnError: cancelOnError);

@@ -68,7 +68,7 @@ class SubscriptionStream<T> extends Stream<T> {
 /// source subscription on the first error.
 class _CancelOnErrorSubscriptionWrapper<T>
     extends DelegatingStreamSubscription<T> {
-  _CancelOnErrorSubscriptionWrapper(StreamSubscription subscription)
+  _CancelOnErrorSubscriptionWrapper(StreamSubscription<T> subscription)
       : super(subscription);
 
   void onError(Function handleError) {

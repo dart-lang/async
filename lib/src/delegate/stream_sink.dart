@@ -14,8 +14,18 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   Future get done => _sink.done;
 
   /// Create delegating sink forwarding calls to [sink].
-  DelegatingStreamSink(StreamSink sink)
-      : _sink = sink;
+  DelegatingStreamSink(StreamSink<T> sink) : _sink = sink;
+
+  DelegatingStreamSink._(this._sink);
+
+  /// Creates a wrapper that coerces the type of [sink].
+  ///
+  /// Unlike [new StreamSink], this only requires its argument to be an instance
+  /// of `StreamSink`, not `StreamSink<T>`. This means that calls to [add] may
+  /// throw a [CastError] if the argument type doesn't match the reified type of
+  /// [sink].
+  static StreamSink/*<T>*/ typed/*<T>*/(StreamSink sink) =>
+      sink is StreamSink/*<T>*/ ? sink : new DelegatingStreamSink._(sink);
 
   void add(T data) {
     _sink.add(data);
