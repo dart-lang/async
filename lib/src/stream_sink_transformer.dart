@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'stream_sink_transformer/handler_transformer.dart';
 import 'stream_sink_transformer/stream_transformer_wrapper.dart';
+import 'stream_sink_transformer/typed.dart';
 
 /// A [StreamSinkTransformer] transforms the events being passed to a sink.
 ///
@@ -45,4 +46,17 @@ abstract class StreamSinkTransformer<S, T> {
   /// Creates a new sink. When events are passed to the returned sink, it will
   /// transform them and pass the transformed versions to [sink].
   StreamSink<S> bind(StreamSink<T> sink);
+
+  /// Creates a wrapper that coerces the type of [transformer].
+  ///
+  /// This soundly converts a [StreamSinkTransformer] to a
+  /// `StreamSinkTransformer<S, T>`, regardless of its original generic type.
+  /// This means that calls to [StreamSink.add] on the returned sink may throw a
+  /// [CastError] if the argument type doesn't match the reified type of the
+  /// sink.
+  static StreamSinkTransformer/*<S, T>*/ typed/*<S, T>*/(
+          StreamSinkTransformer transformer) =>
+      transformer is StreamSinkTransformer/*<S, T>*/
+          ? transformer
+          : new TypeSafeStreamSinkTransformer(transformer);
 }

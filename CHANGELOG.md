@@ -1,3 +1,13 @@
+## 1.11.0
+
+* Add a `typedStreamTransformer()` function. This wraps an untyped
+  `StreamTransformer` with the correct type parameters, and asserts the types of
+  events as they're emitted from the transformed stream.
+
+* Add a `StreamSinkTransformer.typed()` static method. This wraps an untyped
+  `StreamSinkTransformer` with the correct type parameters, and asserts the
+  types of arguments passed in to the resulting sink.
+
 ## 1.10.0
 
 * Add `DelegatingFuture.typed()`, `DelegatingStreamSubscription.typed()`,
