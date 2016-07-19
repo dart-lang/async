@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import "package:async/async.dart";
 import "package:async/src/typed/future.dart";
 import "package:test/test.dart";
 
@@ -13,7 +12,7 @@ import '../utils.dart';
 void main() {
   group("with valid types, forwards", () {
     var wrapper;
-    var errorWrapper;
+    TypeSafeFuture<int> errorWrapper;
     setUp(() {
       wrapper = new TypeSafeFuture<int>(new Future<Object>.value(12));
 
@@ -35,11 +34,11 @@ void main() {
 
       expect(errorWrapper.catchError(expectAsync((error) {
         expect(error, equals("oh no"));
-        return "value";
+        return 42;
       }), test: expectAsync((error) {
         expect(error, equals("oh no"));
         return true;
-      })), completion(equals("value")));
+      })), completion(equals(42)));
     });
 
     test("then()", () {
@@ -71,7 +70,7 @@ void main() {
   });
 
   group("with invalid types", () {
-    var wrapper;
+    TypeSafeFuture<int> wrapper;
     setUp(() {
       wrapper = new TypeSafeFuture<int>(new Future<Object>.value("foo"));
     });
@@ -102,15 +101,6 @@ void main() {
               .timeout(Duration.ZERO, onTimeout: expectAsync(() => "foo"))
               .then((_) {}),
           throwsCastError);
-      });
-    });
-
-    group("doesn't throw a CastError for", () {
-      test("catchError()", () {
-        // catchError has a Future<dynamic> return type, so even if there's no
-        // error we don't re-wrap the returned future.
-        expect(wrapper.catchError(expectAsync((_) {}, count: 0)),
-            completion(equals("foo")));
       });
     });
   });

@@ -11,8 +11,8 @@ class TypeSafeFuture<T> implements Future<T> {
 
   Stream<T> asStream() => _future.then((value) => value as T).asStream();
 
-  Future catchError(Function onError, {bool test(Object error)}) =>
-      _future.catchError(onError, test: test);
+  Future<T> catchError(Function onError, {bool test(Object error)}) async =>
+      new TypeSafeFuture<T>(_future.catchError(onError, test: test));
 
   Future/*<S>*/ then/*<S>*/(/*=S*/ onValue(T value), {Function onError}) =>
       _future.then((value) => onValue(value as T), onError: onError);

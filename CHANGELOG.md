@@ -1,3 +1,7 @@
+## 1.11.1
+
+* Fix new strong-mode warnings introduced in Dart 1.17.0.
+
 ## 1.11.0
 
 * Add a `typedStreamTransformer()` function. This wraps an untyped

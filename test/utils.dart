@@ -11,10 +11,13 @@ import "package:test/test.dart";
 /// A zero-millisecond timer should wait until after all microtasks.
 Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
 
+typedef void OptionalArgAction([a, b]);
+
 /// A generic unreachable callback function.
 ///
 /// Returns a function that fails the test if it is ever called.
-unreachable(String name) => ([a, b]) => fail("Unreachable: $name");
+OptionalArgAction unreachable(String name) =>
+        ([a, b]) => fail("Unreachable: $name");
 
 // TODO(nweiz): Use the version of this in test when test#418 is fixed.
 /// A matcher that runs a callback in its own zone and asserts that that zone

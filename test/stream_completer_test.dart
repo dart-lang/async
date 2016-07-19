@@ -130,7 +130,7 @@ main() {
 
   test("source stream isn't listened to until completer stream is", () async {
     var completer = new StreamCompleter();
-    var controller;
+    StreamController controller;
     controller = new StreamController(onListen: () {
       scheduleMicrotask(controller.close);
     });
@@ -281,7 +281,7 @@ main() {
     var completer = new StreamCompleter();
     var controller = new StreamController();
     var subscription = completer.stream.listen(null);
-    var lastEvent = 0;
+    Object lastEvent = 0;
     subscription.onData((value) => lastEvent = value);
     subscription.onError((value) => lastEvent = "$value");
     subscription.onDone(() => lastEvent = -1);

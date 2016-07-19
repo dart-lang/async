@@ -22,7 +22,7 @@ main() {
     var stream = createStream();
     var skips = 0;
     var completer = new Completer();
-    var subscription;
+    StreamSubscription<int> subscription;
     subscription = stream.listen((value) {
       ++skips;
       expect(value, skips);
@@ -168,7 +168,7 @@ Stream<int> createErrorStream([Completer onCancel]) async* {
     await flushMicrotasks();
     yield 2;
     await flushMicrotasks();
-    yield* new Future.error("To err is divine!").asStream();
+    yield* new Future<int>.error("To err is divine!").asStream();
     await flushMicrotasks();
     yield 4;
     await flushMicrotasks();

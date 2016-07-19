@@ -57,7 +57,7 @@ void main() {
 
   test("complete with value", () {
     Result<int> result = new ValueResult<int>(42);
-    Completer c = new Completer<int>();
+    var c = new Completer<int>();
     c.future.then(expectAsync((int v) { expect(v, equals(42)); }),
                   onError: (e, s) { fail("Unexpected error"); });
     result.complete(c);
@@ -65,7 +65,7 @@ void main() {
 
   test("complete with error", () {
     Result<bool> result = new ErrorResult("BAD", stack);
-    Completer c = new Completer<bool>();
+    var c = new Completer<bool>();
     c.future.then((bool v) { fail("Unexpected value $v"); },
                   onError: expectAsync((e, s) {
                     expect(e, equals("BAD"));
@@ -75,7 +75,7 @@ void main() {
   });
 
   test("add sink value", () {
-    Result<int> result = new ValueResult<int>(42);
+    var result = new ValueResult<int>(42);
     EventSink<int> sink = new TestSink(
         onData: expectAsync((v) { expect(v, equals(42)); })
     );
@@ -189,7 +189,7 @@ void main() {
   test("release stream", () {
     StreamController<Result<int>> c = new StreamController<Result<int>>();
     Stream<int> stream = Result.releaseStream(c.stream);
-    List events = [new Result<int>.value(42),
+    var events = [new Result<int>.value(42),
                    new Result<int>.error("BAD", stack),
                    new Result<int>.value(37)];
     // Expect the data events, and an extra error event.

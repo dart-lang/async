@@ -32,5 +32,7 @@ class TypeSafeStreamSubscription<T> implements StreamSubscription<T> {
   }
 
   Future cancel() => _subscription.cancel();
-  Future asFuture([futureValue]) => _subscription.asFuture(futureValue);
+
+  Future/*<E>*/ asFuture/*<E>*/([/*=E*/ futureValue]) =>
+      _subscription.asFuture(futureValue);
 }

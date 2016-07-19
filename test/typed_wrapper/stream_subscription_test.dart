@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import "package:async/async.dart";
 import "package:async/src/typed/stream_subscription.dart";
 import "package:test/test.dart";
 

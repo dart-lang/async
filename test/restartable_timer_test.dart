@@ -10,7 +10,7 @@ main() {
   test("runs the callback once the duration has elapsed", () {
     new FakeAsync().run((async) {
       var fired = false;
-      var timer = new RestartableTimer(new Duration(seconds: 5), () {
+      new RestartableTimer(new Duration(seconds: 5), () {
         fired = true;
       });
 
@@ -99,7 +99,7 @@ main() {
 
   test("only runs the callback once if the timer isn't reset", () {
     new FakeAsync().run((async) {
-      var timer = new RestartableTimer(
+      new RestartableTimer(
           new Duration(seconds: 5),
           expectAsync(() {}, count: 1));
       async.elapse(new Duration(seconds: 10));

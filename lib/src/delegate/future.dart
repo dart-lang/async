@@ -24,7 +24,7 @@ class DelegatingFuture<T> implements Future<T> {
 
   Stream<T> asStream() => _future.asStream();
 
-  Future catchError(Function onError, {bool test(Object error)}) =>
+  Future<T> catchError(Function onError, {bool test(Object error)}) =>
     _future.catchError(onError, test: test);
 
   Future/*<S>*/ then/*<S>*/(/*=S*/ onValue(T value), {Function onError}) =>

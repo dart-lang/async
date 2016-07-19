@@ -12,7 +12,7 @@ import "utils.dart";
 main() {
   group("source stream", () {
     test("is listened to on first request, paused between requests", () async {
-      var controller = new StreamController();
+      var controller = new StreamController<int>();
       var events = new StreamQueue<int>(controller.stream);
       await flushMicrotasks();
       expect(controller.hasListener, isFalse);
@@ -288,7 +288,7 @@ main() {
 
     test("forwards to underlying stream", () async {
       var cancel = new Completer();
-      var controller = new StreamController(onCancel: () => cancel.future);
+      var controller = new StreamController<int>(onCancel: () => cancel.future);
       var events = new StreamQueue<int>(controller.stream);
       expect(controller.hasListener, isFalse);
       var next = events.next;
@@ -347,14 +347,14 @@ main() {
     test("cancels underlying subscription when called before any event",
         () async {
       var cancelFuture = new Future.value(42);
-      var controller = new StreamController(onCancel: () => cancelFuture);
+      var controller = new StreamController<int>(onCancel: () => cancelFuture);
       var events = new StreamQueue<int>(controller.stream);
       expect(await events.cancel(), 42);
     });
 
     test("cancels underlying subscription, returns result", () async {
       var cancelFuture = new Future.value(42);
-      var controller = new StreamController(onCancel: () => cancelFuture);
+      var controller = new StreamController<int>(onCancel: () => cancelFuture);
       var events = new StreamQueue<int>(controller.stream);
       controller.add(1);
       expect(await events.next, 1);
@@ -373,7 +373,7 @@ main() {
       });
 
       test("cancels the underlying subscription immediately", () async {
-        var controller = new StreamController();
+        var controller = new StreamController<int>();
         controller.add(1);
 
         var events = new StreamQueue<int>(controller.stream);
@@ -387,7 +387,7 @@ main() {
       test("cancels the underlying subscription when called before any event",
           () async {
         var cancelFuture = new Future.value(42);
-        var controller = new StreamController(onCancel: () => cancelFuture);
+        var controller = new StreamController<int>(onCancel: () => cancelFuture);
 
         var events = new StreamQueue<int>(controller.stream);
         expect(await events.cancel(immediate: true), 42);
@@ -404,7 +404,7 @@ main() {
 
       test("returns the result of closing the underlying subscription",
           () async {
-        var controller = new StreamController(
+        var controller = new StreamController<int>(
             onCancel: () => new Future.value(42));
         var events = new StreamQueue<int>(controller.stream);
         expect(await events.cancel(immediate: true), 42);
@@ -413,7 +413,7 @@ main() {
       test("listens and then cancels a stream that hasn't been listened to yet",
           () async {
         var wasListened = false;
-        var controller = new StreamController(
+        var controller = new StreamController<int>(
             onListen: () => wasListened = true);
         var events = new StreamQueue<int>(controller.stream);
         expect(wasListened, isFalse);
@@ -448,7 +448,7 @@ main() {
 
     test("true when enqueued", () async {
       var events = new StreamQueue<int>(createStream());
-      var values = [];
+      var values = <int>[];
       for (int i = 1; i <= 3; i++) {
         events.next.then(values.add);
       }
@@ -459,7 +459,7 @@ main() {
 
     test("false when enqueued", () async {
       var events = new StreamQueue<int>(createStream());
-      var values = [];
+      var values = <int>[];
       for (int i = 1; i <= 4; i++) {
         events.next.then(values.add);
       }
@@ -469,7 +469,7 @@ main() {
     });
 
     test("true when data event", () async {
-      var controller = new StreamController();
+      var controller = new StreamController<int>();
       var events = new StreamQueue<int>(controller.stream);
 
       var hasNext;
@@ -483,7 +483,7 @@ main() {
     });
 
     test("true when error event", () async {
-      var controller = new StreamController();
+      var controller = new StreamController<int>();
       var events = new StreamQueue<int>(controller.stream);
 
       var hasNext;
@@ -525,7 +525,7 @@ main() {
 
     test("- next after true, enqueued", () async {
       var events = new StreamQueue<int>(createStream());
-      var responses = [];
+      var responses = <Object>[];
       events.next.then(responses.add);
       events.hasNext.then(responses.add);
       events.next.then(responses.add);
@@ -683,7 +683,7 @@ Stream<int> createStream() async* {
 }
 
 Stream<int> createErrorStream() {
-  StreamController controller = new StreamController<int>();
+  var controller = new StreamController<int>();
   () async {
     controller.add(1);
     await flushMicrotasks();

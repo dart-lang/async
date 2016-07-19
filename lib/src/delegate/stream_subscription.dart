@@ -51,7 +51,8 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
 
   Future cancel() => _source.cancel();
 
-  Future asFuture([futureValue]) => _source.asFuture(futureValue);
+  Future/*<E>*/ asFuture/*<E>*/([/*=E*/ futureValue]) =>
+      _source.asFuture(futureValue);
 
   bool get isPaused => _source.isPaused;
 }

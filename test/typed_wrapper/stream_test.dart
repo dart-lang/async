@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import "package:async/async.dart";
 import "package:async/src/typed/stream.dart";
 import "package:test/test.dart";
 
@@ -245,7 +244,7 @@ void main() {
     });
 
     test("pipe()", () {
-      var consumer = new StreamController<T>();
+      var consumer = new StreamController();
       expect(wrapper.pipe(consumer), completes);
       expect(consumer.stream.toList(), completion(equals([1, 2, 3, 4, 5])));
     });

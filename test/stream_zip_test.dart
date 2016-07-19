@@ -36,7 +36,7 @@ int ctr = 0;
 
 main() {
   // Test that zipping [streams] gives the results iterated by [expectedData].
-  testZip(Iterable streams, Iterable expectedData) {
+  testZip(Iterable<Stream> streams, Iterable expectedData) {
     List data = [];
     Stream zip = new StreamZip(streams);
     zip.listen(data.add, onDone: expectAsync(() {
