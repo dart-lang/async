@@ -507,7 +507,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
         await flushMicrotasks();
         controller.add("second");
 
-        expect(streamGroup.remove(controller.stream), isNull);
+        expect(streamGroup.remove(controller.stream), completion(null));
         expect(streamGroup.close(), completes);
       });
 
@@ -548,7 +548,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
         expect(streamGroup.stream.toList(), completion(isEmpty));
 
         controller.add("first");
-        expect(streamGroup.remove(controller.stream), isNull);
+        expect(streamGroup.remove(controller.stream), completion(null));
         controller.add("second");
 
         expect(streamGroup.close(), completes);
