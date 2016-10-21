@@ -1,3 +1,7 @@
+## 1.11.3
+
+* Fix strong-mode warning against the signature of Future.then
+
 ## 1.11.1
 
 * Fix new strong-mode warnings introduced in Dart 1.17.0.
