@@ -629,6 +629,167 @@ main() {
     });
   });
 
+  group("startTransactions operation returns queues that", () {
+    StreamQueue<int> events;
+    List<TransactionStreamQueue<int>> transactions;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+      transactions = events.startTransactions(2);
+    });
+
+    test("independently emit events", () async {
+      expect(await transactions.first.next, 2);
+      expect(await transactions.last.next, 2);
+      expect(await transactions.last.next, 3);
+      expect(await transactions.first.next, 3);
+      expect(await transactions.first.next, 4);
+      expect(await transactions.last.next, 4);
+      expect(await transactions.first.hasNext, isFalse);
+      expect(await transactions.last.hasNext, isFalse);
+    });
+
+    test("queue requests for events", () async {
+      expect(transactions.first.next, completion(2));
+      expect(transactions.last.next, completion(2));
+      expect(transactions.last.next, completion(3));
+      expect(transactions.first.next, completion(3));
+      expect(transactions.first.next, completion(4));
+      expect(transactions.last.next, completion(4));
+      expect(transactions.first.hasNext, completion(isFalse));
+      expect(transactions.last.hasNext, completion(isFalse));
+    });
+
+    test("independently emit errors", () async {
+      events = new StreamQueue(createErrorStream());
+      expect(await events.next, 1);
+      transactions = events.startTransactions(2);
+
+      expect(transactions.first.next, completion(2));
+      expect(transactions.last.next, completion(2));
+      expect(transactions.last.next, throwsA("To err is divine!"));
+      expect(transactions.first.next, throwsA("To err is divine!"));
+      expect(transactions.first.next, completion(4));
+      expect(transactions.last.next, completion(4));
+      expect(transactions.first.hasNext, completion(isFalse));
+      expect(transactions.last.hasNext, completion(isFalse));
+    });
+
+    group("when one is rejected,", () {
+      test("has no effect on the other or the original", () async {
+        expect(await transactions.first.next, 2);
+        expect(await transactions.last.next, 2);
+        expect(await transactions.last.next, 3);
+        transactions.last.reject();
+
+        expect(await transactions.first.next, 3);
+
+        // This should never complete since there's still an active transaction.
+        events.next.then(expectAsync1((_) {}, count: 0));
+        await flushMicrotasks();
+      });
+
+      test("further requests act as though the stream was closed", () async {
+        expect(await transactions.first.next, 2);
+        transactions.first.reject();
+
+        expect(await transactions.first.hasNext, isFalse);
+        expect(transactions.first.next, throwsStateError);
+      });
+
+      test("pending requests act as though the stream was closed", () async {
+        expect(await transactions.first.next, 2);
+        expect(transactions.first.hasNext, completion(isFalse));
+        expect(transactions.first.next, throwsStateError);
+        transactions.first.reject();
+      });
+
+      test("cancel() may still be called explicitly", () async {
+        expect(await transactions.first.next, 2);
+        transactions.first.reject();
+        await transactions.first.cancel();
+      });
+
+      test("calls to accept() or reject() fail", () async {
+        transactions.first.reject();
+        expect(transactions.first.reject, throwsStateError);
+        expect(transactions.first.accept, throwsStateError);
+      });
+    });
+
+    test("when all are rejected, the original continues", () async {
+      expect(await transactions.first.next, 2);
+      transactions.first.reject();
+      expect(await transactions.last.next, 2);
+      expect(await transactions.last.next, 3);
+      transactions.last.reject();
+
+      expect(await events.next, 2);
+      expect(await events.next, 3);
+      expect(await events.next, 4);
+      expect(await events.hasNext, isFalse);
+    });
+
+    group("when one is accepted,", () {
+      test("further original requests use the accepted state", () async {
+        expect(await transactions.first.next, 2);
+        await flushMicrotasks();
+        transactions.first.accept();
+        expect(await events.next, 3);
+      });
+
+      test("pending original requests use the accepted state", () async {
+        expect(await transactions.first.next, 2);
+        expect(events.next, completion(3));
+        await flushMicrotasks();
+        transactions.first.accept();
+      });
+
+      test("further sibling requests act as though the stream was closed",
+          () async {
+        expect(await transactions.first.next, 2);
+        transactions.first.accept();
+
+        expect(await transactions.last.hasNext, isFalse);
+        expect(transactions.last.next, throwsStateError);
+      });
+
+      test("pending sibling requests act as though the stream was closed",
+          () async {
+        expect(await transactions.first.next, 2);
+        expect(transactions.last.hasNext, completion(isFalse));
+        expect(transactions.last.next, throwsStateError);
+        transactions.first.accept();
+      });
+
+      test("further requests act as though the stream was closed", () async {
+        expect(await transactions.first.next, 2);
+        transactions.first.accept();
+
+        expect(await transactions.first.hasNext, isFalse);
+        expect(transactions.first.next, throwsStateError);
+      });
+
+      test("cancel() may still be called explicitly", () async {
+        expect(await transactions.first.next, 2);
+        transactions.first.accept();
+        await transactions.first.cancel();
+      });
+
+      test("it throws if there are pending requests", () async {
+        expect(await transactions.first.next, 2);
+        expect(transactions.first.hasNext, completion(isTrue));
+        expect(transactions.first.accept, throwsStateError);
+      });
+
+      test("calls to accept() or reject() fail", () async {
+        transactions.first.accept();
+        expect(transactions.first.reject, throwsStateError);
+        expect(transactions.first.accept, throwsStateError);
+      });
+    });
+  });
+
   test("all combinations sequential skip/next/take operations", () async {
     // Takes all combinations of two of next, skip and take, then ends with
     // doing rest. Each of the first rounds do 10 events of each type,
