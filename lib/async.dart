@@ -28,6 +28,7 @@ export "src/stream_queue.dart";
 export "src/stream_sink_completer.dart";
 export "src/stream_sink_transformer.dart";
 export "src/stream_splitter.dart";
+export "src/stream_subscription_transformer.dart";
 export "src/stream_zip.dart";
 export "src/subscription_stream.dart";
 export "src/typed_stream_transformer.dart";
