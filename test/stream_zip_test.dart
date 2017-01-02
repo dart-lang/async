@@ -39,7 +39,7 @@ main() {
   testZip(Iterable<Stream> streams, Iterable expectedData) {
     List data = [];
     Stream zip = new StreamZip(streams);
-    zip.listen(data.add, onDone: expectAsync(() {
+    zip.listen(data.add, onDone: expectAsync0(() {
       expect(data, equals(expectedData));
     }));
   }
@@ -174,7 +174,7 @@ main() {
         sc2p--;
       });
 
-    var done = expectAsync((){
+    var done = expectAsync0((){
       expect(sc1p, equals(1));
       expect(sc2p, equals(0));
     });  // Call to complete test.
@@ -220,7 +220,7 @@ main() {
     var sz = new StreamZip([s1, s2]);
     int ctr = 0;
     var sub;
-    sub = sz.listen(expectAsync((v) {
+    sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));
       if (ctr == 1) {
         sub.pause(new Future.delayed(const Duration(milliseconds: 25)));

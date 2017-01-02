@@ -37,7 +37,7 @@ abstract class Result<T> {
   /// The result of the transformation is a sink that only forwards [Result]
   /// values and no error events.
   static const StreamSinkTransformer<Object, Result> captureSinkTransformer =
-      const StreamSinkTransformer.fromStreamTransformer(
+      const StreamSinkTransformer<Object, Result>.fromStreamTransformer(
           const CaptureStreamTransformer());
 
   /// A sink transformer that releases result events.
@@ -97,7 +97,7 @@ abstract class Result<T> {
   /// The returned stream will not have any error events.
   /// Errors from the source stream have been converted to [ErrorResult]s.
   static Stream<Result/*<T>*/> captureStream/*<T>*/(Stream/*<T>*/ source) =>
-      source.transform(new CaptureStreamTransformer/*<T>*/());
+      source.transform/*<Result<T>>*/(new CaptureStreamTransformer/*<T>*/());
 
   /// Release a stream of [result] values into a stream of the results.
   ///

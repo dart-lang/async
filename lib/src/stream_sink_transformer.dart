@@ -58,5 +58,5 @@ abstract class StreamSinkTransformer<S, T> {
           StreamSinkTransformer transformer) =>
       transformer is StreamSinkTransformer/*<S, T>*/
           ? transformer
-          : new TypeSafeStreamSinkTransformer(transformer);
+          : new TypeSafeStreamSinkTransformer/*<S, T>*/(transformer);
 }

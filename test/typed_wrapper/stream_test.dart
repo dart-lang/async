@@ -71,7 +71,7 @@ void main() {
 
       test("with onListen", () {
         var broadcast = wrapper.asBroadcastStream(
-            onListen: expectAsync((subscription) {
+            onListen: expectAsync1((subscription) {
           expect(subscription, new isInstanceOf<StreamSubscription<int>>());
           subscription.pause();
         }));
@@ -82,7 +82,7 @@ void main() {
 
       test("with onCancel", () {
         var broadcast = wrapper.asBroadcastStream(
-            onCancel: expectAsync((subscription) {
+            onCancel: expectAsync1((subscription) {
           expect(subscription, new isInstanceOf<StreamSubscription<int>>());
           subscription.pause();
         }));
@@ -188,7 +188,7 @@ void main() {
     });
 
     test("forEach()", () async {
-      emptyWrapper.forEach(expectAsync((_) {}, count: 0));
+      emptyWrapper.forEach(expectAsync1((_) {}, count: 0));
 
       var results = [];
       await wrapper.forEach(results.add);
@@ -197,23 +197,23 @@ void main() {
 
     group("handleError()", () {
       test("without a test", () {
-        expect(errorWrapper.handleError(expectAsync((error) {
+        expect(errorWrapper.handleError(expectAsync1((error) {
           expect(error, equals("oh no"));
         })).toList(), completion(isEmpty));
       });
 
       test("with a matching test", () {
-        expect(errorWrapper.handleError(expectAsync((error) {
+        expect(errorWrapper.handleError(expectAsync1((error) {
           expect(error, equals("oh no"));
-        }), test: expectAsync((error) {
+        }), test: expectAsync1((error) {
           expect(error, equals("oh no"));
           return true;
         })).toList(), completion(isEmpty));
       });
 
       test("with a matching test", () {
-        expect(errorWrapper.handleError(expectAsync((_) {}, count: 0),
-            test: expectAsync((error) {
+        expect(errorWrapper.handleError(expectAsync1((_) {}, count: 0),
+            test: expectAsync1((error) {
           expect(error, equals("oh no"));
           return false;
         })).toList(), throwsA("oh no"));
@@ -223,10 +223,10 @@ void main() {
     group("listen()", () {
       test("with a callback", () {
         var subscription;
-        subscription = wrapper.listen(expectAsync((data) {
+        subscription = wrapper.listen(expectAsync1((data) {
           expect(data, equals(1));
 
-          subscription.onData(expectAsync((data) {
+          subscription.onData(expectAsync1((data) {
             expect(data, equals(2));
             subscription.cancel();
           }));
@@ -408,12 +408,12 @@ void main() {
       });
 
       test("asyncExpand()", () {
-        expect(wrapper.asyncExpand(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.asyncExpand(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("asyncMap()", () {
-        expect(wrapper.asyncMap(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.asyncMap(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
@@ -423,67 +423,67 @@ void main() {
         });
 
         test("with equals", () {
-          expect(wrapper.distinct(expectAsync((_, __) {}, count: 0)).first,
+          expect(wrapper.distinct(expectAsync2((_, __) {}, count: 0)).first,
               throwsCastError);
         });
       });
 
       test("expand()", () {
-        expect(wrapper.expand(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.expand(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("firstWhere()", () {
-        expect(wrapper.firstWhere(expectAsync((_) {}, count: 0)),
+        expect(wrapper.firstWhere(expectAsync1((_) {}, count: 0)),
             throwsCastError);
       });
 
       test("lastWhere()", () {
-        expect(wrapper.lastWhere(expectAsync((_) {}, count: 0)),
+        expect(wrapper.lastWhere(expectAsync1((_) {}, count: 0)),
             throwsCastError);
       });
 
       test("singleWhere()", () {
-        expect(wrapper.singleWhere(expectAsync((_) {}, count: 0)),
+        expect(wrapper.singleWhere(expectAsync1((_) {}, count: 0)),
             throwsCastError);
       });
 
       test("fold()", () {
-        expect(wrapper.fold("foo", expectAsync((_, __) {}, count: 0)),
+        expect(wrapper.fold("foo", expectAsync2((_, __) {}, count: 0)),
             throwsCastError);
       });
 
       test("forEach()", () async {
-        expect(wrapper.forEach(expectAsync((_) {}, count: 0)), throwsCastError);
+        expect(wrapper.forEach(expectAsync1((_) {}, count: 0)), throwsCastError);
       });
 
       test("handleError()", () {
-        expect(wrapper.handleError(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.handleError(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("listen()", () {
-        expect(() => wrapper.take(1).listen(expectAsync((_) {}, count: 0)),
+        expect(() => wrapper.take(1).listen(expectAsync1((_) {}, count: 0)),
             throwsZonedCastError);
       });
 
       test("map()", () {
-        expect(wrapper.map(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.map(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("reduce()", () {
-        expect(wrapper.reduce(expectAsync((_, __) {}, count: 0)),
+        expect(wrapper.reduce(expectAsync2((_, __) {}, count: 0)),
             throwsCastError);
       });
 
       test("skipWhile()", () {
-        expect(wrapper.skipWhile(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.skipWhile(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("takeWhile()", () {
-        expect(wrapper.takeWhile(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.takeWhile(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
@@ -498,16 +498,16 @@ void main() {
       }, skip: "Re-enable this when test can run DDC (test#414).");
 
       test("where()", () {
-        expect(wrapper.where(expectAsync((_) {}, count: 0)).first,
+        expect(wrapper.where(expectAsync1((_) {}, count: 0)).first,
             throwsCastError);
       });
 
       test("any()", () {
-        expect(wrapper.any(expectAsync((_) {}, count: 0)), throwsCastError);
+        expect(wrapper.any(expectAsync1((_) {}, count: 0)), throwsCastError);
       });
 
       test("every()", () {
-        expect(wrapper.every(expectAsync((_) {}, count: 0)), throwsCastError);
+        expect(wrapper.every(expectAsync1((_) {}, count: 0)), throwsCastError);
       });
 
       test("skip()", () {

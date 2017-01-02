@@ -150,7 +150,7 @@ main() {
       var skip4 = events.skip(1);
       var index = 0;
       // Check that futures complete in order.
-      sequence(expectedValue, sequenceIndex) => (value) {
+      Func1Required<int> sequence(expectedValue, sequenceIndex) => (value) {
         expect(value, expectedValue);
         expect(index, sequenceIndex);
         index++;
@@ -671,6 +671,8 @@ main() {
            completion(new List.generate(20, (i) => counter + i)));
   });
 }
+
+typedef T Func1Required<T>(T value);
 
 Stream<int> createStream() async* {
   yield 1;

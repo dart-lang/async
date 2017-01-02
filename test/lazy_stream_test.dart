@@ -16,7 +16,7 @@ main() {
 
   test("calls the callback when the stream is listened", () async {
     var callbackCalled = false;
-    var stream = new LazyStream(expectAsync(() {
+    var stream = new LazyStream(expectAsync0(() {
       callbackCalled = true;
       return new Stream.empty();
     }));
@@ -30,7 +30,7 @@ main() {
 
   test("calls the callback when the stream is listened", () async {
     var callbackCalled = false;
-    var stream = new LazyStream(expectAsync(() {
+    var stream = new LazyStream(expectAsync0(() {
       callbackCalled = true;
       return new Stream.empty();
     }));
@@ -44,7 +44,7 @@ main() {
 
   test("forwards to a synchronously-provided stream", () async {
     var controller = new StreamController<int>();
-    var stream = new LazyStream(expectAsync(() => controller.stream));
+    var stream = new LazyStream(expectAsync0(() => controller.stream));
 
     var events = [];
     stream.listen(events.add);
@@ -66,7 +66,7 @@ main() {
 
   test("forwards to an asynchronously-provided stream", () async {
     var controller = new StreamController<int>();
-    var stream = new LazyStream(expectAsync(() async => controller.stream));
+    var stream = new LazyStream(expectAsync0(() async => controller.stream));
 
     var events = [];
     stream.listen(events.add);
@@ -87,7 +87,7 @@ main() {
   });
 
   test("a lazy stream can't be listened to multiple times", () {
-    var stream = new LazyStream(expectAsync(() => new Stream.empty()));
+    var stream = new LazyStream(expectAsync0(() => new Stream.empty()));
     expect(stream.isBroadcast, isFalse);
 
     stream.listen(null);
@@ -97,7 +97,7 @@ main() {
 
   test("a lazy stream can't be listened to from within its callback", () {
     var stream;
-    stream = new LazyStream(expectAsync(() {
+    stream = new LazyStream(expectAsync0(() {
       expect(() => stream.listen(null), throwsStateError);
       return new Stream.empty();
     }));
