@@ -7,9 +7,9 @@ import 'dart:async';
 import 'async_memoizer.dart';
 import 'delegate/stream_subscription.dart';
 
-typedef Future _CancelHandler<T>(StreamSubscription<T> inner);
+typedef Future _AsyncHandler<T>(StreamSubscription<T> inner);
 
-typedef void _SimpleHandler<T>(StreamSubscription<T> inner);
+typedef void _VoidHandler<T>(StreamSubscription<T> inner);
 
 /// Creates a [StreamTransformer] that modifies the behavior of subscriptions to
 /// a stream.
@@ -18,10 +18,14 @@ typedef void _SimpleHandler<T>(StreamSubscription<T> inner);
 /// [StreamSubscription.resume] is called, the corresponding handler is invoked.
 /// By default, handlers just forward to the underlying subscription.
 ///
-/// This guarantees that once the transformed [StreamSubscription] has been
-/// canceled, no further callbacks will be invoked. The [handlePause] and
-/// [handleResume] are invoked regardless of whether the subscription is paused
-/// already or not.
+/// Guarantees that once the transformed [StreamSubscription] has been canceled,
+/// no further callbacks will be invoked. The [handlePause] and [handleResume]
+/// are invoked regardless of whether the subscription is paused already or not.
+///
+/// In order to preserve [StreamSubscription] guarantees, **all callbacks must
+/// synchronously call the corresponding method** on the inner
+/// [StreamSubscription]: [handleCancel] must call `cancel()`, [handlePause]
+/// must call `pause()`, and [handleResume] must call `resume()`.
 StreamTransformer/*<T, T>*/ subscriptionTransformer/*<T>*/(
     {Future handleCancel(StreamSubscription/*<T>*/ inner),
     void handlePause(StreamSubscription/*<T>*/ inner),
@@ -30,8 +34,12 @@ StreamTransformer/*<T, T>*/ subscriptionTransformer/*<T>*/(
     return new _TransformedSubscription(
         stream.listen(null, cancelOnError: cancelOnError),
         handleCancel ?? (inner) => inner.cancel(),
-        handlePause ?? (inner) => inner.pause(),
-        handleResume ?? (inner) => inner.resume());
+        handlePause ?? (inner) {
+          inner.pause();
+        },
+        handleResume ?? (inner) {
+          inner.resume();
+        });
   });
 }
 
@@ -42,13 +50,13 @@ class _TransformedSubscription<T> extends DelegatingStreamSubscription<T> {
   final StreamSubscription<T> _inner;
 
   /// The callback to run when [cancel] is called.
-  final _CancelHandler<T> _handleCancel;
+  final _AsyncHandler<T> _handleCancel;
 
   /// The callback to run when [pause] is called.
-  final _SimpleHandler<T> _handlePause;
+  final _VoidHandler<T> _handlePause;
 
   /// The callback to run when [resume] is called.
-  final _SimpleHandler<T> _handleResume;
+  final _VoidHandler<T> _handleResume;
 
   _TransformedSubscription(StreamSubscription<T> inner,
           this._handleCancel, this._handlePause, this._handleResume)
