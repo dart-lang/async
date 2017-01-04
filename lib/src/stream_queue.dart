@@ -213,53 +213,43 @@ abstract class StreamQueue<T> {
     throw _failClosed();
   }
 
-  /// Requests a batch of [count] connected "transactions" that can
-  /// conditionally consume events.
+  /// Requests a transaction that can conditionally consume events.
   ///
-  /// Each transaction is a [TransactionStreamQueue] which acts as an
-  /// independent clone of this queue, starting from this queue's current state.
-  /// They can be used to inspect upcoming events without changing the state of
-  /// the this queue. To do so, transactions have two methods in addition to the
-  /// [StreamQueue] interface:
+  /// The transaction can create copies of this queue at the current position
+  /// using [StreamQueueTransaction.newQueue]. Each of these queues is
+  /// independent of one another and of the parent queue. The transaction
+  /// finishes when one of two methods is called:
   ///
-  /// * [TransactionStreamQueue.reject] marks the transaction as finished
-  ///   without changing the state of this queue.
+  /// * [StreamQueueTransaction.commit] updates the parent queue's position to
+  ///   match that of one of the copies.
   ///
-  /// * [TransactionStreamQueue.accept] updates this queue with the state of the
-  ///   transaction. Only one transaction in a batch may be accepted—the others
-  ///   are automatically rejected.
+  /// * [StreamQueueTransaction.reject] causes the parent queue to continue as
+  ///   though [startTransaction] hadn't been called.
   ///
-  /// As long as any transactions in the batch are active, this queue won't emit
-  /// any events. If a transaction is accepted, this will move past any events
-  /// that transaction consumed. If all transactions are rejected, this will
-  /// continue from the same point [startTransactions] was called.
+  /// Until the transaction finishes, this queue won't emit any events.
   ///
   /// ```dart
   /// /// Consumes all empty lines from the beginning of [lines].
   /// Future consumeEmptyLines(StreamQueue<String> lines) {
   ///   while (await lines.hasNext) {
   ///     var transaction = lines.startTransaction();
-  ///     if ((await transaction.next).isNotEmpty) {
+  ///     var queue = transaction.newQueue();
+  ///     if ((await queue.next).isNotEmpty) {
   ///       transaction.reject();
   ///       return;
   ///     } else {
-  ///       transaction.accept();
+  ///       transaction.accept(queue);
   ///     }
   ///   }
   /// }
   /// ```
-  List<TransactionStreamQueue> startTransactions(int count) {
-    if (count < 0) throw new RangeError.range(count, 0, null, "count");
+  StreamQueueTransaction<T> startTransaction() {
     if (_isClosed) throw _failClosed();
 
-    var request = new _TransactionRequest(this, count);
+    var request = new _TransactionRequest(this);
     _addRequest(request);
-    return request.transactions;
+    return request.transaction;
   }
-
-  /// A utility method for starting a single transaction using
-  /// [startTransactions].
-  TransactionStreamQueue startTransaction() => startTransactions(1).first;
 
   /// Cancels the underlying event source.
   ///
@@ -458,20 +448,109 @@ class _StreamQueue<T> extends StreamQueue<T> {
   }
 }
 
-/// A [StreamQueue] cloned from a parent by [StreamQueue.startTransactions].
+/// A transaction on a [StreamQueue], created by [StreamQueue.startTransaction].
 ///
-/// This queue may be [accept]ed, moving the parent to the same event as this,
-/// or [reject]ed, marking this as finished without modifying the parent.
-class TransactionStreamQueue<T> extends _StreamQueue<T> {
-  /// The request that created this queue.
-  final _TransactionRequest<T> _request;
+/// Copies of the parent queue may be created using [newQueue]. Calling [commit]
+/// moves the parent queue to a copy's position, and calling [reject] causes it
+/// to continue as though [StreamQueue.startTransaction] was never called.
+class StreamQueueTransaction<T> {
+  /// The parent queue on which this transaction is active.
+  final StreamQueue<T> _parent;
 
-  /// Whether [accept] has been called.
-  var _accepted = false;
+  /// The splitter that produces copies of the parent queue's stream.
+  final StreamSplitter<T> _splitter;
+
+  /// Queues created using [newQueue].
+  final _queues = new Set<_TransactionStreamQueue>();
+
+  /// Whether [commit] has been called.
+  var _committed = false;
 
   /// Whether [reject] has been called.
   var _rejected = false;
 
+  StreamQueueTransaction._(this._parent, Stream<T> source)
+      : _splitter = new StreamSplitter(source);
+
+  /// Creates a new copy of the parent queue.
+  ///
+  /// This copy starts at the parent queue's position when
+  /// [StreamQueue.startTransaction] was called. Its position can be committed
+  /// to the parent queue using [commit].
+  StreamQueue<T> newQueue() {
+    var queue = new _TransactionStreamQueue(_splitter.split());
+    _queues.add(queue);
+    return queue;
+  }
+
+  /// Commits a queue created using [newQueue].
+  ///
+  /// The parent queue's position is updated to be the same as [queue]'s.
+  /// Further requests on all queues created by this transaction, including
+  /// [queue], will complete as though [cancel] were called with `immediate:
+  /// true`.
+  ///
+  /// Throws a [StateError] if [commit] or [reject] have already been called, or
+  /// if there are pending requests on [queue].
+  void commit(StreamQueue<T> queue) {
+    _assertActive();
+    if (!_queues.contains(queue)) {
+      throw new ArgumentError("Queue doesn't belong to this transaction.");
+    } else if (queue._requestQueue.isNotEmpty) {
+      throw new StateError("A queue with pending requests can't be committed.");
+    }
+    _committed = true;
+
+    // Remove all events from the parent queue that were consumed by the
+    // child queue.
+    var eventsConsumed = (queue as _TransactionStreamQueue)._eventsReceived -
+        queue._eventQueue.length;
+    for (var j = 0; j < eventsConsumed; j++) {
+      _parent._eventQueue.removeFirst();
+    }
+
+    _done();
+  }
+
+  /// Rejects this transaction without updating the parent queue.
+  ///
+  /// The parent will continue as though [StreamQueue.startTransaction] hadn't
+  /// been called. Further requests on all queues created by this transaction
+  /// will complete as though [cancel] were called with `immediate: true`.
+  ///
+  /// Throws a [StateError] if [commit] or [reject] have already been called.
+  void reject() {
+    _assertActive();
+    _rejected = true;
+    _done();
+  }
+
+  // Cancels all [_queues], removes the [_TransactionRequest] from [_parent]'s
+  // request queue, and runs the next request.
+  void _done() {
+    _splitter.close();
+    for (var queue in _queues) {
+      queue._cancel();
+    }
+
+    assert((_parent._requestQueue.first as _TransactionRequest)
+        .transaction == this);
+    _parent._requestQueue.removeFirst();
+    _parent._updateRequests();
+  }
+
+  /// Throws a [StateError] if [accept] or [reject] has already been called.
+  void _assertActive() {
+    if (_committed) {
+      throw new StateError("This transaction has already been accepted.");
+    } else if (_rejected) {
+      throw new StateError("This transaction has already been rejected.");
+    }
+  }
+}
+
+/// A [StreamQueue] that belongs to a [StreamQueueTransaction].
+class _TransactionStreamQueue<T> extends _StreamQueue<T> {
   /// The total number of events received by this queue, including events that
   /// haven't yet been consumed by requests.
   ///
@@ -479,55 +558,7 @@ class TransactionStreamQueue<T> extends _StreamQueue<T> {
   /// accepted.
   var _eventsReceived = 0;
 
-  TransactionStreamQueue._(Stream<T> sourceStream, this._request)
-      : super(sourceStream);
-
-  /// Updates the parent [StreamQueue] to match this transaction's state.
-  ///
-  /// Further requests on this queue will be completed as though the underlying
-  /// stream had been closed, as though [cancel] were called with `immediate:
-  /// true`. Other transactions in the same batch are automatically rejected.
-  ///
-  /// Throws a [StateError] if [accept] or [reject] has already been called, or
-  /// if there are pending requests on this queue.
-  void accept() {
-    _assertActive();
-
-    if (_requestQueue.isNotEmpty) {
-      throw new StateError(
-          "A transaction with pending requests can't be accepted.");
-    }
-
-    _accepted = true;
-    _cancel();
-    _request._onAccept(this);
-  }
-
-  /// Closes this transaction without updating the parent [StreamQueue].
-  ///
-  /// If all transactions in a batch are rejected, the parent will continue from
-  /// its state when [startTransactions] was called.
-  ///
-  /// Further requests and pending requests on this queue will be completed as
-  /// though the underlying stream had been closed, as though [cancel] were
-  /// called with `immediate: true`.
-  ///
-  /// Throws a [StateError] if [accept] or [reject] has already been called.
-  void reject() {
-    _assertActive();
-    _rejected = true;
-    _cancel();
-    _request._onReject();
-  }
-
-  /// Throws a [StateError] if [accept] or [reject] has already been called.
-  void _assertActive() {
-    if (_accepted) {
-      throw new StateError("This transaction has already been accepted.");
-    } else if (_rejected) {
-      throw new StateError("This transaction has already been rejected.");
-    }
-  }
+  _TransactionStreamQueue(Stream<T> sourceStream) : super(sourceStream);
 
   /// Modifies [StreamQueue._addResult] to count the total number of events that
   /// have been passed to this transaction.
@@ -772,90 +803,32 @@ class _HasNextRequest<T> implements _EventRequest<T> {
   }
 }
 
-/// Request for a [StreamQueue.startTransactions] call.
+/// Request for a [StreamQueue.startTransaction] call.
 ///
-/// The request isn't complete until the user calls
-/// [TransactionStreamQueue.accept] or [TransactionStreamQueue.reject] on one of
-/// the transactions, at which point it manually removes itself from the request
-/// queue and calls [StreamQueue._updateRequests].
+/// This request isn't complete until the user calls
+/// [StreamQueueTransaction.commit] or [StreamQueue.rejectTransaction], at which
+/// point it manually removes itself from the request queue and calls
+/// [StreamQueue._updateRequests].
 class _TransactionRequest<T> implements _EventRequest<T> {
-  /// The batch of transactions for this request.
-  final List<TransactionStreamQueue<T>> transactions;
+  /// The transaction created by this request.
+  StreamQueueTransaction<T> get transaction => _transaction;
+  StreamQueueTransaction<T> _transaction;
 
-  /// The stream queue to which this request was made.
-  final StreamQueue<T> _parent;
-
-  /// The controller that passes events to [transactions].
+  /// The controller that passes events to [transaction].
   final _controller = new StreamController<T>(sync: true);
 
   /// The number of events passed to [_controller] so far.
   var _eventsSent = 0;
 
-  /// The number of transactions that have been rejected so far.
-  var _rejections = 0;
-
-  _TransactionRequest(this._parent, int count)
-      : transactions = new List(count) {
-    var splitter = new StreamSplitter(_controller.stream);
-    for (var i = 0; i < count; i++) {
-      transactions[i] = new TransactionStreamQueue._(splitter.split(), this);
-    }
-    splitter.close();
+  _TransactionRequest(StreamQueue<T> parent) {
+    _transaction = new StreamQueueTransaction._(parent, _controller.stream);
   }
 
   bool update(QueueList<Result<T>> events, bool isDone) {
     while (_eventsSent < events.length) {
-      var result = events[_eventsSent++];
-      if (result.isValue) {
-        _controller.add(result.asValue.value);
-      } else {
-        _controller.addError(result.asError.error, result.asError.stackTrace);
-      }
+      events[_eventsSent++].addTo(_controller);
     }
     if (isDone && !_controller.isClosed) _controller.close();
     return false;
-  }
-
-  /// Called when [transaction] is accepted.
-  ///
-  /// Updates [_parent] to have the same state as [transaction] and rejects all
-  /// other transactions in [transactions].
-  void _onAccept(TransactionStreamQueue<T> transaction) {
-    // Remove all events from the parent queue that were consumed by the
-    // child queue.
-    var eventsConsumed =
-        transaction._eventsReceived - transaction._eventQueue.length;
-    for (var j = 0; j < eventsConsumed; j++) {
-      _parent._eventQueue.removeFirst();
-    }
-
-    // Mark other transactions as rejected.
-    for (var otherQueue in transactions) {
-      if (otherQueue == transaction) continue;
-      if (otherQueue._rejected) continue;
-      otherQueue._rejected = true;
-      otherQueue._cancel();
-    }
-
-    // Remove this transaction and re-runs the parent queue.
-    assert(transaction._requestQueue.isEmpty);
-    assert(_parent._requestQueue.first == this);
-    _parent._requestQueue.removeFirst();
-    _parent._updateRequests();
-  }
-
-  /// Called when a transaction is rejected.
-  ///
-  /// If all transactions have been rejected, makes [_parent] continue
-  /// processing requests after this one.
-  void _onReject() {
-    _rejections++;
-    if (_rejections != transactions.length) return;
-
-    // If all transactions have been rejected, this request matches no
-    // events. Remove it and re-run the queue.
-    assert(_parent._requestQueue.first == this);
-    _parent._requestQueue.removeFirst();
-    _parent._updateRequests();
   }
 }
