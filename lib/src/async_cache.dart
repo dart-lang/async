@@ -20,33 +20,42 @@ import 'package:async/async.dart';
 ///   // Actually fetch online users here.
 /// });
 /// ```
+///
+/// This class's timing can be mocked using [`fake_async`][fake_async].
+///
+/// [fake_async]: https://pub.dartlang.org/packages/fake_async
 class AsyncCache<T> {
-  // How long cached values stay fresh for.
+  /// How long cached values stay fresh.
   final Duration _duration;
 
-  // Cached results of a previous `fetchStream` call.
+  /// Cached results of a previous [fetchStream] call.
   StreamSplitter<T> _cachedStreamSplitter;
 
-  // Cached results of a previous `fetch` call.
+  /// Cached results of a previous [fetch] call.
   Future<T> _cachedValueFuture;
 
-  // Fires when the cache should be considered stale.
+  /// Fires when the cache should be considered stale.
   Timer _stale;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
   /// An ephemeral cache guarantees that a callback function will only be
-  /// executed at most once concurrently. This is useful for requests which data
-  /// is updated frequently but stale data is acceptable.
-  factory AsyncCache.ephemeral({DateTime now()}) =>
+  /// executed at most once concurrently. This is useful for requests for which
+  /// data is updated frequently but stale data is acceptable.
+  factory AsyncCache.ephemeral() =>
       new AsyncCache(Duration.ZERO);
 
-  /// Creates a cache that invalidates contents after a duration has passed.
+  /// Creates a cache that invalidates its contents after [duration] has passed.
+  ///
+  /// The [duration] starts counting after the Future returned by [fetch]
+  /// completes, or after the Stream returned by [fetchStream] emits a done
+  /// event.
   AsyncCache(this._duration);
 
-  /// Returns a cached value or runs [callback] to compute a new one.
+  /// Returns a cached value from a previous call to [fetch], or runs [callback]
+  /// to compute a new one.
   ///
-  /// If [callback] has been run recently enough, returns its previous return
+  /// If [fetch] has been called recently enough, returns its previous return
   /// value. Otherwise, runs [callback] and returns its new return value.
   Future<T> fetch(Future<T> callback()) async {
     if (_cachedStreamSplitter != null) {
@@ -60,19 +69,18 @@ class AsyncCache<T> {
     return _cachedValueFuture;
   }
 
-  /// Returns a cached stream or runs [callback] to compute a new stream.
+  /// Returns a cached stream from a previous call to [fetchStream], or runs
+  /// [callback] to compute a new stream.
   ///
-  /// If [callback] has been run recently enough, returns a copy of its previous
-  /// return value. Otherwise, runs [callback] and returns its new return value.
-  ///
-  /// If a stream is currently being fetched, waits until the _done_ event and
-  /// then returns the cached value.
+  /// If [fetchStream] has been called recently enough, returns a copy of its
+  /// previous return value. Otherwise, runs [callback] and returns its new
+  /// return value.
   Stream<T> fetchStream(Stream<T> callback()) {
     if (_cachedValueFuture != null) {
       throw new StateError('Previously used to cache via `fetch`');
     }
     if (_cachedStreamSplitter == null) {
-      _cachedStreamSplitter = new StreamSplitter<T>(callback()
+      _cachedStreamSplitter = new StreamSplitter(callback()
           .transform(new StreamTransformer.fromHandlers(handleDone: (sink) {
         _startStaleTimer();
         sink.close();

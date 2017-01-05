@@ -13,7 +13,7 @@ void main() {
 
   setUp(() {
     // Create a cache that is fresh for an hour.
-    cache = new AsyncCache<String>(const Duration(hours: 1));
+    cache = new AsyncCache(const Duration(hours: 1));
   });
 
   test('should fetch via a callback when no cache exists', () async {
@@ -27,11 +27,10 @@ void main() {
 
   test('should not fetch via callback when a future is in-flight', () async {
     // No actual caching is done, just avoid duplicate requests.
-    cache = new AsyncCache<String>.ephemeral();
+    cache = new AsyncCache.ephemeral();
 
     var completer = new Completer<String>();
-    Future<String> callCompleter() => completer.future;
-    expect(cache.fetch(callCompleter), completion('Expensive'));
+    expect(cache.fetch(() => completer.future), completion('Expensive'));
     expect(cache.fetch(expectAsync0(() {}, count: 0)), completion('Expensive'));
     await completer.complete('Expensive');
   });
@@ -39,7 +38,7 @@ void main() {
   test('should fetch via a callback again when cache expires', () {
     new FakeAsync().run((fakeAsync) async {
       var timesCalled = 0;
-      Future<String> call() async => 'Called ${++timesCalled}';
+      call() async => 'Called ${++timesCalled}';
       expect(await cache.fetch(call), 'Called 1');
       expect(await cache.fetch(call), 'Called 1', reason: 'Cache still fresh');
 
@@ -57,7 +56,7 @@ void main() {
 
   test('should fetch via a callback when manually invalidated', () async {
     var timesCalled = 0;
-    Future<String> call() async => 'Called ${++timesCalled}';
+    call() async => 'Called ${++timesCalled}';
     expect(await cache.fetch(call), 'Called 1');
     await cache.invalidate();
     expect(await cache.fetch(call), 'Called 2');
@@ -66,10 +65,9 @@ void main() {
   });
 
   test('should fetch a stream via a callback', () async {
-    var callback = expectAsync0/*<Stream<String>>*/(() {
+    expect(await cache.fetchStream(expectAsync0(() {
       return new Stream.fromIterable(['1', '2', '3']);
-    });
-    expect(await cache.fetchStream(callback).toList(), ['1', '2', '3']);
+    })).toList(), ['1', '2', '3']);
   });
 
   test('should not fetch stream via callback when a cache exists', () async {
@@ -149,9 +147,7 @@ void main() {
 
     StreamSubscription sub;
     sub = cache.fetchStream(call).listen(expectAsync1((event) {
-      if (event == '1') {
-        sub.pause();
-      }
+      if (event == '1') sub.pause();
     }));
     expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
   });
