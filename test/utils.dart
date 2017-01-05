@@ -24,7 +24,7 @@ OptionalArgAction unreachable(String name) =>
 /// emits an error that matches [matcher].
 Matcher throwsZoned(matcher) => predicate((callback) {
   var firstError = true;
-  runZoned(callback, onError: expectAsync((error, stackTrace) {
+  runZoned(callback, onError: expectAsync2((error, stackTrace) {
     if (firstError) {
       expect(error, matcher);
       firstError = false;

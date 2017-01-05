@@ -58,7 +58,7 @@ void main() {
   test("complete with value", () {
     Result<int> result = new ValueResult<int>(42);
     var c = new Completer<int>();
-    c.future.then(expectAsync((int v) { expect(v, equals(42)); }),
+    c.future.then(expectAsync1((int v) { expect(v, equals(42)); }),
                   onError: (e, s) { fail("Unexpected error"); });
     result.complete(c);
   });
@@ -67,7 +67,7 @@ void main() {
     Result<bool> result = new ErrorResult("BAD", stack);
     var c = new Completer<bool>();
     c.future.then((bool v) { fail("Unexpected value $v"); },
-                  onError: expectAsync((e, s) {
+                  onError: expectAsync2((e, s) {
                     expect(e, equals("BAD"));
                     expect(s, same(stack));
                   }));
@@ -77,7 +77,7 @@ void main() {
   test("add sink value", () {
     var result = new ValueResult<int>(42);
     EventSink<int> sink = new TestSink(
-        onData: expectAsync((v) { expect(v, equals(42)); })
+        onData: expectAsync1((v) { expect(v, equals(42)); })
     );
     result.addTo(sink);
   });
@@ -85,7 +85,7 @@ void main() {
   test("add sink error", () {
     Result<bool> result = new ErrorResult("BAD", stack);
     EventSink<bool> sink = new TestSink(
-        onError: expectAsync((e, s) {
+        onError: expectAsync2((e, s) {
           expect(e, equals("BAD"));
           expect(s, same(stack));
         })
@@ -95,14 +95,14 @@ void main() {
 
   test("value as future", () {
     Result<int> result = new ValueResult<int>(42);
-    result.asFuture.then(expectAsync((int v) { expect(v, equals(42)); }),
+    result.asFuture.then(expectAsync1((int v) { expect(v, equals(42)); }),
                          onError: (e, s) { fail("Unexpected error"); });
   });
 
   test("error as future", () {
     Result<bool> result = new ErrorResult("BAD", stack);
     result.asFuture.then((bool v) { fail("Unexpected value $v"); },
-                         onError: expectAsync((e, s) {
+                         onError: expectAsync2((e, s) {
                            expect(e, equals("BAD"));
                            expect(s, same(stack));
                          }));
@@ -110,7 +110,7 @@ void main() {
 
   test("capture future value", () {
     Future<int> value = new Future<int>.value(42);
-    Result.capture(value).then(expectAsync((Result result) {
+    Result.capture(value).then(expectAsync1((Result result) {
       expect(result.isValue, isTrue);
       expect(result.isError, isFalse);
       ValueResult value = result.asValue;
@@ -122,7 +122,7 @@ void main() {
 
   test("capture future error", () {
     Future<bool> value = new Future<bool>.error("BAD", stack);
-    Result.capture(value).then(expectAsync((Result result) {
+    Result.capture(value).then(expectAsync1((Result result) {
       expect(result.isValue, isFalse);
       expect(result.isError, isTrue);
       ErrorResult error = result.asError;
@@ -136,7 +136,7 @@ void main() {
   test("release future value", () {
     Future<Result<int>> future =
         new Future<Result<int>>.value(new Result<int>.value(42));
-    Result.release(future).then(expectAsync((v) {
+    Result.release(future).then(expectAsync1((v) {
       expect(v, equals(42));
     }), onError: (e, s) {
       fail("Unexpected error: $e");
@@ -149,7 +149,7 @@ void main() {
         new Future<Result<bool>>.value(new Result<bool>.error("BAD", stack));
     Result.release(future).then((v) {
       fail("Unexpected value: $v");
-    }, onError: expectAsync((e, s) {
+    }, onError: expectAsync2((e, s) {
       expect(e, equals("BAD"));
       expect(s, same(stack));
     }));
@@ -160,7 +160,7 @@ void main() {
     Future<Result<bool>> future = new Future<Result<bool>>.error("BAD", stack);
     Result.release(future).then((v) {
       fail("Unexpected value: $v");
-    }, onError: expectAsync((e, s) {
+    }, onError: expectAsync2((e, s) {
       expect(e, equals("BAD"));
       expect(s, same(stack));
     }));
@@ -176,9 +176,9 @@ void main() {
       expect(expectedList.isEmpty, isFalse);
       expectResult(actual, expectedList.removeFirst());
     }
-    stream.listen(expectAsync(listener, count: 3),
+    stream.listen(expectAsync1(listener, count: 3),
                   onError: (e, s) { fail("Unexpected error: $e"); },
-                  onDone: expectAsync((){}),
+                  onDone: expectAsync0((){}),
                   cancelOnError: true);
     c.add(42);
     c.addError("BAD", stack);
@@ -211,9 +211,9 @@ void main() {
       expect(stackTrace, same(expected.asError.stackTrace));
     }
 
-    stream.listen(expectAsync(dataListener, count: 2),
-                  onError: expectAsync(errorListener, count: 2),
-                  onDone: expectAsync((){}));
+    stream.listen(expectAsync1(dataListener, count: 2),
+                  onError: expectAsync2(errorListener, count: 2),
+                  onDone: expectAsync0((){}));
     for (Result<int> result in events) {
       c.add(result);  // Result value or error in data line.
     }
@@ -224,8 +224,8 @@ void main() {
   test("release stream cancel on error", () {
     StreamController<Result<int>> c = new StreamController<Result<int>>();
     Stream<int> stream = Result.releaseStream(c.stream);
-    stream.listen(expectAsync((v) { expect(v, equals(42)); }),
-                  onError: expectAsync((e, s) {
+    stream.listen(expectAsync1((v) { expect(v, equals(42)); }),
+                  onError: expectAsync2((e, s) {
                     expect(e, equals("BAD"));
                     expect(s, same(stack));
                   }),
@@ -259,7 +259,7 @@ void main() {
   });
 
   test("handle unary", () {
-    var result = new Result.error("error", stack);
+    ErrorResult result = new Result.error("error", stack);
     bool called = false;
     result.handle((error) {
       called = true;
@@ -269,7 +269,7 @@ void main() {
   });
 
   test("handle binary", () {
-    var result = new Result.error("error", stack);
+    ErrorResult result = new Result.error("error", stack);
     bool called = false;
     result.handle((error, stackTrace) {
       called = true;
@@ -280,7 +280,7 @@ void main() {
   });
 
   test("handle unary and binary", () {
-    var result = new Result.error("error", stack);
+    ErrorResult result = new Result.error("error", stack);
     bool called = false;
     result.handle((error, [stackTrace]) {
       called = true;
@@ -291,7 +291,7 @@ void main() {
   });
 
   test("handle neither unary nor binary", () {
-    var result = new Result.error("error", stack);
+    ErrorResult result = new Result.error("error", stack);
     expect(() => result.handle(() => fail("unreachable")),
            throws);
     expect(() => result.handle((a, b, c) => fail("unreachable")),

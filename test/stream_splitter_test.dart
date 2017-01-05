@@ -47,15 +47,15 @@ main() {
     controller.close();
 
     var count = 0;
-    branch.listen(expectAsync((value) {
+    branch.listen(expectAsync1((value) {
       expect(count, anyOf(0, 2));
       expect(value, equals(count + 1));
       count++;
-    }, count: 2), onError: expectAsync((error) {
+    }, count: 2), onError: expectAsync1((error) {
       expect(count, equals(1));
       expect(error, equals("error"));
       count++;
-    }), onDone: expectAsync(() {
+    }), onDone: expectAsync0(() {
       expect(count, equals(3));
     }));
   });

@@ -23,21 +23,21 @@ void main() {
     });
 
     test("onData()", () {
-      wrapper.onData(expectAsync((data) {
+      wrapper.onData(expectAsync1((data) {
         expect(data, equals(1));
       }));
       controller.add(1);
     });
 
     test("onError()", () {
-      wrapper.onError(expectAsync((error) {
+      wrapper.onError(expectAsync1((error) {
         expect(error, equals("oh no"));
       }));
       controller.addError("oh no");
     });
 
     test("onDone()", () {
-      wrapper.onDone(expectAsync(() {}));
+      wrapper.onDone(expectAsync0(() {}));
       controller.close();
     });
 
@@ -88,7 +88,7 @@ void main() {
           wrapper = new TypeSafeStreamSubscription<int>(
               controller.stream.listen(null));
 
-          wrapper.onData(expectAsync((_) {}, count: 0));
+          wrapper.onData(expectAsync1((_) {}, count: 0));
           controller.add("foo");
         }, throwsZonedCastError);
       });
@@ -96,7 +96,7 @@ void main() {
 
     group("doesn't throw a CastError for", () {
       test("onError()", () {
-        wrapper.onError(expectAsync((error) {
+        wrapper.onError(expectAsync1((error) {
           expect(error, equals("oh no"));
         }));
         controller.add("foo");
@@ -104,7 +104,7 @@ void main() {
       });
 
       test("onDone()", () {
-        wrapper.onDone(expectAsync(() {}));
+        wrapper.onDone(expectAsync0(() {}));
         controller.add("foo");
         controller.close();
       });
