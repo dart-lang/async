@@ -9,18 +9,18 @@ typedef DateTime _GetNow();
 /// Runs asynchronous functions and caches the result for a period of time.
 ///
 /// This class exists to cover the pattern of having potentially expensive code
-/// such as file I/O, network access, or isolate computation run fewer times in
-/// an application or process.
+/// such as file I/O, network access, or isolate computation that's unlikely to
+/// change quickly run.
 ///
 /// ## Example use with a `Future`:
 /// ```dart
-/// final _usersCache = new AsyncCache<List<String>>();
-///
 /// /// Runs the actual expensive code.
 /// Future<List<String>> _getOnlineUsers() => ...
 ///
+/// final _usersCache = new AsyncCache<List<String>>(const Duration(hours: 1));
+///
 /// /// Uses the cache if it exists, otherwise calls `_getOnlineUsers`.
-/// Future<List<String>> getOnlineUsers() => _usersCache.fetch(_getOnlineUsers);
+/// Future<List<String>> get onlineUsers => _usersCache.fetch(_getOnlineUsers);
 /// ```
 class AsyncCache<T> {
   static DateTime _defaultNow() => new DateTime.now();
@@ -28,10 +28,17 @@ class AsyncCache<T> {
   final Duration _duration;
   final _GetNow _getNow;
 
+  // Cached results of a previous `fetchStream` call.
   List<T> _cachedStreamValues;
+
+  // Non-null if a `fetchStream` call is currently in process, and completes
+  // once the stream is considered done.
   Future _fetchingStream;
 
+  // Cached results of a previous `fetch` call.
   Future<T> _cachedValueFuture;
+
+  // When a call to fetch or fetchStream should be automatically invalidated.
   DateTime _cachedExpiration;
 
   /// Creates a cache that invalidates contents after [duration] has passed.
@@ -43,8 +50,7 @@ class AsyncCache<T> {
   ///
   /// An ephemeral cache guarantees that a callback function will only be
   /// executed at most once concurrently. This is useful for requests which data
-  /// is updated frequently but the cost of making multiple requests without
-  /// previous completing yet is prohibitive or unwanted.
+  /// is updated frequently but stale data is acceptable.
   ///
   /// For _testing_, a custom `now` function may be provided.
   factory AsyncCache.ephemeral({DateTime now()}) =>
@@ -60,20 +66,29 @@ class AsyncCache<T> {
   /// If [callback] has been run recently enough, returns its previous return
   /// value. Otherwise, runs [callback] and returns its new return value.
   Future<T> fetch(Future<T> callback()) async {
+    if (_fetchingStream != null || _cachedStreamValues != null) {
+      throw new StateError('Previously used to cache via `fetchStream`');
+    }
     _invalidateWhenStale();
-    var result = await (_cachedValueFuture ??= callback());
+    if (_cachedValueFuture == null) {
+      _cachedValueFuture = callback();
+    }
+    var result = await _cachedValueFuture;
     _cachedExpiration ??= _getNow().add(_duration);
     return result;
   }
 
   /// Returns a cached stream or runs [callback] to compute a new stream.
   ///
-  /// If [callback] has been run recently enough, returns its previous return
-  /// value. Otherwise, runs [callback] and returns its new return value.
+  /// If [callback] has been run recently enough, returns a copy of its previous
+  /// return value. Otherwise, runs [callback] and returns its new return value.
   ///
   /// If a stream is currently being fetched, waits until the _done_ event and
   /// then returns the cached value.
   Stream<T> fetchStream(Stream<T> callback()) async* {
+    if (_cachedValueFuture != null) {
+      throw new StateError('Previously used to cache via `fetch`');
+    }
     _invalidateWhenStale();
     if (_fetchingStream != null) {
       await _fetchingStream;

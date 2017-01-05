@@ -18,12 +18,11 @@ void main() {
   });
 
   test('should fetch via a callback when no cache exists', () async {
-    var callback = expectAsync0/*<Future<String>>*/(() async => 'Expensive');
-    expect(await cache.fetch(callback), 'Expensive');
+    expect(await cache.fetch(() async => 'Expensive'), 'Expensive');
   });
 
   test('should not fetch via callback when a cache exists', () async {
-    Future<String> doNotCall() async => 'Should not have been invoked...';
+    var doNotCall = expectAsync0/*<Future<String>>*/((){}, count: 0);
     await cache.fetch(() async => 'Expensive');
     expect(await cache.fetch(doNotCall), 'Expensive');
   });
@@ -33,7 +32,7 @@ void main() {
     cache = new AsyncCache<String>.ephemeral(now: () => time);
 
     var completer = new Completer<String>();
-    Future<String> doNotCall() async => 'Should not have been invoked...';
+    var doNotCall = expectAsync0/*<Future<String>>*/((){}, count: 0);
     Future<String> callCompleter() => completer.future;
     expect(cache.fetch(callCompleter), completion('Expensive'));
     expect(cache.fetch(doNotCall), completion('Expensive'));
@@ -75,10 +74,7 @@ void main() {
   });
 
   test('should not fetch stream via callback when a cache exists', () async {
-    Stream<String> doNotCall() {
-      return new Stream.fromIterable(['SHOULD', 'NOT', 'SHOW', 'UP']);
-    }
-
+    var doNotCall = expectAsync0/*<Stream<String>>*/((){}, count: 0);
     await cache.fetchStream(() async* {
       yield '1';
       yield '2';
