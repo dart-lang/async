@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
+
 typedef DateTime _GetNow();
 
 /// Runs asynchronous functions and caches the result for a period of time.
@@ -29,11 +31,7 @@ class AsyncCache<T> {
   final _GetNow _getNow;
 
   // Cached results of a previous `fetchStream` call.
-  List<T> _cachedStreamValues;
-
-  // Non-null if a `fetchStream` call is currently in process, and completes
-  // once the stream is considered done.
-  Future _fetchingStream;
+  StreamSplitter<T> _cachedStreamSplitter;
 
   // Cached results of a previous `fetch` call.
   Future<T> _cachedValueFuture;
@@ -58,7 +56,10 @@ class AsyncCache<T> {
 
   // Prevent inheritance. This allows using a redirecting factory constructor
   // with different implementations in the future without a breaking API change.
-  AsyncCache._(this._duration, {DateTime now(): _defaultNow,})
+  AsyncCache._(
+    this._duration, {
+    DateTime now(): _defaultNow,
+  })
       : _getNow = now;
 
   /// Returns a cached value or runs [callback] to compute a new one.
@@ -66,7 +67,7 @@ class AsyncCache<T> {
   /// If [callback] has been run recently enough, returns its previous return
   /// value. Otherwise, runs [callback] and returns its new return value.
   Future<T> fetch(Future<T> callback()) async {
-    if (_fetchingStream != null || _cachedStreamValues != null) {
+    if (_cachedStreamSplitter != null) {
       throw new StateError('Previously used to cache via `fetchStream`');
     }
     _invalidateWhenStale();
@@ -85,43 +86,38 @@ class AsyncCache<T> {
   ///
   /// If a stream is currently being fetched, waits until the _done_ event and
   /// then returns the cached value.
-  Stream<T> fetchStream(Stream<T> callback()) async* {
+  Stream<T> fetchStream(Stream<T> callback()) {
     if (_cachedValueFuture != null) {
       throw new StateError('Previously used to cache via `fetch`');
     }
-    _invalidateWhenStale();
-    if (_fetchingStream != null) {
-      await _fetchingStream;
+    if (_isInvalidated) {
+      _cachedStreamSplitter.close();
+      invalidate();
     }
-    if (_cachedStreamValues != null) {
-      yield* new Stream<T>.fromIterable(_cachedStreamValues);
-      return;
+    if (_cachedStreamSplitter == null) {
+      _cachedStreamSplitter = new StreamSplitter<T>(callback());
+      _cachedStreamSplitter.split().last.then((_) {
+        _cachedExpiration = _getNow().add(_duration);
+      });
     }
-    var fetching = new Completer();
-    _fetchingStream = fetching.future;
-    var values = <T>[];
-    await for (var result in callback()) {
-      values.add(result);
-      yield result;
-    }
-    _cachedStreamValues = values;
-    _cachedExpiration ??= _getNow().add(_duration);
-    fetching.complete();
+    return _cachedStreamSplitter.split();
   }
 
   /// Removes any cached value, and returns `true` if a cached value existed.
   Future<bool> invalidate() {
-    if (_cachedExpiration == null) {
-      return new Future<bool>.value(false);
-    }
+    var wasCached = _cachedExpiration == null;
     _cachedExpiration = null;
     _cachedValueFuture = null;
-    _cachedStreamValues = null;
-    return new Future<bool>.value(true);
+    _cachedStreamSplitter = null;
+    return new Future<bool>.value(wasCached);
+  }
+
+  bool get _isInvalidated {
+    return _cachedExpiration != null && !_cachedExpiration.isAfter(_getNow());
   }
 
   void _invalidateWhenStale() {
-    if (_cachedExpiration != null && !_cachedExpiration.isAfter(_getNow())) {
+    if (_isInvalidated) {
       invalidate();
     }
   }

@@ -13,8 +13,8 @@ void main() {
 
   setUp(() {
     // Create a cache that is fresh for an hour starting at 1/1/17 @ 12:30PM.
-    cache = new AsyncCache<String>(const Duration(hours: 1), now: () => time);
     time = new DateTime(2017, 1, 1, 12, 30);
+    cache = new AsyncCache<String>(const Duration(hours: 1), now: () => time);
   });
 
   test('should fetch via a callback when no cache exists', () async {
@@ -131,5 +131,26 @@ void main() {
     expect(await cache.fetchStream(call).toList(), ['Called 2']);
     await cache.invalidate();
     expect(await cache.fetchStream(call).toList(), ['Called 3']);
+  });
+
+  test('should cancel a cached stream without effecting others', () async {
+    Stream<String> call() {
+      return new Stream<String>.fromIterable(['1', '2', '3']);
+    }
+    expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
+    expect(await cache.fetchStream(call).first, '1');
+  });
+
+  test('should pause a cached stream without effecting others', () async {
+    Stream<String> call() {
+      return new Stream<String>.fromIterable(['1', '2', '3']);
+    }
+    StreamSubscription sub;
+    sub = cache.fetchStream(call).listen((event) {
+      if (event == '1') {
+        sub.pause();
+      }
+    });
+    expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
   });
 }
