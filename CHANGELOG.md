@@ -1,3 +1,8 @@
+## 1.12.0
+
+* Add an `AsyncCache` class that caches asynchronous operations for a period of
+  time.
+
 ## 1.11.3
 
 * Fix strong-mode warning against the signature of Future.then
