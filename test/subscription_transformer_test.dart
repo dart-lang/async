@@ -248,4 +248,45 @@ void main() {
       subscription.resume();
     });
   });
+
+  group("when the outer subscription is canceled but the inner is not", () {
+    StreamSubscription subscription;
+    setUp(() {
+      var controller = new StreamController();
+      subscription = controller.stream
+          .transform(subscriptionTransformer(handleCancel: (_) {}))
+          .listen(
+              expectAsync1((_) {}, count: 0),
+              onError: expectAsync2((_, __) {}, count: 0),
+              onDone: expectAsync0(() {}, count: 0));
+      subscription.cancel();
+      controller.add(1);
+      controller.addError("oh no!");
+      controller.close();
+    });
+
+    test("doesn't call a new onData", () async {
+      subscription.onData(expectAsync1((_) {}, count: 0));
+      await flushMicrotasks();
+    });
+
+    test("doesn't call a new onError", () async {
+      subscription.onError(expectAsync2((_, __) {}, count: 0));
+      await flushMicrotasks();
+    });
+
+    test("doesn't call a new onDone", () async {
+      subscription.onDone(expectAsync0(() {}, count: 0));
+      await flushMicrotasks();
+    });
+
+    test("isPaused returns false", () {
+      expect(subscription.isPaused, isFalse);
+    });
+
+    test("asFuture never completes", () async {
+      subscription.asFuture().then(expectAsync1((_) {}, count: 0));
+      await flushMicrotasks();
+    });
+  });
 }

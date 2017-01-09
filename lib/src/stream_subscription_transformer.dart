@@ -18,9 +18,11 @@ typedef void _VoidHandler<T>(StreamSubscription<T> inner);
 /// [StreamSubscription.resume] is called, the corresponding handler is invoked.
 /// By default, handlers just forward to the underlying subscription.
 ///
-/// Guarantees that once the transformed [StreamSubscription] has been canceled,
-/// no further callbacks will be invoked. The [handlePause] and [handleResume]
-/// are invoked regardless of whether the subscription is paused already or not.
+/// Guarantees that none of the [StreamSubscription] callbacks and none of the
+/// callbacks passed to `subscriptionTransformer()` will be invoked once the
+/// transformed [StreamSubscription] has been canceled and `handleCancel()` has
+/// run. The [handlePause] and [handleResume] are invoked regardless of whether
+/// the subscription is paused already or not.
 ///
 /// In order to preserve [StreamSubscription] guarantees, **all callbacks must
 /// synchronously call the corresponding method** on the inner
@@ -45,9 +47,9 @@ StreamTransformer/*<T, T>*/ subscriptionTransformer/*<T>*/(
 
 /// A [StreamSubscription] wrapper that calls callbacks for subscription
 /// methods.
-class _TransformedSubscription<T> extends DelegatingStreamSubscription<T> {
+class _TransformedSubscription<T> implements StreamSubscription<T> {
   /// The wrapped subscription.
-  final StreamSubscription<T> _inner;
+  StreamSubscription<T> _inner;
 
   /// The callback to run when [cancel] is called.
   final _AsyncHandler<T> _handleCancel;
@@ -58,12 +60,33 @@ class _TransformedSubscription<T> extends DelegatingStreamSubscription<T> {
   /// The callback to run when [resume] is called.
   final _VoidHandler<T> _handleResume;
 
-  _TransformedSubscription(StreamSubscription<T> inner,
-          this._handleCancel, this._handlePause, this._handleResume)
-      : _inner = inner,
-        super(inner);
+  bool get isPaused => _inner?.isPaused ?? false;
 
-  Future cancel() => _cancelMemoizer.runOnce(() => _handleCancel(_inner));
+  _TransformedSubscription(this._inner, this._handleCancel, this._handlePause,
+      this._handleResume);
+
+  void onData(void handleData(T data)) {
+    _inner?.onData(handleData);
+  }
+
+  void onError(Function handleError) {
+    _inner?.onError(handleError);
+  }
+
+  void onDone(void handleDone()) {
+    _inner?.onDone(handleDone);
+  }
+
+  Future cancel() => _cancelMemoizer.runOnce(() {
+    var inner = _inner;
+    _inner.onData(null);
+    _inner.onDone(null);
+
+    // Setting onError to null will cause errors to be top-leveled.
+    _inner.onError((_, __) {});
+    _inner = null;
+    return _handleCancel(inner);
+  });
   final _cancelMemoizer = new AsyncMemoizer();
 
   void pause([Future resumeFuture]) {
@@ -76,4 +99,7 @@ class _TransformedSubscription<T> extends DelegatingStreamSubscription<T> {
     if (_cancelMemoizer.hasRun) return;
     _handleResume(_inner);
   }
+
+  Future/*<E>*/ asFuture/*<E>*/([/*=E*/ futureValue]) =>
+      _inner?.asFuture(futureValue) ?? new Completer().future;
 }
