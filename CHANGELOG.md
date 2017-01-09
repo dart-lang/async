@@ -3,6 +3,9 @@
 * Add an `AsyncCache` class that caches asynchronous operations for a period of
   time.
 
+* Add `StreamQueue.startTransaction()` and `StreamQueue.startTransactions()`.
+  These allow users to conditionally consume events based on their values.
+
 ## 1.11.3
 
 * Fix strong-mode warning against the signature of Future.then

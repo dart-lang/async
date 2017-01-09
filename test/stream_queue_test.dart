@@ -4,7 +4,7 @@
 
 import "dart:async";
 
-import "package:async/async.dart" show StreamQueue;
+import "package:async/async.dart";
 import "package:test/test.dart";
 
 import "utils.dart";
@@ -626,6 +626,177 @@ main() {
       expect(await events.next, 2);
       expect(await events.hasNext, true);
       expect(await events.cancel(), null);
+    });
+  });
+
+  group("startTransaction operation produces a transaction that", () {
+    StreamQueue<int> events;
+    StreamQueueTransaction<int> transaction;
+    StreamQueue<int> queue1;
+    StreamQueue<int> queue2;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+      transaction = events.startTransaction();
+      queue1 = transaction.newQueue();
+      queue2 = transaction.newQueue();
+    });
+
+    group("emits queues that", () {
+      test("independently emit events", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+        expect(await queue1.next, 3);
+        expect(await queue1.next, 4);
+        expect(await queue2.next, 4);
+        expect(await queue1.hasNext, isFalse);
+        expect(await queue2.hasNext, isFalse);
+      });
+
+      test("queue requests for events", () async {
+        expect(queue1.next, completion(2));
+        expect(queue2.next, completion(2));
+        expect(queue2.next, completion(3));
+        expect(queue1.next, completion(3));
+        expect(queue1.next, completion(4));
+        expect(queue2.next, completion(4));
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue2.hasNext, completion(isFalse));
+      });
+
+      test("independently emit errors", () async {
+        events = new StreamQueue(createErrorStream());
+        expect(await events.next, 1);
+        transaction = events.startTransaction();
+        queue1 = transaction.newQueue();
+        queue2 = transaction.newQueue();
+
+        expect(queue1.next, completion(2));
+        expect(queue2.next, completion(2));
+        expect(queue2.next, throwsA("To err is divine!"));
+        expect(queue1.next, throwsA("To err is divine!"));
+        expect(queue1.next, completion(4));
+        expect(queue2.next, completion(4));
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue2.hasNext, completion(isFalse));
+      });
+    });
+
+    group("when rejected", () {
+      test("further original requests use the previous state", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+
+        await flushMicrotasks();
+        transaction.reject();
+
+        expect(await events.next, 2);
+        expect(await events.next, 3);
+        expect(await events.next, 4);
+        expect(await events.hasNext, isFalse);
+      });
+
+      test("pending original requests use the previous state", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+        expect(events.next, completion(2));
+        expect(events.next, completion(3));
+        expect(events.next, completion(4));
+        expect(events.hasNext, completion(isFalse));
+
+        await flushMicrotasks();
+        transaction.reject();
+      });
+
+      test("further child requests act as though the stream was closed",
+          () async {
+        expect(await queue1.next, 2);
+        transaction.reject();
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("pending child requests act as though the stream was closed",
+          () async {
+        expect(await queue1.next, 2);
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue1.next, throwsStateError);
+        transaction.reject();
+      });
+
+      test("child requests' cancel() may still be called explicitly", () async {
+        transaction.reject();
+        await queue1.cancel();
+      });
+
+      test("calls to commit() or reject() fail", () async {
+        transaction.reject();
+        expect(transaction.reject, throwsStateError);
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
+    });
+
+    group("when committed,", () {
+      test("further original requests use the committed state", () async {
+        expect(await queue1.next, 2);
+        await flushMicrotasks();
+        transaction.commit(queue1);
+        expect(await events.next, 3);
+      });
+
+      test("pending original requests use the committed state", () async {
+        expect(await queue1.next, 2);
+        expect(events.next, completion(3));
+        await flushMicrotasks();
+        transaction.commit(queue1);
+      });
+
+      test("further child requests act as though the stream was closed",
+          () async {
+        expect(await queue2.next, 2);
+        transaction.commit(queue2);
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("pending child requests act as though the stream was closed",
+          () async {
+        expect(await queue2.next, 2);
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue1.next, throwsStateError);
+        transaction.commit(queue2);
+      });
+
+      test("further requests act as though the stream was closed", () async {
+        expect(await queue1.next, 2);
+        transaction.commit(queue1);
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("cancel() may still be called explicitly", () async {
+        expect(await queue1.next, 2);
+        transaction.commit(queue1);
+        await queue1.cancel();
+      });
+
+      test("throws if there are pending requests", () async {
+        expect(await queue1.next, 2);
+        expect(queue1.hasNext, completion(isTrue));
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
+
+      test("calls to commit() or reject() fail", () async {
+        transaction.commit(queue1);
+        expect(transaction.reject, throwsStateError);
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
     });
   });
 
