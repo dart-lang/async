@@ -33,15 +33,15 @@ void testStream(String name, StreamController controller, Stream stream) {
     runZoned(() {
       Zone newZone1 = Zone.current;
       StreamSubscription sub;
-      sub = stream.listen(expectAsync((v) {
+      sub = stream.listen(expectAsync1((v) {
         expect(v, 42);
         expect(Zone.current, newZone1);
         outer.run(() {
-          sub.onData(expectAsync((v) {
+          sub.onData(expectAsync1((v) {
             expect(v, 37);
             expect(Zone.current, newZone1);
             runZoned(() {
-              sub.onData(expectAsync((v) {
+              sub.onData(expectAsync1((v) {
                 expect(v, 87);
                 expect(Zone.current, newZone1);
               }));

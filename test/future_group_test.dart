@@ -187,16 +187,16 @@ void main() {
       var onIdleDone = false;
       var futureFired = false;
 
-      futureGroup.onIdle.listen(expectAsync((_) {
+      futureGroup.onIdle.listen(expectAsync1((_) {
         expect(futureFired, isFalse);
         idle = true;
-      }), onDone: expectAsync(() {
+      }), onDone: expectAsync0(() {
         expect(idle, isTrue);
         expect(futureFired, isFalse);
         onIdleDone = true;
       }));
 
-      futureGroup.future.then(expectAsync((_) {
+      futureGroup.future.then(expectAsync1((_) {
         expect(idle, isTrue);
         expect(onIdleDone, isTrue);
         futureFired = true;

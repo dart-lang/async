@@ -1,5 +1,8 @@
 ## 1.12.0
 
+* Add an `AsyncCache` class that caches asynchronous operations for a period of
+  time.
+
 * Add `StreamQueue.startTransaction()` and `StreamQueue.startTransactions()`.
   These allow users to conditionally consume events based on their values.
 

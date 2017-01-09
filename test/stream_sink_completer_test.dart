@@ -73,7 +73,7 @@ main() {
       completer.setDestinationSink(sink);
 
       var closeCompleted = false;
-      completer.sink.close().then(expectAsync((_) {
+      completer.sink.close().then(expectAsync1((_) {
         closeCompleted = true;
       }));
 
@@ -174,7 +174,7 @@ main() {
 
     test("the future from the inner close() is returned", () async {
       var closeCompleted = false;
-      completer.sink.close().then(expectAsync((_) {
+      completer.sink.close().then(expectAsync1((_) {
         closeCompleted = true;
       }));
       await flushMicrotasks();
@@ -247,7 +247,7 @@ main() {
 
   group("fromFuture()", () {
     test("with a successful completion", () async {
-      var futureCompleter = new Completer();
+      var futureCompleter = new Completer<StreamSink>();
       var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
       sink.add(1);
       sink.add(2);
@@ -264,7 +264,7 @@ main() {
     });
 
     test("with an error", () async {
-      var futureCompleter = new Completer();
+      var futureCompleter = new Completer<StreamSink>();
       var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
       expect(sink.done, throwsA("oh no"));
       futureCompleter.completeError("oh no");

@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+export "src/async_cache.dart";
 export "src/async_memoizer.dart";
 export "src/cancelable_operation.dart";
 export "src/delegate/event_sink.dart";

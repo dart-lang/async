@@ -211,7 +211,7 @@ main() {
         var canceled = false;
         var controller = new StreamController<String>(onListen: () {
           listened = true;
-        }, onCancel: expectAsync(() {
+        }, onCancel: expectAsync0(() {
           expect(listened, isTrue);
           canceled = true;
         }));
@@ -357,7 +357,7 @@ main() {
       var subscription = streamGroup.stream.listen(null);
 
       var controller = new StreamController<String>(
-          onCancel: expectAsync(() {}, count: 0));
+          onCancel: expectAsync0(() {}, count: 0));
 
       streamGroup.add(controller.stream);
       await flushMicrotasks();
