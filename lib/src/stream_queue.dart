@@ -7,6 +7,7 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
+import "cancelable_operation.dart";
 import "result.dart";
 import "subscription_stream.dart";
 import "stream_completer.dart";
@@ -293,6 +294,40 @@ abstract class StreamQueue<T> {
       transaction.commit(queue);
       throw error;
     });
+  }
+
+  /// Passes a copy of this queue to [callback], and updates this queue to match
+  /// the copy's position once [callback] completes.
+  ///
+  /// If the returned [CancelableOperation] is canceled, this queue instead
+  /// continues as though [cancelable] hadn't been called. Otherwise, it emits
+  /// the same value or error as [callback].
+  ///
+  /// See also [startTransaction] and [withTransaction].
+  ///
+  /// ```dart
+  /// final _stdinQueue = new StreamQueue(stdin);
+  ///
+  /// /// Returns an operation that completes when the user sends a line to
+  /// /// standard input.
+  /// ///
+  /// /// If the operation is canceled, stops waiting for user input.
+  /// CancelableOperation<String> nextStdinLine() =>
+  ///     _stdinQueue.cancelable((queue) => queue.next);
+  /// ```
+  CancelableOperation/*<S>*/ cancelable/*<S>*/(
+      Future/*<S>*/ callback(StreamQueue<T> queue)) {
+    var transaction = startTransaction();
+    var completer = new CancelableCompleter/*<S>*/(onCancel: () {
+      transaction.reject();
+    });
+
+    var queue = transaction.newQueue();
+    completer.complete(callback(queue).whenComplete(() {
+      if (!completer.isCanceled) transaction.commit(queue);
+    }));
+
+    return completer.operation;
   }
 
   /// Cancels the underlying event source.
