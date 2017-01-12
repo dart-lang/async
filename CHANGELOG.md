@@ -3,8 +3,11 @@
 * Add an `AsyncCache` class that caches asynchronous operations for a period of
   time.
 
-* Add `StreamQueue.startTransaction()` and `StreamQueue.startTransactions()`.
+* Add `StreamQueue.startTransaction()` and `StreamQueue.withTransaction()`.
   These allow users to conditionally consume events based on their values.
+
+* Add `StreamQueue.cancelable()`, which allows users to easily make a
+  `CancelableOperation` that can be canceled without affecting the queue.
 
 ## 1.11.3
 

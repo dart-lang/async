@@ -7,6 +7,7 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
+import "cancelable_operation.dart";
 import "result.dart";
 import "subscription_stream.dart";
 import "stream_completer.dart";
@@ -228,9 +229,11 @@ abstract class StreamQueue<T> {
   ///
   /// Until the transaction finishes, this queue won't emit any events.
   ///
+  /// See also [withTransaction] and [cancelable].
+  ///
   /// ```dart
   /// /// Consumes all empty lines from the beginning of [lines].
-  /// Future consumeEmptyLines(StreamQueue<String> lines) {
+  /// Future consumeEmptyLines(StreamQueue<String> lines) async {
   ///   while (await lines.hasNext) {
   ///     var transaction = lines.startTransaction();
   ///     var queue = transaction.newQueue();
@@ -238,7 +241,7 @@ abstract class StreamQueue<T> {
   ///       transaction.reject();
   ///       return;
   ///     } else {
-  ///       transaction.accept(queue);
+  ///       transaction.commit(queue);
   ///     }
   ///   }
   /// }
@@ -249,6 +252,82 @@ abstract class StreamQueue<T> {
     var request = new _TransactionRequest(this);
     _addRequest(request);
     return request.transaction;
+  }
+
+  /// Passes a copy of this queue to [callback], and updates this queue to match
+  /// the copy's position if [callback] returns `true`.
+  ///
+  /// This queue won't emit any events until [callback] returns. If it returns
+  /// `false`, this queue continues as though [withTransaction] hadn't been
+  /// called. If it throws an error, this updates this queue to match the copy's
+  /// position and throws the error from the returned `Future`.
+  ///
+  /// Returns the same value as [callback].
+  ///
+  /// See also [startTransaction] and [cancelable].
+  ///
+  /// ```dart
+  /// /// Consumes all empty lines from the beginning of [lines].
+  /// Future consumeEmptyLines(StreamQueue<String> lines) async {
+  ///   while (await lines.hasNext) {
+  ///     // Consume a line if it's empty, otherwise return.
+  ///     if (!await lines.withTransaction(
+  ///         (queue) async => (await queue.next).isEmpty)) {
+  ///       return;
+  ///     }
+  ///   }
+  /// }
+  /// ```
+  Future<bool> withTransaction(Future<bool> callback(StreamQueue<T> queue)) {
+    var transaction = startTransaction();
+
+    /// Avoid async/await to ensure that [startTransaction] is called
+    /// synchronously and so ends up in the right place in the request queue.
+    var queue = transaction.newQueue();
+    return callback(queue).then((result) {
+      if (result) {
+        transaction.commit(queue);
+      } else {
+        transaction.reject();
+      }
+    }, onError: (error) {
+      transaction.commit(queue);
+      throw error;
+    });
+  }
+
+  /// Passes a copy of this queue to [callback], and updates this queue to match
+  /// the copy's position once [callback] completes.
+  ///
+  /// If the returned [CancelableOperation] is canceled, this queue instead
+  /// continues as though [cancelable] hadn't been called. Otherwise, it emits
+  /// the same value or error as [callback].
+  ///
+  /// See also [startTransaction] and [withTransaction].
+  ///
+  /// ```dart
+  /// final _stdinQueue = new StreamQueue(stdin);
+  ///
+  /// /// Returns an operation that completes when the user sends a line to
+  /// /// standard input.
+  /// ///
+  /// /// If the operation is canceled, stops waiting for user input.
+  /// CancelableOperation<String> nextStdinLine() =>
+  ///     _stdinQueue.cancelable((queue) => queue.next);
+  /// ```
+  CancelableOperation/*<S>*/ cancelable/*<S>*/(
+      Future/*<S>*/ callback(StreamQueue<T> queue)) {
+    var transaction = startTransaction();
+    var completer = new CancelableCompleter/*<S>*/(onCancel: () {
+      transaction.reject();
+    });
+
+    var queue = transaction.newQueue();
+    completer.complete(callback(queue).whenComplete(() {
+      if (!completer.isCanceled) transaction.commit(queue);
+    }));
+
+    return completer.operation;
   }
 
   /// Cancels the underlying event source.

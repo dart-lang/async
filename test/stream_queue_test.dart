@@ -800,6 +800,106 @@ main() {
     });
   });
 
+  group("withTransaction operation", () {
+    StreamQueue<int> events;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+    });
+
+    test("passes a copy of the parent queue", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        expect(await queue.next, 3);
+        expect(await queue.next, 4);
+        expect(await queue.hasNext, isFalse);
+        return true;
+      }));
+    });
+
+    test("the parent queue continues from the child position if it returns "
+        "true", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return true;
+      }));
+
+      expect(await events.next, 3);
+    });
+
+    test("the parent queue continues from its original position if it returns "
+        "false", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return false;
+      }));
+
+      expect(await events.next, 2);
+    });
+
+    test("the parent queue continues from the child position if it throws", () {
+      expect(events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        throw "oh no";
+      })), throwsA("oh no"));
+
+      expect(events.next, completion(3));
+    });
+  });
+
+  group("cancelable operation", () {
+    StreamQueue<int> events;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+    });
+
+    test("passes a copy of the parent queue", () async {
+      await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        expect(await queue.next, 3);
+        expect(await queue.next, 4);
+        expect(await queue.hasNext, isFalse);
+      })).value;
+    });
+
+    test("the parent queue continues from the child position by default",
+        () async {
+      await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+      })).value;
+
+      expect(await events.next, 3);
+    });
+
+    test("the parent queue continues from the child position if an error is "
+        "thrown", () async {
+      expect(events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        throw "oh no";
+      })).value, throwsA("oh no"));
+
+      expect(events.next, completion(3));
+    });
+
+    test("the parent queue continues from the original position if canceled",
+        () async {
+      var operation = events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+      }));
+      operation.cancel();
+
+      expect(await events.next, 2);
+    });
+
+    test("forwards the value from the callback", () async {
+      expect(await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return "value";
+      })).value, "value");
+    });
+  });
+
   test("all combinations sequential skip/next/take operations", () async {
     // Takes all combinations of two of next, skip and take, then ends with
     // doing rest. Each of the first rounds do 10 events of each type,
