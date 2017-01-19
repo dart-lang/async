@@ -24,7 +24,7 @@ void main() {
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(results.add, onDone: expectAsync(() {
+      controller.stream.listen(results.add, onDone: expectAsync0(() {
         expect(results, equals([2, 4, 6]));
       }));
 
@@ -38,16 +38,16 @@ void main() {
       var transformer = new StreamSinkTransformer.fromStreamTransformer(
           new StreamTransformer.fromHandlers(
               handleError: (i, stackTrace, sink) {
-                sink.addError(i * 2, stackTrace);
+                sink.addError((i as num) * 2, stackTrace);
               }));
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(expectAsync((_) {}, count: 0),
+      controller.stream.listen(expectAsync1((_) {}, count: 0),
           onError: (error, stackTrace) {
             results.add(error);
           },
-          onDone: expectAsync(() {
+          onDone: expectAsync0(() {
             expect(results, equals([2, 4, 6]));
           }));
 
@@ -67,7 +67,7 @@ void main() {
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(results.add, onDone: expectAsync(() {
+      controller.stream.listen(results.add, onDone: expectAsync0(() {
         expect(results, equals([1]));
       }));
 
@@ -126,7 +126,7 @@ void main() {
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(results.add, onDone: expectAsync(() {
+      controller.stream.listen(results.add, onDone: expectAsync0(() {
         expect(results, equals([2, 4, 6]));
       }));
 
@@ -139,16 +139,16 @@ void main() {
     test("transforms error events", () {
       var transformer = new StreamSinkTransformer.fromHandlers(
           handleError: (i, stackTrace, sink) {
-            sink.addError(i * 2, stackTrace);
+            sink.addError((i as num) * 2, stackTrace);
           });
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(expectAsync((_) {}, count: 0),
+      controller.stream.listen(expectAsync1((_) {}, count: 0),
           onError: (error, stackTrace) {
             results.add(error);
           },
-          onDone: expectAsync(() {
+          onDone: expectAsync0(() {
             expect(results, equals([2, 4, 6]));
           }));
 
@@ -167,7 +167,7 @@ void main() {
       var sink = transformer.bind(controller.sink);
 
       var results = [];
-      controller.stream.listen(results.add, onDone: expectAsync(() {
+      controller.stream.listen(results.add, onDone: expectAsync0(() {
         expect(results, equals([1]));
       }));
 

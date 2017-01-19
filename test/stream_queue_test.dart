@@ -4,7 +4,7 @@
 
 import "dart:async";
 
-import "package:async/async.dart" show StreamQueue;
+import "package:async/async.dart";
 import "package:test/test.dart";
 
 import "utils.dart";
@@ -150,7 +150,7 @@ main() {
       var skip4 = events.skip(1);
       var index = 0;
       // Check that futures complete in order.
-      sequence(expectedValue, sequenceIndex) => (value) {
+      Func1Required<int> sequence(expectedValue, sequenceIndex) => (value) {
         expect(value, expectedValue);
         expect(index, sequenceIndex);
         index++;
@@ -629,6 +629,277 @@ main() {
     });
   });
 
+  group("startTransaction operation produces a transaction that", () {
+    StreamQueue<int> events;
+    StreamQueueTransaction<int> transaction;
+    StreamQueue<int> queue1;
+    StreamQueue<int> queue2;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+      transaction = events.startTransaction();
+      queue1 = transaction.newQueue();
+      queue2 = transaction.newQueue();
+    });
+
+    group("emits queues that", () {
+      test("independently emit events", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+        expect(await queue1.next, 3);
+        expect(await queue1.next, 4);
+        expect(await queue2.next, 4);
+        expect(await queue1.hasNext, isFalse);
+        expect(await queue2.hasNext, isFalse);
+      });
+
+      test("queue requests for events", () async {
+        expect(queue1.next, completion(2));
+        expect(queue2.next, completion(2));
+        expect(queue2.next, completion(3));
+        expect(queue1.next, completion(3));
+        expect(queue1.next, completion(4));
+        expect(queue2.next, completion(4));
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue2.hasNext, completion(isFalse));
+      });
+
+      test("independently emit errors", () async {
+        events = new StreamQueue(createErrorStream());
+        expect(await events.next, 1);
+        transaction = events.startTransaction();
+        queue1 = transaction.newQueue();
+        queue2 = transaction.newQueue();
+
+        expect(queue1.next, completion(2));
+        expect(queue2.next, completion(2));
+        expect(queue2.next, throwsA("To err is divine!"));
+        expect(queue1.next, throwsA("To err is divine!"));
+        expect(queue1.next, completion(4));
+        expect(queue2.next, completion(4));
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue2.hasNext, completion(isFalse));
+      });
+    });
+
+    group("when rejected", () {
+      test("further original requests use the previous state", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+
+        await flushMicrotasks();
+        transaction.reject();
+
+        expect(await events.next, 2);
+        expect(await events.next, 3);
+        expect(await events.next, 4);
+        expect(await events.hasNext, isFalse);
+      });
+
+      test("pending original requests use the previous state", () async {
+        expect(await queue1.next, 2);
+        expect(await queue2.next, 2);
+        expect(await queue2.next, 3);
+        expect(events.next, completion(2));
+        expect(events.next, completion(3));
+        expect(events.next, completion(4));
+        expect(events.hasNext, completion(isFalse));
+
+        await flushMicrotasks();
+        transaction.reject();
+      });
+
+      test("further child requests act as though the stream was closed",
+          () async {
+        expect(await queue1.next, 2);
+        transaction.reject();
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("pending child requests act as though the stream was closed",
+          () async {
+        expect(await queue1.next, 2);
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue1.next, throwsStateError);
+        transaction.reject();
+      });
+
+      test("child requests' cancel() may still be called explicitly", () async {
+        transaction.reject();
+        await queue1.cancel();
+      });
+
+      test("calls to commit() or reject() fail", () async {
+        transaction.reject();
+        expect(transaction.reject, throwsStateError);
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
+    });
+
+    group("when committed,", () {
+      test("further original requests use the committed state", () async {
+        expect(await queue1.next, 2);
+        await flushMicrotasks();
+        transaction.commit(queue1);
+        expect(await events.next, 3);
+      });
+
+      test("pending original requests use the committed state", () async {
+        expect(await queue1.next, 2);
+        expect(events.next, completion(3));
+        await flushMicrotasks();
+        transaction.commit(queue1);
+      });
+
+      test("further child requests act as though the stream was closed",
+          () async {
+        expect(await queue2.next, 2);
+        transaction.commit(queue2);
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("pending child requests act as though the stream was closed",
+          () async {
+        expect(await queue2.next, 2);
+        expect(queue1.hasNext, completion(isFalse));
+        expect(queue1.next, throwsStateError);
+        transaction.commit(queue2);
+      });
+
+      test("further requests act as though the stream was closed", () async {
+        expect(await queue1.next, 2);
+        transaction.commit(queue1);
+
+        expect(await queue1.hasNext, isFalse);
+        expect(queue1.next, throwsStateError);
+      });
+
+      test("cancel() may still be called explicitly", () async {
+        expect(await queue1.next, 2);
+        transaction.commit(queue1);
+        await queue1.cancel();
+      });
+
+      test("throws if there are pending requests", () async {
+        expect(await queue1.next, 2);
+        expect(queue1.hasNext, completion(isTrue));
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
+
+      test("calls to commit() or reject() fail", () async {
+        transaction.commit(queue1);
+        expect(transaction.reject, throwsStateError);
+        expect(() => transaction.commit(queue1), throwsStateError);
+      });
+    });
+  });
+
+  group("withTransaction operation", () {
+    StreamQueue<int> events;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+    });
+
+    test("passes a copy of the parent queue", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        expect(await queue.next, 3);
+        expect(await queue.next, 4);
+        expect(await queue.hasNext, isFalse);
+        return true;
+      }));
+    });
+
+    test("the parent queue continues from the child position if it returns "
+        "true", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return true;
+      }));
+
+      expect(await events.next, 3);
+    });
+
+    test("the parent queue continues from its original position if it returns "
+        "false", () async {
+      await events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return false;
+      }));
+
+      expect(await events.next, 2);
+    });
+
+    test("the parent queue continues from the child position if it throws", () {
+      expect(events.withTransaction(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        throw "oh no";
+      })), throwsA("oh no"));
+
+      expect(events.next, completion(3));
+    });
+  });
+
+  group("cancelable operation", () {
+    StreamQueue<int> events;
+    setUp(() async {
+      events = new StreamQueue(createStream());
+      expect(await events.next, 1);
+    });
+
+    test("passes a copy of the parent queue", () async {
+      await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        expect(await queue.next, 3);
+        expect(await queue.next, 4);
+        expect(await queue.hasNext, isFalse);
+      })).value;
+    });
+
+    test("the parent queue continues from the child position by default",
+        () async {
+      await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+      })).value;
+
+      expect(await events.next, 3);
+    });
+
+    test("the parent queue continues from the child position if an error is "
+        "thrown", () async {
+      expect(events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        throw "oh no";
+      })).value, throwsA("oh no"));
+
+      expect(events.next, completion(3));
+    });
+
+    test("the parent queue continues from the original position if canceled",
+        () async {
+      var operation = events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+      }));
+      operation.cancel();
+
+      expect(await events.next, 2);
+    });
+
+    test("forwards the value from the callback", () async {
+      expect(await events.cancelable(expectAsync1((queue) async {
+        expect(await queue.next, 2);
+        return "value";
+      })).value, "value");
+    });
+  });
+
   test("all combinations sequential skip/next/take operations", () async {
     // Takes all combinations of two of next, skip and take, then ends with
     // doing rest. Each of the first rounds do 10 events of each type,
@@ -671,6 +942,8 @@ main() {
            completion(new List.generate(20, (i) => counter + i)));
   });
 }
+
+typedef T Func1Required<T>(T value);
 
 Stream<int> createStream() async* {
   yield 1;

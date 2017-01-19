@@ -101,7 +101,7 @@ main() {
     new FakeAsync().run((async) {
       new RestartableTimer(
           new Duration(seconds: 5),
-          expectAsync(() {}, count: 1));
+          expectAsync0(() {}, count: 1));
       async.elapse(new Duration(seconds: 10));
     });
   });

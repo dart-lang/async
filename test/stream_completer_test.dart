@@ -343,10 +343,10 @@ main() {
       var completer = new StreamCompleter();
       completer.stream.listen(
           unreachable("data"),
-          onError: expectAsync((error, stackTrace) {
+          onError: expectAsync2((error, stackTrace) {
             expect(error, equals("oh no"));
           }),
-          onDone: expectAsync(() {}));
+          onDone: expectAsync0(() {}));
 
       completer.setError("oh no");
     });
@@ -359,10 +359,10 @@ main() {
 
       completer.stream.listen(
           unreachable("data"),
-          onError: expectAsync((error, stackTrace) {
+          onError: expectAsync2((error, stackTrace) {
             expect(error, equals("oh no"));
           }),
-          onDone: expectAsync(() {}));
+          onDone: expectAsync0(() {}));
     });
   });
 }
