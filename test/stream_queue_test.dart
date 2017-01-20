@@ -42,6 +42,47 @@ main() {
     });
   });
 
+  group("eventsDispatched", () {
+    test("increments after a next future completes", () async {
+      var events = new StreamQueue<int>(createStream());
+
+      expect(events.eventsDispatched, equals(0));
+      await flushMicrotasks();
+      expect(events.eventsDispatched, equals(0));
+
+      var next = events.next;
+      expect(events.eventsDispatched, equals(0));
+
+      await next;
+      expect(events.eventsDispatched, equals(1));
+
+      await events.next;
+      expect(events.eventsDispatched, equals(2));
+    });
+
+    test("increments multiple times for multi-value requests", () async {
+      var events = new StreamQueue<int>(createStream());
+      await events.take(3);
+      expect(events.eventsDispatched, equals(3));
+    });
+
+    test("increments multiple times for an accepted transaction", () async {
+      var events = new StreamQueue<int>(createStream());
+      await events.withTransaction((queue) async {
+        await queue.next;
+        await queue.next;
+        return true;
+      });
+      expect(events.eventsDispatched, equals(2));
+    });
+
+    test("doesn't increment for rest requests", () async {
+      var events = new StreamQueue<int>(createStream());
+      await events.rest.toList();
+      expect(events.eventsDispatched, equals(0));
+    });
+  });
+
   group("next operation", () {
     test("simple sequence of requests", () async {
       var events = new StreamQueue<int>(createStream());

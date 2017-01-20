@@ -9,6 +9,9 @@
 * Add `StreamQueue.cancelable()`, which allows users to easily make a
   `CancelableOperation` that can be canceled without affecting the queue.
 
+* Add `StreamQueue.eventsDispatched` which counts the number of events that have
+  been dispatched by a given queue.
+
 * Add a `subscriptionTransformer()` function to create `StreamTransformer`s that
   modify the behavior of subscriptions to a stream.
 
