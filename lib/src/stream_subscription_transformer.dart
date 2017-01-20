@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'async_memoizer.dart';
-import 'delegate/stream_subscription.dart';
 
 typedef Future _AsyncHandler<T>(StreamSubscription<T> inner);
 
@@ -101,5 +100,5 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
   }
 
   Future/*<E>*/ asFuture/*<E>*/([/*=E*/ futureValue]) =>
-      _inner?.asFuture(futureValue) ?? new Completer().future;
+      _inner?.asFuture(futureValue) ?? new Completer/*<E>*/().future;
 }
