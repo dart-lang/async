@@ -7,7 +7,7 @@ import "dart:async";
 /// A stream that combines the values of other streams.
 ///
 /// This emits lists of collected values from each input stream. The first list
-/// contains the first value emitted by each stream, the second contrains the
+/// contains the first value emitted by each stream, the second contains the
 /// second value, and so on. The lists have the same ordering as the iterable
 /// passed to [new StreamZip].
 ///
