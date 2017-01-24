@@ -89,6 +89,15 @@ abstract class StreamQueue<T> {
   /// Closing operations are [cancel] and [rest].
   bool _isClosed = false;
 
+  /// The number of events dispatched by this queue.
+  ///
+  /// This counts error events. It doesn't count done events, or events
+  /// dispatched to a stream returned by [rest].
+  int get eventsDispatched => _eventsReceived - _eventQueue.length;
+
+  /// The number of events received by this queue.
+  var _eventsReceived = 0;
+
   /// Queue of events not used by a request yet.
   final QueueList<Result> _eventQueue = new QueueList();
 
@@ -420,6 +429,7 @@ abstract class StreamQueue<T> {
   /// Called when the event source adds a new data or error event.
   /// Always calls [_updateRequests] after adding.
   void _addResult(Result result) {
+    _eventsReceived++;
     _eventQueue.add(result);
     _updateRequests();
   }
@@ -540,7 +550,7 @@ class StreamQueueTransaction<T> {
   final StreamSplitter<T> _splitter;
 
   /// Queues created using [newQueue].
-  final _queues = new Set<_TransactionStreamQueue>();
+  final _queues = new Set<StreamQueue>();
 
   /// Whether [commit] has been called.
   var _committed = false;
@@ -557,7 +567,7 @@ class StreamQueueTransaction<T> {
   /// [StreamQueue.startTransaction] was called. Its position can be committed
   /// to the parent queue using [commit].
   StreamQueue<T> newQueue() {
-    var queue = new _TransactionStreamQueue(_splitter.split());
+    var queue = new StreamQueue(_splitter.split());
     _queues.add(queue);
     return queue;
   }
@@ -582,9 +592,7 @@ class StreamQueueTransaction<T> {
 
     // Remove all events from the parent queue that were consumed by the
     // child queue.
-    var eventsConsumed = (queue as _TransactionStreamQueue)._eventsReceived -
-        queue._eventQueue.length;
-    for (var j = 0; j < eventsConsumed; j++) {
+    for (var j = 0; j < queue.eventsDispatched; j++) {
       _parent._eventQueue.removeFirst();
     }
 
@@ -625,25 +633,6 @@ class StreamQueueTransaction<T> {
     } else if (_rejected) {
       throw new StateError("This transaction has already been rejected.");
     }
-  }
-}
-
-/// A [StreamQueue] that belongs to a [StreamQueueTransaction].
-class _TransactionStreamQueue<T> extends _StreamQueue<T> {
-  /// The total number of events received by this queue, including events that
-  /// haven't yet been consumed by requests.
-  ///
-  /// This is used to fast-forward the parent queue if this transaction is
-  /// accepted.
-  var _eventsReceived = 0;
-
-  _TransactionStreamQueue(Stream<T> sourceStream) : super(sourceStream);
-
-  /// Modifies [StreamQueue._addResult] to count the total number of events that
-  /// have been passed to this transaction.
-  void _addResult(Result result) {
-    _eventsReceived++;
-    super._addResult(result);
   }
 }
 
