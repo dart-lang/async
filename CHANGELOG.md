@@ -1,3 +1,8 @@
+## 1.13.0
+
+* Add a `collectBytes` function which collects list-of-byte events into
+  a single byte list.
+
 ## 1.12.0
 
 * Add an `AsyncCache` class that caches asynchronous operations for a period of
