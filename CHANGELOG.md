@@ -8,6 +8,9 @@
 * Add an `AsyncCache` class that caches asynchronous operations for a period of
   time.
 
+* Add `StreamQueue.peek` and `StreamQueue.lookAheead`.
+  These allow users to look at events without consuming them.
+
 * Add `StreamQueue.startTransaction()` and `StreamQueue.withTransaction()`.
   These allow users to conditionally consume events based on their values.
 

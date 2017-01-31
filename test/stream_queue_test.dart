@@ -83,6 +83,65 @@ main() {
     });
   });
 
+  group("lookAhead operation", () {
+    test("as simple list of events", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(await events.lookAhead(4), [1, 2, 3, 4]);
+      expect(await events.next, 1);
+      expect(await events.lookAhead(2), [2, 3]);
+      expect(await events.take(2), [2, 3]);
+      expect(await events.next, 4);
+      await events.cancel();
+    });
+
+    test("of 0 events", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(events.lookAhead(0), completion([]));
+      expect(events.next, completion(1));
+      expect(events.lookAhead(0), completion([]));
+      expect(events.next, completion(2));
+      expect(events.lookAhead(0), completion([]));
+      expect(events.next, completion(3));
+      expect(events.lookAhead(0), completion([]));
+      expect(events.next, completion(4));
+      expect(events.lookAhead(0), completion([]));
+      expect(events.lookAhead(5), completion([]));
+      expect(events.next, throwsStateError);
+      await events.cancel();
+    });
+
+    test("with bad arguments throws", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(() => events.lookAhead(-1), throwsArgumentError);
+      expect(await events.next, 1);  // Did not consume event.
+      expect(() => events.lookAhead(-1), throwsArgumentError);
+      expect(await events.next, 2);  // Did not consume event.
+      await events.cancel();
+    });
+
+    test("of too many arguments", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(await events.lookAhead(6), [1, 2, 3, 4]);
+      await events.cancel();
+    });
+
+    test("too large later", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(await events.next, 1);
+      expect(await events.next, 2);
+      expect(await events.lookAhead(6), [3, 4]);
+      await events.cancel();
+    });
+
+    test("error", () async {
+      var events = new StreamQueue<int>(createErrorStream());
+      expect(events.lookAhead(4), throwsA("To err is divine!"));
+      expect(events.take(4), throwsA("To err is divine!"));
+      expect(await events.next, 4);
+      await events.cancel();
+    });
+  });
+
   group("next operation", () {
     test("simple sequence of requests", () async {
       var events = new StreamQueue<int>(createStream());
@@ -374,11 +433,46 @@ main() {
     });
   });
 
+  group("peek operation", () {
+    test("peeks one event", () async {
+      var events = new StreamQueue<int>(createStream());
+      expect(await events.peek, 1);
+      expect(await events.next, 1);
+      expect(await events.peek, 2);
+      expect(await events.take(2), [2, 3]);
+      expect(await events.peek, 4);
+      expect(await events.next, 4);
+      // Throws at end.
+      expect(events.peek, throws);
+      await events.cancel();
+    });
+    test("multiple requests at the same time", () async {
+      var events = new StreamQueue<int>(createStream());
+      var result = await Future.wait(
+          [events.peek, events.peek, events.next, events.peek, events.peek]);
+      expect(result, [1, 1, 1, 2, 2]);
+      await events.cancel();
+    });
+    test("sequence of requests with error", () async {
+      var events = new StreamQueue<int>(createErrorStream());
+      expect(await events.next, 1);
+      expect(await events.next, 2);
+      expect(events.peek, throwsA("To err is divine!"));
+      // Error stays in queue.
+      expect(events.peek, throwsA("To err is divine!"));
+      expect(events.next, throwsA("To err is divine!"));
+      expect(await events.next, 4);
+      await events.cancel();
+    });
+  });
+
   group("cancel operation", () {
     test("closes the events, prevents any other operation", () async {
       var events = new StreamQueue<int>(createStream());
       await events.cancel();
+      expect(() => events.lookAhead(1), throwsStateError);
       expect(() => events.next, throwsStateError);
+      expect(() => events.peek, throwsStateError);
       expect(() => events.skip(1), throwsStateError);
       expect(() => events.take(1), throwsStateError);
       expect(() => events.rest, throwsStateError);
