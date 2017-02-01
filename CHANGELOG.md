@@ -3,6 +3,9 @@
 * Add a `collectBytes` function which collects list-of-byte events into
   a single byte list.
 
+* Fix a bug where rejecting a `StreamQueueTransaction` would throw a
+  `StateError` if `StreamQueue.rest` had been called on one of its child queues.
+
 ## 1.12.0
 
 * Add an `AsyncCache` class that caches asynchronous operations for a period of

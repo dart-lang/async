@@ -863,6 +863,30 @@ main() {
         transaction.reject();
       });
 
+      // Regression test.
+      test("pending child rest requests emit no more events", () async {
+        var controller = new StreamController();
+        var events = new StreamQueue(controller.stream);
+        var transaction = events.startTransaction();
+        var queue = transaction.newQueue();
+
+        // This should emit no more events after the transaction is rejected.
+        queue.rest.listen(expectAsync1((_) {}, count: 3),
+            onDone: expectAsync0(() {}, count: 0));
+
+        controller.add(1);
+        controller.add(2);
+        controller.add(3);
+        await flushMicrotasks();
+
+        transaction.reject();
+        await flushMicrotasks();
+
+        // These shouldn't affect the result of `queue.rest.toList()`.
+        controller.add(4);
+        controller.add(5);
+      });
+
       test("child requests' cancel() may still be called explicitly", () async {
         transaction.reject();
         await queue1.cancel();
