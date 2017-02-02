@@ -548,6 +548,7 @@ class _StreamQueue<T> extends StreamQueue<T> {
     if (_isDone) {
       return new Stream<T>.empty();
     }
+    _isDone = true;
 
     if (_subscription == null) {
       return _sourceStream;
@@ -555,7 +556,6 @@ class _StreamQueue<T> extends StreamQueue<T> {
 
     var subscription = _subscription;
     _subscription = null;
-    _isDone = true;
 
     var wasPaused = subscription.isPaused;
     var result = new SubscriptionStream<T>(subscription);
@@ -960,7 +960,7 @@ class _HasNextRequest<T> implements _EventRequest<T> {
 /// Request for a [StreamQueue.startTransaction] call.
 ///
 /// This request isn't complete until the user calls
-/// [StreamQueueTransaction.commit] or [StreamQueue.rejectTransaction], at which
+/// [StreamQueueTransaction.commit] or [StreamQueueTransaction.reject], at which
 /// point it manually removes itself from the request queue and calls
 /// [StreamQueue._updateRequests].
 class _TransactionRequest<T> implements _EventRequest<T> {
