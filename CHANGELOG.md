@@ -6,6 +6,9 @@
 * Fix a bug where rejecting a `StreamQueueTransaction` would throw a
   `StateError` if `StreamQueue.rest` had been called on one of its child queues.
 
+* `StreamQueue.withTransaction()` now properly returns whether or not the
+  transaction was committed.
+
 ## 1.12.0
 
 * Add an `AsyncCache` class that caches asynchronous operations for a period of
