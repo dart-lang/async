@@ -1004,6 +1004,11 @@ main() {
 
       expect(events.next, completion(3));
     });
+
+    test("returns whether the transaction succeeded", () {
+      expect(events.withTransaction((_) async => true), completion(isTrue));
+      expect(events.withTransaction((_) async => false), completion(isFalse));
+    });
   });
 
   group("cancelable operation", () {

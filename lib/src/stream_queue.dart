@@ -328,6 +328,7 @@ abstract class StreamQueue<T> {
       } else {
         transaction.reject();
       }
+      return result;
     }, onError: (error) {
       transaction.commit(queue);
       throw error;
