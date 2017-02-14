@@ -1,3 +1,7 @@
+## 1.13.1
+
+* Use `FutureOr` for various APIs that had previously used `dynamic`.
+
 ## 1.13.0
 
 * Add `collectBytes` and `collectBytesCancelable` functions which collects
