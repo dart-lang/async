@@ -53,8 +53,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// This is equivalent to adding [streams] to a group, closing that group, and
   /// returning its stream.
-  static Stream/*<T>*/ merge/*<T>*/(Iterable<Stream/*<T>*/> streams) {
-    var group = new StreamGroup/*<T>*/();
+  static Stream<T> merge<T>(Iterable<Stream<T>> streams) {
+    var group = new StreamGroup<T>();
     streams.forEach(group.add);
     group.close();
     return group.stream;

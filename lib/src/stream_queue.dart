@@ -354,10 +354,10 @@ abstract class StreamQueue<T> {
   /// CancelableOperation<String> nextStdinLine() =>
   ///     _stdinQueue.cancelable((queue) => queue.next);
   /// ```
-  CancelableOperation/*<S>*/ cancelable/*<S>*/(
-      Future/*<S>*/ callback(StreamQueue<T> queue)) {
+  CancelableOperation<S> cancelable<S>(
+      Future<S> callback(StreamQueue<T> queue)) {
     var transaction = startTransaction();
-    var completer = new CancelableCompleter/*<S>*/(onCancel: () {
+    var completer = new CancelableCompleter<S>(onCancel: () {
       transaction.reject();
     });
 

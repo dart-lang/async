@@ -34,8 +34,8 @@ class StreamCompleter<T> {
   ///
   /// If the future completes with an error, the returned stream will
   /// instead contain just that error.
-  static Stream/*<T>*/ fromFuture/*<T>*/(Future<Stream/*<T>*/> streamFuture) {
-    var completer = new StreamCompleter/*<T>*/();
+  static Stream<T> fromFuture<T>(Future<Stream<T>> streamFuture) {
+    var completer = new StreamCompleter<T>();
     streamFuture.then(completer.setSourceStream,
         onError: completer.setError);
     return completer.stream;

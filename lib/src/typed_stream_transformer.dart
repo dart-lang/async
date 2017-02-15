@@ -12,9 +12,9 @@ import 'delegate/stream.dart';
 /// regardless of its original generic type, by asserting that the events
 /// emitted by the transformed stream are instances of `T` whenever they're
 /// provided. If they're not, the stream throws a [CastError].
-StreamTransformer/*<S, T>*/ typedStreamTransformer/*<S, T>*/(
+StreamTransformer<S, T> typedStreamTransformer<S, T>(
         StreamTransformer transformer) =>
-    transformer is StreamTransformer/*<S, T>*/
+    transformer is StreamTransformer<S, T>
         ? transformer
         : new _TypeSafeStreamTransformer(transformer);
 

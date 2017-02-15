@@ -20,8 +20,8 @@ class DelegatingSink<T> implements Sink<T> {
   /// instance of `Sink`, not `Sink<T>`. This means that calls to [add] may
   /// throw a [CastError] if the argument type doesn't match the reified type of
   /// [sink].
-  static Sink/*<T>*/ typed/*<T>*/(Sink sink) =>
-      sink is Sink/*<T>*/ ? sink : new DelegatingSink._(sink);
+  static Sink<T> typed<T>(Sink sink) =>
+      sink is Sink<T> ? sink : new DelegatingSink._(sink);
 
   void add(T data) {
     _sink.add(data);

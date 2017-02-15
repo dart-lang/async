@@ -67,19 +67,19 @@ class FutureGroup<T> implements Sink<Future<T>> {
 
     _pending++;
     task.then((value) {
-      if (_completer.isCompleted) return;
+      if (_completer.isCompleted) return null;
 
       _pending--;
       _values[index] = value;
 
-      if (_pending != 0) return;
+      if (_pending != 0) return null;
       if (_onIdleController != null) _onIdleController.add(null);
 
-      if (!_closed) return;
+      if (!_closed) return null;
       if (_onIdleController != null) _onIdleController.close();
       _completer.complete(_values);
     }).catchError((error, stackTrace) {
-      if (_completer.isCompleted) return;
+      if (_completer.isCompleted) return null;
       _completer.completeError(error, stackTrace);
     });
   }
