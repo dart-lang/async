@@ -6,6 +6,8 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 
+import 'utils.dart';
+
 /// An asynchronous operation that can be cancelled.
 ///
 /// The value of this operation is exposed as [value]. When this operation is
@@ -22,13 +24,13 @@ class CancelableOperation<T> {
   /// Creates a [CancelableOperation] wrapping [inner].
   ///
   /// When this operation is canceled, [onCancel] will be called and any value
-  /// or error produced by [inner] will be discarded. The callback may return a
-  /// Future to indicate that asynchronous work has to be done to cancel the
-  /// future; this Future will be returned by [cancel].
+  /// or error produced by [inner] will be discarded. If [onCancel] returns a
+  /// [Future], it will be forwarded to [cancel].
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  factory CancelableOperation.fromFuture(Future<T> inner, {onCancel()}) {
+  factory CancelableOperation.fromFuture(Future<T> inner,
+      {FutureOr onCancel()}) {
     var completer = new CancelableCompleter<T>(onCancel: onCancel);
     completer.complete(inner);
     return completer.operation;
@@ -86,17 +88,17 @@ class CancelableCompleter<T> {
   final Completer<T> _inner;
 
   /// The callback to call if the future is canceled.
-  final ZoneCallback _onCancel;
+  final FutureOrCallback _onCancel;
 
   /// Creates a new completer for a [CancelableOperation].
   ///
   /// When the future operation canceled, as long as the completer hasn't yet
-  /// completed, [onCancel] is called. The callback may return a [Future]; if
-  /// so, that [Future] is returned by [CancelableOperation.cancel].
+  /// completed, [onCancel] is called. If [onCancel] returns a [Future], it's
+  /// forwarded to [CancelableOperation.cancel].
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  CancelableCompleter({onCancel()})
+  CancelableCompleter({FutureOr onCancel()})
       : _onCancel = onCancel,
         _inner = new Completer<T>() {
     _operation = new CancelableOperation<T>._(this);

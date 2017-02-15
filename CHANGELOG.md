@@ -1,6 +1,9 @@
+## 1.13.1
+
+* Use `FutureOr` for various APIs that had previously used `dynamic`.
+
 ## 1.13.0
 
-<<<<<<< ours
 * Add `collectBytes` and `collectBytesCancelable` functions which collects
   list-of-byte events into a single byte list.
 
@@ -9,11 +12,6 @@
 
 * `StreamQueue.withTransaction()` now properly returns whether or not the
   transaction was committed.
-=======
-* Add a `collectBytes` function which collects list-of-byte events into
-  a single byte list.
-* Switched to using generic method syntax.
->>>>>>> theirs
 
 ## 1.12.0
 
