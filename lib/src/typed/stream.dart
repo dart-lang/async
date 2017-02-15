@@ -37,10 +37,10 @@ class TypeSafeStream<T> implements Stream<T> {
                   onCancel(new TypeSafeStreamSubscription<T>(subscription))));
   }
 
-  Stream/*<E>*/ asyncExpand/*<E>*/(Stream/*<E>*/ convert(T event)) =>
+  Stream<E> asyncExpand<E>(Stream<E> convert(T event)) =>
       _stream.asyncExpand(_validateType(convert));
 
-  Stream/*<E>*/ asyncMap/*<E>*/(convert(T event)) =>
+  Stream<E> asyncMap<E>(convert(T event)) =>
       _stream.asyncMap(_validateType(convert));
 
   Stream<T> distinct([bool equals(T previous, T next)]) =>
@@ -48,10 +48,10 @@ class TypeSafeStream<T> implements Stream<T> {
           ? null
           : (previous, next) => equals(previous as T, next as T)));
 
-  Future/*<E>*/ drain/*<E>*/([/*=E*/ futureValue]) =>
+  Future<E> drain<E>([E futureValue]) =>
       _stream.drain(futureValue);
 
-  Stream/*<S>*/ expand/*<S>*/(Iterable/*<S>*/ convert(T value)) =>
+  Stream<S> expand<S>(Iterable<S> convert(T value)) =>
       _stream.expand(_validateType(convert));
 
   Future firstWhere(bool test(T element), {Object defaultValue()}) =>
@@ -63,8 +63,8 @@ class TypeSafeStream<T> implements Stream<T> {
   Future<T> singleWhere(bool test(T element)) async =>
       (await _stream.singleWhere(_validateType(test))) as T;
 
-  Future/*<S>*/ fold/*<S>*/(/*=S*/ initialValue,
-          /*=S*/ combine(/*=S*/ previous, T element)) =>
+  Future<S> fold<S>(S initialValue,
+          S combine(S previous, T element)) =>
       _stream.fold(initialValue,
           (previous, element) => combine(previous, element as T));
 
@@ -79,7 +79,7 @@ class TypeSafeStream<T> implements Stream<T> {
       new TypeSafeStreamSubscription<T>(_stream.listen(_validateType(onData),
           onError: onError, onDone: onDone, cancelOnError: cancelOnError));
 
-  Stream/*<S>*/ map/*<S>*/(/*=S*/ convert(T event)) =>
+  Stream<S> map<S>(S convert(T event)) =>
       _stream.map(_validateType(convert));
 
   // Don't forward to `_stream.pipe` because we want the consumer to see the
@@ -105,15 +105,15 @@ class TypeSafeStream<T> implements Stream<T> {
           onTimeout: (sink) => onTimeout(DelegatingEventSink.typed(sink))));
 
   Future<List<T>> toList() async =>
-      DelegatingList.typed/*<T>*/(await _stream.toList());
+      DelegatingList.typed<T>(await _stream.toList());
 
   Future<Set<T>> toSet() async =>
-      DelegatingSet.typed/*<T>*/(await _stream.toSet());
+      DelegatingSet.typed<T>(await _stream.toSet());
 
   // Don't forward to `_stream.transform` because we want the transformer to see
   // the type-asserted stream.
-  Stream/*<S>*/ transform/*<S>*/(
-          StreamTransformer<T, dynamic/*=S*/> transformer) =>
+  Stream<S> transform<S>(
+          StreamTransformer<T, S> transformer) =>
       transformer.bind(this);
 
   Stream<T> where(bool test(T element)) =>
@@ -132,7 +132,7 @@ class TypeSafeStream<T> implements Stream<T> {
 
   /// Returns a version of [function] that asserts that its argument is an
   /// instance of `T`.
-  UnaryFunction/*<dynamic, S>*/ _validateType/*<S>*/(
-          /*=S*/ function(T value)) =>
+  UnaryFunction<dynamic, S> _validateType<S>(
+          S function(T value)) =>
       function == null ? null : (value) => function(value as T);
 }

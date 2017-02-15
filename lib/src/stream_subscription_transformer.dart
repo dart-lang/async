@@ -27,10 +27,10 @@ typedef void _VoidHandler<T>(StreamSubscription<T> inner);
 /// synchronously call the corresponding method** on the inner
 /// [StreamSubscription]: [handleCancel] must call `cancel()`, [handlePause]
 /// must call `pause()`, and [handleResume] must call `resume()`.
-StreamTransformer/*<T, T>*/ subscriptionTransformer/*<T>*/(
-    {Future handleCancel(StreamSubscription/*<T>*/ inner),
-    void handlePause(StreamSubscription/*<T>*/ inner),
-    void handleResume(StreamSubscription/*<T>*/ inner)}) {
+StreamTransformer<T, T> subscriptionTransformer<T>(
+    {Future handleCancel(StreamSubscription<T> inner),
+    void handlePause(StreamSubscription<T> inner),
+    void handleResume(StreamSubscription<T> inner)}) {
   return new StreamTransformer((stream, cancelOnError) {
     return new _TransformedSubscription(
         stream.listen(null, cancelOnError: cancelOnError),
@@ -99,6 +99,6 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
     _handleResume(_inner);
   }
 
-  Future/*<E>*/ asFuture/*<E>*/([/*=E*/ futureValue]) =>
-      _inner?.asFuture(futureValue) ?? new Completer/*<E>*/().future;
+  Future<E> asFuture<E>([E futureValue]) =>
+      _inner?.asFuture(futureValue) ?? new Completer<E>().future;
 }

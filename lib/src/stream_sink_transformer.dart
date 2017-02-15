@@ -54,9 +54,9 @@ abstract class StreamSinkTransformer<S, T> {
   /// This means that calls to [StreamSink.add] on the returned sink may throw a
   /// [CastError] if the argument type doesn't match the reified type of the
   /// sink.
-  static StreamSinkTransformer/*<S, T>*/ typed/*<S, T>*/(
+  static StreamSinkTransformer<S, T> typed<S, T>(
           StreamSinkTransformer transformer) =>
-      transformer is StreamSinkTransformer/*<S, T>*/
+      transformer is StreamSinkTransformer<S, T>
           ? transformer
           : new TypeSafeStreamSinkTransformer(transformer);
 }

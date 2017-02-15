@@ -22,8 +22,8 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
   /// instance of `StreamConsumer`, not `StreamConsumer<T>`. This means that
   /// calls to [addStream] may throw a [CastError] if the argument type doesn't
   /// match the reified type of [consumer].
-  static StreamConsumer/*<T>*/ typed/*<T>*/(StreamConsumer consumer) =>
-      consumer is StreamConsumer/*<T>*/
+  static StreamConsumer<T> typed<T>(StreamConsumer consumer) =>
+      consumer is StreamConsumer<T>
           ? consumer
           : new DelegatingStreamConsumer._(consumer);
 

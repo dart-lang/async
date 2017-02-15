@@ -24,8 +24,8 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   /// of `StreamSink`, not `StreamSink<T>`. This means that calls to [add] may
   /// throw a [CastError] if the argument type doesn't match the reified type of
   /// [sink].
-  static StreamSink/*<T>*/ typed/*<T>*/(StreamSink sink) =>
-      sink is StreamSink/*<T>*/ ? sink : new DelegatingStreamSink._(sink);
+  static StreamSink<T> typed<T>(StreamSink sink) =>
+      sink is StreamSink<T> ? sink : new DelegatingStreamSink._(sink);
 
   void add(T data) {
     _sink.add(data);
