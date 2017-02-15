@@ -57,10 +57,10 @@ class StreamSplitter<T> {
   ///
   /// [count] defaults to 2. This is the same as creating [count] branches and
   /// then closing the [StreamSplitter].
-  static List<Stream/*<T>*/> splitFrom/*<T>*/(Stream/*<T>*/ stream,
+  static List<Stream<T>> splitFrom<T>(Stream<T> stream,
       [int count]) {
     if (count == null) count = 2;
-    var splitter = new StreamSplitter/*<T>*/(stream);
+    var splitter = new StreamSplitter<T>(stream);
     var streams = new List<Stream>.generate(count, (_) => splitter.split());
     splitter.close();
     return streams;

@@ -19,15 +19,15 @@ class DelegatingFuture<T> implements Future<T> {
   /// This soundly converts a [Future] to a `Future<T>`, regardless of its
   /// original generic type, by asserting that its value is an instance of `T`
   /// whenever it's provided. If it's not, the future throws a [CastError].
-  static Future/*<T>*/ typed/*<T>*/(Future future) =>
-      future is Future/*<T>*/ ? future : new TypeSafeFuture/*<T>*/(future);
+  static Future<T> typed<T>(Future future) =>
+      future is Future<T> ? future : new TypeSafeFuture<T>(future);
 
   Stream<T> asStream() => _future.asStream();
 
   Future<T> catchError(Function onError, {bool test(Object error)}) =>
     _future.catchError(onError, test: test);
 
-  Future/*<S>*/ then/*<S>*/(dynamic onValue(T value), {Function onError}) =>
+  Future<S> then<S>(dynamic onValue(T value), {Function onError}) =>
     _future.then(onValue, onError: onError);
 
   Future<T> whenComplete(action()) => _future.whenComplete(action);

@@ -76,10 +76,10 @@ abstract class Result<T> {
   ///
   /// The resulting future will never have an error.
   /// Errors have been converted to an [ErrorResult] value.
-  static Future<Result/*<T>*/> capture/*<T>*/(Future/*<T>*/ future) {
+  static Future<Result<T>> capture<T>(Future<T> future) {
     return future.then((value) => new ValueResult(value),
         onError: (error, stackTrace) =>
-            new ErrorResult/*<T>*/(error, stackTrace));
+            new ErrorResult<T>(error, stackTrace));
   }
 
   /// Release the result of a captured future.
@@ -89,23 +89,23 @@ abstract class Result<T> {
   ///
   /// If [future] completes with an error, the returned future completes with
   /// the same error.
-  static Future/*<T>*/ release/*<T>*/(Future<Result/*<T>*/> future) =>
-      future.then/*<Future<T>>*/((result) => result.asFuture);
+  static Future<T> release<T>(Future<Result<T>> future) =>
+      future.then<Future<T>>((result) => result.asFuture);
 
   /// Capture the results of a stream into a stream of [Result] values.
   ///
   /// The returned stream will not have any error events.
   /// Errors from the source stream have been converted to [ErrorResult]s.
-  static Stream<Result/*<T>*/> captureStream/*<T>*/(Stream/*<T>*/ source) =>
-      source.transform(new CaptureStreamTransformer/*<T>*/());
+  static Stream<Result<T>> captureStream<T>(Stream<T> source) =>
+      source.transform(new CaptureStreamTransformer<T>());
 
   /// Release a stream of [result] values into a stream of the results.
   ///
   /// `Result` values of the source stream become value or error events in
   /// the returned stream as appropriate.
   /// Errors from the source stream become errors in the returned stream.
-  static Stream/*<T>*/ releaseStream/*<T>*/(Stream<Result/*<T>*/> source) =>
-      source.transform(new ReleaseStreamTransformer/*<T>*/());
+  static Stream<T> releaseStream<T>(Stream<Result<T>> source) =>
+      source.transform(new ReleaseStreamTransformer<T>());
 
   /// Converts a result of a result to a single result.
   ///
@@ -113,9 +113,9 @@ abstract class Result<T> {
   /// which is then an error, then a result with that error is returned.
   /// Otherwise both levels of results are value results, and a single
   /// result with the value is returned.
-  static Result/*<T>*/ flatten/*<T>*/(Result<Result/*<T>*/> result) {
+  static Result<T> flatten<T>(Result<Result<T>> result) {
     if (result.isValue) return result.asValue.value;
-    return new ErrorResult/*<T>*/(
+    return new ErrorResult<T>(
         result.asError.error, result.asError.stackTrace);
   }
 

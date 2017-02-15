@@ -43,10 +43,10 @@ class LazyStream<T> extends Stream<T> {
     Stream<T> stream;
     if (result is Future) {
       stream = StreamCompleter.fromFuture(result.then((stream) {
-        return DelegatingStream.typed/*<T>*/(stream as Stream);
+        return DelegatingStream.typed<T>(stream as Stream);
       }));
     } else {
-      stream = DelegatingStream.typed/*<T>*/(result as Stream);
+      stream = DelegatingStream.typed<T>(result as Stream);
     }
 
     return stream.listen(onData,
