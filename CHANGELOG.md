@@ -1,3 +1,7 @@
+## 1.13.2
+
+* Fix a type-warning.
+
 ## 1.13.1
 
 * Use `FutureOr` for various APIs that had previously used `dynamic`.

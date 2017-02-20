@@ -90,7 +90,7 @@ abstract class Result<T> {
   /// If [future] completes with an error, the returned future completes with
   /// the same error.
   static Future<T> release<T>(Future<Result<T>> future) =>
-      future.then<Future<T>>((result) => result.asFuture);
+      future.then<T>((result) => result.asFuture);
 
   /// Capture the results of a stream into a stream of [Result] values.
   ///
