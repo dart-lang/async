@@ -5,6 +5,7 @@ description: Utility functions and classes related to the 'dart:async' library.
 homepage: https://www.github.com/dart-lang/async
 dependencies:
   collection: "^1.5.0"
+  meta: ^1.0.5
 dev_dependencies:
   fake_async: "^0.1.2"
   stack_trace: "^1.0.0"
