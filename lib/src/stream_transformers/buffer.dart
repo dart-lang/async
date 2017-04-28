@@ -49,7 +49,7 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
     }
 
     R currentResults;
-    bool waitingForValue = false;
+    bool waitingForTrigger = true;
     StreamSubscription valuesSub;
     StreamSubscription triggerSub;
 
@@ -78,9 +78,9 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
 
     onValue(T value) {
       currentResults = _collect(value, currentResults);
-      if (waitingForValue) {
+      if (!waitingForTrigger) {
         emit();
-        waitingForValue = false;
+        waitingForTrigger = true;
       }
     }
 
@@ -94,7 +94,7 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
 
     onTrigger(_) {
       if (currentResults == null) {
-        waitingForValue = true;
+        waitingForTrigger = false;
         return;
       }
       emit();
