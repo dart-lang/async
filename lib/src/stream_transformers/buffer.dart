@@ -12,17 +12,13 @@ import 'dart:async';
 ///
 /// Errors from the source stream or the trigger are immediately forwarded to
 /// the output.
-StreamTransformer<T, List<T>> buffer<T>(Stream trigger) =>
-    new _Buffer(trigger, _collectToList);
+StreamTransformer<T, List<T>> buffer<T>(Stream trigger) => new _Buffer(trigger);
 
 List<T> _collectToList<T>(T element, List<T> soFar) {
   soFar ??= <T>[];
   soFar.add(element);
   return soFar;
 }
-
-/// A strategy for aggregating values.
-typedef R _Collect<T, R>(T element, R soFar);
 
 /// A StreamTransformer which aggregates values and emits when it sees a value
 /// on [_trigger].
@@ -33,22 +29,21 @@ typedef R _Collect<T, R>(T element, R soFar);
 ///
 /// Errors from the source stream or the trigger are immediately forwarded to
 /// the output.
-class _Buffer<T, R> implements StreamTransformer<T, R> {
+class _Buffer<T> implements StreamTransformer<T, List<T>> {
   final Stream _trigger;
-  final _Collect _collect;
 
-  _Buffer(this._trigger, this._collect);
+  _Buffer(this._trigger);
 
   @override
-  Stream<R> bind(Stream<T> values) {
-    StreamController<R> controller;
+  Stream<List<T>> bind(Stream<T> values) {
+    StreamController<List<T>> controller;
     if (values.isBroadcast) {
-      controller = new StreamController<R>.broadcast();
+      controller = new StreamController<List<T>>.broadcast();
     } else {
-      controller = new StreamController<R>();
+      controller = new StreamController<List<T>>();
     }
 
-    R currentResults;
+    List<T> currentResults;
     bool waitingForTrigger = true;
     StreamSubscription valuesSub;
     StreamSubscription triggerSub;
@@ -77,7 +72,7 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
     }
 
     onValue(T value) {
-      currentResults = _collect(value, currentResults);
+      currentResults = _collectToList(value, currentResults);
       if (!waitingForTrigger) {
         emit();
         waitingForTrigger = true;
