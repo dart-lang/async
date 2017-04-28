@@ -67,6 +67,22 @@ void main() {
           ]);
         });
 
+        test('groups values between trigger', () async {
+          values.add(1);
+          values.add(2);
+          await new Future(() {});
+          trigger.add(null);
+          values.add(3);
+          values.add(4);
+          await new Future(() {});
+          trigger.add(null);
+          await new Future(() {});
+          expect(emittedValues, [
+            [1, 2],
+            [3, 4]
+          ]);
+        });
+
         test('cancels value subscription when output canceled', () async {
           expect(valuesCanceled, false);
           subscription.cancel();
