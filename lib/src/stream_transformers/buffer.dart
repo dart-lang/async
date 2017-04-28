@@ -110,10 +110,15 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
     }
 
     controller.onListen = () {
+      if (valuesSub != null) return;
       valuesSub = values.listen(onValue,
           onError: controller.addError, onDone: valuesDone);
-      triggerSub = _trigger.listen(onTrigger,
-          onError: controller.addError, onDone: triggerDone);
+      if (triggerSub != null) {
+        if (triggerSub.isPaused) triggerSub.resume();
+      } else {
+        triggerSub = _trigger.listen(onTrigger,
+            onError: controller.addError, onDone: triggerDone);
+      }
     };
 
     // Forward methods from listener
@@ -126,8 +131,19 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
         valuesSub?.resume();
         triggerSub?.resume();
       };
+      controller.onCancel =
+          () => Future.wait([cancelValues(), cancelTrigger()]);
+    } else {
+      controller.onCancel = () {
+        if (controller?.hasListener ?? false) return;
+        if (_trigger.isBroadcast) {
+          cancelTrigger();
+        } else {
+          triggerSub.pause();
+        }
+        cancelValues();
+      };
     }
-    controller.onCancel = () => Future.wait([cancelValues(), cancelTrigger()]);
     return controller.stream;
   }
 }

@@ -8,134 +8,121 @@ import 'package:test/test.dart';
 import 'package:async/stream_transformers.dart';
 
 void main() {
-  test('does not emit before `trigger`', () async {
-    var trigger = new StreamController();
-    var values = new Stream.fromIterable([1, 2, 3]);
-    var hasEmitted = false;
-    values.transform(buffer(trigger.stream)).listen((_) {
-      hasEmitted = true;
-    });
-    await new Future(() {});
-    expect(hasEmitted, false);
-    trigger.add(null);
-    await new Future(() {});
-    expect(hasEmitted, true);
-  });
+  var streamTypes = {
+    'single subscription': () => new StreamController(),
+    'broadcast': () => new StreamController.broadcast()
+  };
+  for (var triggerType in streamTypes.keys) {
+    for (var valuesType in streamTypes.keys) {
+      group('Trigger type: [$triggerType], Values type: [$valuesType]', () {
+        StreamController trigger;
+        StreamController values;
+        List emittedValues;
+        bool valuesCanceled;
+        bool triggerCanceled;
+        bool isDone;
+        List errors;
+        StreamSubscription subscription;
 
-  test('emits immediately if trigger emits before a value', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    trigger.add(null);
-    var hasEmitted = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {
-      hasEmitted = true;
-    });
-    values.add(1);
-    await new Future(() {});
-    expect(hasEmitted, true);
-  });
+        setUp(() async {
+          valuesCanceled = false;
+          triggerCanceled = false;
+          trigger = streamTypes[triggerType]()
+            ..onCancel = () {
+              triggerCanceled = true;
+            };
+          values = streamTypes[triggerType]()
+            ..onCancel = () {
+              valuesCanceled = true;
+            };
+          emittedValues = [];
+          errors = [];
+          isDone = false;
+          subscription = values.stream
+              .transform(buffer(trigger.stream))
+              .listen(emittedValues.add, onError: errors.add, onDone: () {
+            isDone = true;
+          });
+        });
 
-  test('cancels value subscription when output canceled', () async {
-    var trigger = new StreamController();
-    var valuesCanceled = false;
-    var values = new StreamController()
-      ..onCancel = () {
-        valuesCanceled = true;
-      };
-    var subscription =
-        values.stream.transform(buffer(trigger.stream)).listen((_) {});
-    subscription.cancel();
-    expect(valuesCanceled, true);
-  });
+        test('does not emit before `trigger`', () async {
+          values.add(1);
+          await new Future(() {});
+          expect(emittedValues, isEmpty);
+          trigger.add(null);
+          await new Future(() {});
+          expect(emittedValues, [
+            [1]
+          ]);
+        });
 
-  test('cancels trigger subscription when output canceled', () async {
-    var triggerCanceled = false;
-    var trigger = new StreamController()
-      ..onCancel = () {
-        triggerCanceled = true;
-      };
-    var subscription =
-        new Stream.empty().transform(buffer(trigger.stream)).listen((_) {});
-    subscription.cancel();
-    expect(triggerCanceled, true);
-  });
+        test('emits immediately if trigger emits before a value', () async {
+          trigger.add(null);
+          await new Future(() {});
+          expect(emittedValues, isEmpty);
+          values.add(1);
+          await new Future(() {});
+          expect(emittedValues, [
+            [1]
+          ]);
+        });
 
-  test('output stream ends when trigger ends', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var isDone = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {},
-        onDone: () {
-      isDone = true;
-    });
-    trigger.close();
+        test('cancels value subscription when output canceled', () async {
+          expect(valuesCanceled, false);
+          subscription.cancel();
+          expect(valuesCanceled, true);
+        });
 
-    await new Future(() {});
-    expect(isDone, true);
-  });
+        test('cancels trigger subscription when output canceled', () async {
+          expect(triggerCanceled, false);
+          subscription.cancel();
+          expect(triggerCanceled, true);
+        });
 
-  test('closes when trigger closes', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var outputClosed = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {},
-        onDone: () {
-      outputClosed = true;
-    });
-    await trigger.close();
-    await new Future(() {});
-    expect(outputClosed, true);
-  });
+        test('closes when trigger ends', () async {
+          expect(isDone, false);
+          trigger.close();
+          await new Future(() {});
+          expect(isDone, true);
+        });
 
-  test('closes after outputting final values when source closes', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var outputClosed = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onDone: () {
-      outputClosed = true;
-    });
-    values.add(1);
-    await values.close();
-    expect(outputClosed, false);
-    trigger.add(null);
-    await new Future(() {});
-    expect(outputClosed, true);
-  });
+        test('closes after outputting final values when source closes',
+            () async {
+          expect(isDone, false);
+          values.add(1);
+          await values.close();
+          expect(isDone, false);
+          trigger.add(null);
+          await new Future(() {});
+          expect(emittedValues, [
+            [1]
+          ]);
+          expect(isDone, true);
+        });
 
-  test('closes immediately if there are no pending values when source closes',
-      () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var outputClosed = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onDone: () {
-      outputClosed = true;
-    });
-    await values.close();
-    await new Future(() {});
-    expect(outputClosed, true);
-  });
+        test(
+            'closes immediately if there are no pending values when source closes',
+            () async {
+          expect(isDone, false);
+          values.add(1);
+          trigger.add(null);
+          await values.close();
+          await new Future(() {});
+          expect(isDone, true);
+        });
 
-  test('forwards errors from trigger', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var hasError = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onError: (_) {
-      hasError = true;
-    });
-    trigger.addError(null);
-    await new Future(() {});
-    expect(hasError, true);
-  });
+        test('forwards errors from trigger', () async {
+          trigger.addError('error');
+          await new Future(() {});
+          expect(errors, ['error']);
+        });
 
-  test('forwards errors from values', () async {
-    var trigger = new StreamController();
-    var values = new StreamController();
-    var hasError = false;
-    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onError: (_) {
-      hasError = true;
-    });
-    values.addError(null);
-    await new Future(() {});
-    expect(hasError, true);
-  });
+        test('forwards errors from values', () async {
+          values.addError('error');
+          await new Future(() {});
+          expect(errors, ['error']);
+        });
+      });
+    }
+  }
 }
