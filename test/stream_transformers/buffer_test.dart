@@ -59,8 +59,9 @@ void main() {
 
   test('output stream ends when trigger ends', () async {
     var trigger = new StreamController();
+    var values = new StreamController();
     var isDone = false;
-    _infiniteValues().transform(buffer(trigger.stream)).listen((_) {},
+    values.stream.transform(buffer(trigger.stream)).listen((_) {},
         onDone: () {
       isDone = true;
     });
@@ -72,8 +73,9 @@ void main() {
 
   test('closes when trigger closes', () async {
     var trigger = new StreamController();
+    var values = new StreamController();
     var outputClosed = false;
-    _infiniteValues().transform(buffer(trigger.stream)).listen((_) {},
+    values.stream.transform(buffer(trigger.stream)).listen((_) {},
         onDone: () {
       outputClosed = true;
     });
@@ -106,13 +108,31 @@ void main() {
       outputClosed = true;
     });
     await values.close();
+    await new Future(() {});
     expect(outputClosed, true);
   });
-}
 
-Stream _infiniteValues() async* {
-  while (true) {
-    yield '';
+  test('forwards errors from trigger', () async {
+    var trigger = new StreamController();
+    var values = new StreamController();
+    var hasError = false;
+    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onError: (_) {
+      hasError = true;
+    });
+    trigger.addError(null);
     await new Future(() {});
-  }
+    expect(hasError, true);
+  });
+
+  test('forwards errors from values', () async {
+    var trigger = new StreamController();
+    var values = new StreamController();
+    var hasError = false;
+    values.stream.transform(buffer(trigger.stream)).listen((_) {}, onError: (_) {
+      hasError = true;
+    });
+    values.addError(null);
+    await new Future(() {});
+    expect(hasError, true);
+  });
 }

@@ -9,6 +9,9 @@ import 'dart:async';
 /// If there are no pending values when [trigger] emits, the next value on the
 /// source Stream will immediately flow through. Otherwise, the pending values
 /// are released when [trigger] emits.
+///
+/// Errors from the source stream or the trigger are immediately forwarded to
+/// the output.
 StreamTransformer<T, List<T>> buffer<T>(Stream trigger) =>
     new _Buffer(trigger, _collectToList);
 
@@ -27,6 +30,9 @@ typedef R _Collect<T, R>(T element, R soFar);
 /// If there are no pending values when [_trigger] emits the first value on the
 /// source Stream will immediately flow through. Otherwise, the pending values
 /// and released when [_trigger] emits.
+///
+/// Errors from the source stream or the trigger are immediately forwarded to
+/// the output.
 class _Buffer<T, R> implements StreamTransformer<T, R> {
   final Stream _trigger;
   final _Collect _collect;
@@ -65,41 +71,49 @@ class _Buffer<T, R> implements StreamTransformer<T, R> {
       return ctl?.close() ?? new Future.value();
     }
 
-    controller.onListen = () {
-      emit() {
-        controller.add(currentResults);
-        currentResults = null;
-      }
+    emit() {
+      controller.add(currentResults);
+      currentResults = null;
+    }
 
-      valuesSub = values.listen(
-          (T value) {
-            currentResults = _collect(value, currentResults);
-            if (waitingForValue) {
-              emit();
-              waitingForValue = false;
-            }
-          },
-          onError: controller.addError,
-          onDone: () {
-            valuesSub = null;
-          });
-      triggerSub = _trigger.listen(
-          (_) {
-            if (currentResults == null) {
-              waitingForValue = true;
-              return;
-            }
-            emit();
-            if (valuesSub == null) {
-              controller.close();
-              cancelTrigger();
-            }
-          },
-          onError: controller.addError,
-          onDone: () async {
-            cancelValues();
-            closeController();
-          });
+    onValue(T value) {
+      currentResults = _collect(value, currentResults);
+      if (waitingForValue) {
+        emit();
+        waitingForValue = false;
+      }
+    }
+
+    valuesDone() {
+      valuesSub = null;
+      if (currentResults == null) {
+        closeController();
+        cancelTrigger();
+      }
+    }
+
+    onTrigger(_) {
+      if (currentResults == null) {
+        waitingForValue = true;
+        return;
+      }
+      emit();
+      if (valuesSub == null) {
+        closeController();
+        cancelTrigger();
+      }
+    }
+
+    triggerDone() {
+      cancelValues();
+      closeController();
+    }
+
+    controller.onListen = () {
+      valuesSub = values.listen(onValue,
+          onError: controller.addError, onDone: valuesDone);
+      triggerSub = _trigger.listen(onTrigger,
+          onError: controller.addError, onDone: triggerDone);
     };
 
     // Forward methods from listener
