@@ -65,9 +65,11 @@ void main() {
   });
 
   test('should fetch a stream via a callback', () async {
-    expect(await cache.fetchStream(expectAsync0(() {
-      return new Stream.fromIterable(['1', '2', '3']);
-    })).toList(), ['1', '2', '3']);
+    expect(
+        await cache.fetchStream(expectAsync0(() {
+          return new Stream.fromIterable(['1', '2', '3']);
+        })).toList(),
+        ['1', '2', '3']);
   });
 
   test('should not fetch stream via callback when a cache exists', () async {

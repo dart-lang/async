@@ -32,20 +32,22 @@ void main() {
               test: expectAsync1((_) {}, count: 0)),
           completion(equals(12)));
 
-      expect(errorWrapper.catchError(expectAsync1((error) {
-        expect(error, equals("oh no"));
-        return 42;
-      }), test: expectAsync1((error) {
-        expect(error, equals("oh no"));
-        return true;
-      })), completion(equals(42)));
+      expect(
+          errorWrapper.catchError(expectAsync1((error) {
+            expect(error, equals("oh no"));
+            return 42;
+          }), test: expectAsync1((error) {
+            expect(error, equals("oh no"));
+            return true;
+          })),
+          completion(equals(42)));
     });
 
     test("then()", () {
-      expect(wrapper.then((value) => value.toString()),
-          completion(equals("12")));
-      expect(errorWrapper.then(expectAsync1((_) {}, count: 0)),
-          throwsA("oh no"));
+      expect(
+          wrapper.then((value) => value.toString()), completion(equals("12")));
+      expect(
+          errorWrapper.then(expectAsync1((_) {}, count: 0)), throwsA("oh no"));
     });
 
     test("whenComplete()", () {
@@ -96,11 +98,11 @@ void main() {
         expect(wrapper.timeout(new Duration(seconds: 3)).then((_) {}),
             throwsCastError);
 
-      expect(
-          new TypeSafeFuture<int>(new Completer<Object>().future)
-              .timeout(Duration.ZERO, onTimeout: expectAsync0(() => "foo"))
-              .then((_) {}),
-          throwsCastError);
+        expect(
+            new TypeSafeFuture<int>(new Completer<Object>().future)
+                .timeout(Duration.ZERO, onTimeout: expectAsync0(() => "foo"))
+                .then((_) {}),
+            throwsCastError);
       });
     });
   });

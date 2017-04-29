@@ -289,9 +289,9 @@ main() {
 
   test("doesn't allow the destination sink to be set multiple times", () {
     completer.setDestinationSink(new TestSink());
-    expect(() => completer.setDestinationSink(new TestSink()),
-        throwsStateError);
-    expect(() => completer.setDestinationSink(new TestSink()),
-        throwsStateError);
+    expect(
+        () => completer.setDestinationSink(new TestSink()), throwsStateError);
+    expect(
+        () => completer.setDestinationSink(new TestSink()), throwsStateError);
   });
 }

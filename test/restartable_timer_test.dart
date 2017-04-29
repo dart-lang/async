@@ -100,8 +100,7 @@ main() {
   test("only runs the callback once if the timer isn't reset", () {
     new FakeAsync().run((async) {
       new RestartableTimer(
-          new Duration(seconds: 5),
-          expectAsync0(() {}, count: 1));
+          new Duration(seconds: 5), expectAsync0(() {}, count: 1));
       async.elapse(new Duration(seconds: 10));
     });
   });

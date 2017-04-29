@@ -12,8 +12,8 @@ import 'utils.dart';
 void main() {
   test("buffers events as soon as it's bound", () async {
     var controller = new StreamController.broadcast();
-    var stream = controller.stream.transform(
-        const SingleSubscriptionTransformer());
+    var stream =
+        controller.stream.transform(const SingleSubscriptionTransformer());
 
     // Add events before [stream] has a listener to be sure it buffers them.
     controller.add(1);
@@ -34,8 +34,8 @@ void main() {
     var controller = new StreamController.broadcast(onCancel: () {
       canceled = true;
     });
-    var stream = controller.stream.transform(
-        const SingleSubscriptionTransformer());
+    var stream =
+        controller.stream.transform(const SingleSubscriptionTransformer());
     await flushMicrotasks();
     expect(canceled, isFalse);
 

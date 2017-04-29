@@ -18,14 +18,19 @@ void main() {
     var errorWrapper;
     setUp(() {
       controller = new StreamController<Object>()
-          ..add(1)..add(2)..add(3)..add(4)..add(5)..close();
+        ..add(1)
+        ..add(2)
+        ..add(3)
+        ..add(4)
+        ..add(5)
+        ..close();
 
       // TODO(nweiz): Use public methods when test#414 is fixed and we can run
       // this on DDC.
       wrapper = new TypeSafeStream<int>(controller.stream);
       emptyWrapper = new TypeSafeStream<int>(new Stream<Object>.empty());
-      singleWrapper = new TypeSafeStream<int>(
-          new Stream<Object>.fromIterable([1]));
+      singleWrapper =
+          new TypeSafeStream<int>(new Stream<Object>.fromIterable([1]));
       errorWrapper = new TypeSafeStream<int>(
           new Stream<Object>.fromFuture(new Future.error("oh no")));
     });
@@ -70,8 +75,8 @@ void main() {
       });
 
       test("with onListen", () {
-        var broadcast = wrapper.asBroadcastStream(
-            onListen: expectAsync1((subscription) {
+        var broadcast =
+            wrapper.asBroadcastStream(onListen: expectAsync1((subscription) {
           expect(subscription, new isInstanceOf<StreamSubscription<int>>());
           subscription.pause();
         }));
@@ -81,8 +86,8 @@ void main() {
       });
 
       test("with onCancel", () {
-        var broadcast = wrapper.asBroadcastStream(
-            onCancel: expectAsync1((subscription) {
+        var broadcast =
+            wrapper.asBroadcastStream(onCancel: expectAsync1((subscription) {
           expect(subscription, new isInstanceOf<StreamSubscription<int>>());
           subscription.pause();
         }));
@@ -105,13 +110,14 @@ void main() {
 
     group("distinct()", () {
       test("without equals", () {
-        expect(wrapper.distinct().toList(),
-            completion(equals([1, 2, 3, 4, 5])));
+        expect(
+            wrapper.distinct().toList(), completion(equals([1, 2, 3, 4, 5])));
 
         expect(
             new TypeSafeStream<int>(
                     new Stream<Object>.fromIterable([1, 1, 2, 2, 3, 3]))
-                .distinct().toList(),
+                .distinct()
+                .toList(),
             completion(equals([1, 2, 3])));
       });
 
@@ -133,8 +139,7 @@ void main() {
     });
 
     test("expand()", () {
-      expect(
-          wrapper.expand((i) => [i, i]).toList(),
+      expect(wrapper.expand((i) => [i, i]).toList(),
           completion(equals([1, 1, 2, 2, 3, 3, 4, 4, 5, 5])));
     });
 
@@ -197,26 +202,32 @@ void main() {
 
     group("handleError()", () {
       test("without a test", () {
-        expect(errorWrapper.handleError(expectAsync1((error) {
-          expect(error, equals("oh no"));
-        })).toList(), completion(isEmpty));
+        expect(
+            errorWrapper.handleError(expectAsync1((error) {
+              expect(error, equals("oh no"));
+            })).toList(),
+            completion(isEmpty));
       });
 
       test("with a matching test", () {
-        expect(errorWrapper.handleError(expectAsync1((error) {
-          expect(error, equals("oh no"));
-        }), test: expectAsync1((error) {
-          expect(error, equals("oh no"));
-          return true;
-        })).toList(), completion(isEmpty));
+        expect(
+            errorWrapper.handleError(expectAsync1((error) {
+              expect(error, equals("oh no"));
+            }), test: expectAsync1((error) {
+              expect(error, equals("oh no"));
+              return true;
+            })).toList(),
+            completion(isEmpty));
       });
 
       test("with a matching test", () {
-        expect(errorWrapper.handleError(expectAsync1((_) {}, count: 0),
-            test: expectAsync1((error) {
-          expect(error, equals("oh no"));
-          return false;
-        })).toList(), throwsA("oh no"));
+        expect(
+            errorWrapper.handleError(expectAsync1((_) {}, count: 0),
+                test: expectAsync1((error) {
+              expect(error, equals("oh no"));
+              return false;
+            })).toList(),
+            throwsA("oh no"));
       });
     });
 
@@ -260,24 +271,23 @@ void main() {
     });
 
     test("takeWhile()", () {
-      expect(wrapper.takeWhile((i) => i < 3).toList(),
-          completion(equals([1, 2])));
+      expect(
+          wrapper.takeWhile((i) => i < 3).toList(), completion(equals([1, 2])));
     });
 
     test("toSet()", () {
       expect(wrapper.toSet(), completion(unorderedEquals([1, 2, 3, 4, 5])));
       expect(
           new TypeSafeStream<int>(
-                  new Stream<Object>.fromIterable([1, 1, 2, 2, 3, 3]))
-              .toSet(),
+              new Stream<Object>.fromIterable([1, 1, 2, 2, 3, 3])).toSet(),
           completion(unorderedEquals([1, 2, 3])));
     });
 
     test("transform()", () {
-     var transformer = new StreamTransformer<int, String>.fromHandlers(
-         handleData: (data, sink) {
-       sink.add(data.toString());
-     });
+      var transformer = new StreamTransformer<int, String>.fromHandlers(
+          handleData: (data, sink) {
+        sink.add(data.toString());
+      });
 
       expect(wrapper.transform(transformer).toList(),
           completion(equals(["1", "2", "3", "4", "5"])));
@@ -385,8 +395,8 @@ void main() {
     setUp(() {
       wrapper = new TypeSafeStream<int>(
           new Stream<Object>.fromIterable(["foo", "bar", "baz"]));
-      singleWrapper = new TypeSafeStream<int>(
-          new Stream<Object>.fromIterable(["foo"]));
+      singleWrapper =
+          new TypeSafeStream<int>(new Stream<Object>.fromIterable(["foo"]));
     });
 
     group("throws a CastError for", () {
@@ -439,8 +449,8 @@ void main() {
       });
 
       test("lastWhere()", () {
-        expect(wrapper.lastWhere(expectAsync1((_) {}, count: 0)),
-            throwsCastError);
+        expect(
+            wrapper.lastWhere(expectAsync1((_) {}, count: 0)), throwsCastError);
       });
 
       test("singleWhere()", () {
@@ -454,7 +464,8 @@ void main() {
       });
 
       test("forEach()", () async {
-        expect(wrapper.forEach(expectAsync1((_) {}, count: 0)), throwsCastError);
+        expect(
+            wrapper.forEach(expectAsync1((_) {}, count: 0)), throwsCastError);
       });
 
       test("handleError()", () {
@@ -468,8 +479,8 @@ void main() {
       });
 
       test("map()", () {
-        expect(wrapper.map(expectAsync1((_) {}, count: 0)).first,
-            throwsCastError);
+        expect(
+            wrapper.map(expectAsync1((_) {}, count: 0)).first, throwsCastError);
       });
 
       test("reduce()", () {

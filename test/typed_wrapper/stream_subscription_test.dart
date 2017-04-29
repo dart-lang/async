@@ -18,8 +18,8 @@ void main() {
       controller = new StreamController<Object>(onCancel: () {
         isCanceled = true;
       });
-      wrapper = new TypeSafeStreamSubscription<int>(
-          controller.stream.listen(null));
+      wrapper =
+          new TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
     test("onData()", () {
@@ -75,8 +75,8 @@ void main() {
       controller = new StreamController<Object>(onCancel: () {
         isCanceled = true;
       });
-      wrapper = new TypeSafeStreamSubscription<int>(
-          controller.stream.listen(null));
+      wrapper =
+          new TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
     group("throws a CastError for", () {

@@ -113,9 +113,9 @@ main() {
     test("with bad arguments throws", () async {
       var events = new StreamQueue<int>(createStream());
       expect(() => events.lookAhead(-1), throwsArgumentError);
-      expect(await events.next, 1);  // Did not consume event.
+      expect(await events.next, 1); // Did not consume event.
       expect(() => events.lookAhead(-1), throwsArgumentError);
-      expect(await events.next, 2);  // Did not consume event.
+      expect(await events.next, 2); // Did not consume event.
       await events.cancel();
     });
 
@@ -153,8 +153,8 @@ main() {
 
     test("multiple requests at the same time", () async {
       var events = new StreamQueue<int>(createStream());
-      var result = await Future.wait(
-          [events.next, events.next, events.next, events.next]);
+      var result = await Future
+          .wait([events.next, events.next, events.next, events.next]);
       expect(result, [1, 2, 3, 4]);
       await events.cancel();
     });
@@ -183,9 +183,9 @@ main() {
       expect(() => events.skip(-1), throwsArgumentError);
       // A non-int throws either a type error or an argument error,
       // depending on whether it's checked mode or not.
-      expect(await events.next, 1);  // Did not consume event.
+      expect(await events.next, 1); // Did not consume event.
       expect(() => events.skip(-1), throwsArgumentError);
-      expect(await events.next, 2);  // Did not consume event.
+      expect(await events.next, 2); // Did not consume event.
       await events.cancel();
     });
 
@@ -251,14 +251,16 @@ main() {
       var index = 0;
       // Check that futures complete in order.
       Func1Required<int> sequence(expectedValue, sequenceIndex) => (value) {
-        expect(value, expectedValue);
-        expect(index, sequenceIndex);
-        index++;
-      };
-      await Future.wait([skip1.then(sequence(0, 0)),
-                         skip2.then(sequence(0, 1)),
-                         skip3.then(sequence(1, 2)),
-                         skip4.then(sequence(1, 3))]);
+            expect(value, expectedValue);
+            expect(index, sequenceIndex);
+            index++;
+          };
+      await Future.wait([
+        skip1.then(sequence(0, 0)),
+        skip2.then(sequence(0, 1)),
+        skip3.then(sequence(1, 2)),
+        skip4.then(sequence(1, 3))
+      ]);
       await events.cancel();
     });
   });
@@ -291,9 +293,9 @@ main() {
     test("with bad arguments throws", () async {
       var events = new StreamQueue<int>(createStream());
       expect(() => events.take(-1), throwsArgumentError);
-      expect(await events.next, 1);  // Did not consume event.
+      expect(await events.next, 1); // Did not consume event.
       expect(() => events.take(-1), throwsArgumentError);
-      expect(await events.next, 2);  // Did not consume event.
+      expect(await events.next, 2); // Did not consume event.
       await events.cancel();
     });
 
@@ -522,7 +524,8 @@ main() {
       test("cancels the underlying subscription when called before any event",
           () async {
         var cancelFuture = new Future.value(42);
-        var controller = new StreamController<int>(onCancel: () => cancelFuture);
+        var controller =
+            new StreamController<int>(onCancel: () => cancelFuture);
 
         var events = new StreamQueue<int>(controller.stream);
         expect(await events.cancel(immediate: true), 42);
@@ -539,8 +542,8 @@ main() {
 
       test("returns the result of closing the underlying subscription",
           () async {
-        var controller = new StreamController<int>(
-            onCancel: () => new Future.value(42));
+        var controller =
+            new StreamController<int>(onCancel: () => new Future.value(42));
         var events = new StreamQueue<int>(controller.stream);
         expect(await events.cancel(immediate: true), 42);
       });
@@ -548,8 +551,8 @@ main() {
       test("listens and then cancels a stream that hasn't been listened to yet",
           () async {
         var wasListened = false;
-        var controller = new StreamController<int>(
-            onListen: () => wasListened = true);
+        var controller =
+            new StreamController<int>(onListen: () => wasListened = true);
         var events = new StreamQueue<int>(controller.stream);
         expect(wasListened, isFalse);
         expect(controller.hasListener, isFalse);
@@ -608,7 +611,9 @@ main() {
       var events = new StreamQueue<int>(controller.stream);
 
       var hasNext;
-      events.hasNext.then((result) { hasNext = result; });
+      events.hasNext.then((result) {
+        hasNext = result;
+      });
       await flushMicrotasks();
       expect(hasNext, isNull);
       controller.add(42);
@@ -622,7 +627,9 @@ main() {
       var events = new StreamQueue<int>(controller.stream);
 
       var hasNext;
-      events.hasNext.then((result) { hasNext = result; });
+      events.hasNext.then((result) {
+        hasNext = result;
+      });
       await flushMicrotasks();
       expect(hasNext, isNull);
       controller.addError("BAD");
@@ -976,7 +983,8 @@ main() {
       }));
     });
 
-    test("the parent queue continues from the child position if it returns "
+    test(
+        "the parent queue continues from the child position if it returns "
         "true", () async {
       await events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
@@ -986,7 +994,8 @@ main() {
       expect(await events.next, 3);
     });
 
-    test("the parent queue continues from its original position if it returns "
+    test(
+        "the parent queue continues from its original position if it returns "
         "false", () async {
       await events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
@@ -1036,12 +1045,15 @@ main() {
       expect(await events.next, 3);
     });
 
-    test("the parent queue continues from the child position if an error is "
+    test(
+        "the parent queue continues from the child position if an error is "
         "thrown", () async {
-      expect(events.cancelable(expectAsync1((queue) async {
-        expect(await queue.next, 2);
-        throw "oh no";
-      })).value, throwsA("oh no"));
+      expect(
+          events.cancelable(expectAsync1((queue) async {
+            expect(await queue.next, 2);
+            throw "oh no";
+          })).value,
+          throwsA("oh no"));
 
       expect(events.next, completion(3));
     });
@@ -1057,10 +1069,12 @@ main() {
     });
 
     test("forwards the value from the callback", () async {
-      expect(await events.cancelable(expectAsync1((queue) async {
-        expect(await queue.next, 2);
-        return "value";
-      })).value, "value");
+      expect(
+          await events.cancelable(expectAsync1((queue) async {
+            expect(await queue.next, 2);
+            return "value";
+          })).value,
+          "value");
     });
   });
 
@@ -1088,8 +1102,9 @@ main() {
     // `take(10)`.
     takeTest(startIndex) {
       expect(events.take(10),
-             completion(new List.generate(10, (i) => startIndex + i)));
+          completion(new List.generate(10, (i) => startIndex + i)));
     }
+
     var tests = [nextTest, skipTest, takeTest];
 
     int counter = 0;
@@ -1103,7 +1118,7 @@ main() {
     }
     // Then expect 20 more events as a `rest` call.
     expect(events.rest.toList(),
-           completion(new List.generate(20, (i) => counter + i)));
+        completion(new List.generate(20, (i) => counter + i)));
   });
 }
 
