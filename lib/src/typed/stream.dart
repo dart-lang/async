@@ -10,7 +10,7 @@ import '../utils.dart';
 import 'stream_subscription.dart';
 import '../delegate/event_sink.dart';
 
-class TypeSafeStream<T> implements Stream<T> {
+class TypeSafeStream<T> extends Stream<T> {
   final Stream _stream;
 
   Future<T> get first async => (await _stream.first) as T;
