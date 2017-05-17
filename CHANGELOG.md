@@ -1,12 +1,9 @@
 ## 1.13.3
 
-* Make `TypeSafeStream` extend `Stream` instead of implementing it.
-  This ensures that new methods on `Stream` are automatically picked up,
-  they will go through the `listen` method which type-checks every event.
-* Enable Travis integration.
-* Format with dartfmt.
-* Remove some unused imports.
-
+* Make `TypeSafeStream` extend `Stream` instead of implementing it. This ensures
+  that new methods on `Stream` are automatically picked up, they will go through
+  the `listen` method which type-checks every event.
+  
 ## 1.13.2
 
 * Fix a type-warning.
