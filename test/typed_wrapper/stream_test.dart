@@ -17,7 +17,7 @@ void main() {
     var singleWrapper;
     var errorWrapper;
     setUp(() {
-      controller = new StreamController<Object>()
+      controller = new StreamController<dynamic>()
         ..add(1)
         ..add(2)
         ..add(3)
@@ -32,7 +32,7 @@ void main() {
       singleWrapper =
           new TypeSafeStream<int>(new Stream<Object>.fromIterable([1]));
       errorWrapper = new TypeSafeStream<int>(
-          new Stream<Object>.fromFuture(new Future.error("oh no")));
+          new Stream<dynamic>.fromFuture(new Future.error("oh no")));
     });
 
     test("first", () {
@@ -115,7 +115,7 @@ void main() {
 
         expect(
             new TypeSafeStream<int>(
-                    new Stream<Object>.fromIterable([1, 1, 2, 2, 3, 3]))
+                    new Stream<dynamic>.fromIterable([1, 1, 2, 2, 3, 3]))
                 .distinct()
                 .toList(),
             completion(equals([1, 2, 3])));
@@ -279,7 +279,7 @@ void main() {
       expect(wrapper.toSet(), completion(unorderedEquals([1, 2, 3, 4, 5])));
       expect(
           new TypeSafeStream<int>(
-              new Stream<Object>.fromIterable([1, 1, 2, 2, 3, 3])).toSet(),
+              new Stream<dynamic>.fromIterable([1, 1, 2, 2, 3, 3])).toSet(),
           completion(unorderedEquals([1, 2, 3])));
     });
 
