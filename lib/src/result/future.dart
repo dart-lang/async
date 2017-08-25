@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import '../delegate/future.dart';
-import '../result.dart';
+import 'result.dart';
 
 /// A [Future] wrapper that provides synchronous access to the result of the
 /// wrapped [Future] once it's completed.
@@ -19,15 +19,9 @@ class ResultFuture<T> extends DelegatingFuture<T> {
   Result<T> get result => _result;
   Result<T> _result;
 
-  factory ResultFuture(Future<T> future) {
-    ResultFuture<T> resultFuture;
-    resultFuture = new ResultFuture._(() async {
-      var result = await Result.capture(future);
-      resultFuture._result = result;
-      return await result.asFuture;
-    }());
-    return resultFuture;
+  ResultFuture(Future<T> future) : super(future) {
+    Result.capture(future).then((result) {
+      _result = result;
+    });
   }
-
-  ResultFuture._(Future<T> future) : super(future);
 }

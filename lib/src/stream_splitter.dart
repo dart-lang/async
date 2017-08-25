@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'future_group.dart';
-import 'result.dart';
+import 'result/result.dart';
 
 /// A class that splits a single source stream into an arbitrary number of
 /// (single-subscription) streams (called "branch") that emit the same events.

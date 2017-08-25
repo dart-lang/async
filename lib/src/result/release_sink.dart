@@ -4,22 +4,16 @@
 
 import 'dart:async';
 
-import '../result.dart';
+import 'result.dart';
 
-/// Use [Result.captureSinkTransformer].
-@Deprecated("Will be removed in async 2.0.0.")
+/// Used by [Result.releaseSink].
 class ReleaseSink<T> implements EventSink<Result<T>> {
   final EventSink _sink;
 
   ReleaseSink(EventSink<T> sink) : _sink = sink;
 
   void add(Result<T> result) {
-    if (result.isValue) {
-      _sink.add(result.asValue.value);
-    } else {
-      var error = result.asError;
-      _sink.addError(error.error, error.stackTrace);
-    }
+    result.addTo(_sink);
   }
 
   void addError(Object error, [StackTrace stackTrace]) {

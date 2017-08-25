@@ -8,7 +8,7 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 
 import "cancelable_operation.dart";
-import "result.dart";
+import "result/result.dart";
 import "subscription_stream.dart";
 import "stream_completer.dart";
 import "stream_splitter.dart";
@@ -859,9 +859,9 @@ class _LookAheadRequest<T> extends _ListRequest<T> {
 /// source subscription.
 class _CancelRequest<T> implements _EventRequest<T> {
   /// Completer for the future returned by the `cancel` call.
+  /// TODO(lrn); make this Completer<void> when that is implemented.
   final _completer = new Completer();
 
-  ///
   /// When the event is completed, it needs to cancel the active subscription
   /// of the `StreamQueue` object, if any.
   final StreamQueue _streamQueue;
