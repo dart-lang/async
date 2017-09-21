@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+@Skip("Re-enable this when test can run DDC (test#414).")
+
 import 'dart:async';
 
 import "package:async/src/typed/stream.dart";
@@ -501,12 +503,12 @@ void main() {
       test("toList()", () async {
         var list = await wrapper.toList();
         expect(() => list.first, throwsCastError);
-      }, skip: "Re-enable this when test can run DDC (test#414).");
+      });
 
       test("toSet()", () async {
         var asSet = await wrapper.toSet();
         expect(() => asSet.first, throwsCastError);
-      }, skip: "Re-enable this when test can run DDC (test#414).");
+      });
 
       test("where()", () {
         expect(wrapper.where(expectAsync1((_) {}, count: 0)).first,
