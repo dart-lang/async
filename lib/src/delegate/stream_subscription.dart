@@ -10,7 +10,7 @@ import '../typed/stream_subscription.dart';
 ///
 /// Subclasses can override individual methods.
 class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
-  final StreamSubscription _source;
+  final StreamSubscription<T> _source;
 
   /// Create delegating subscription forwarding calls to [sourceSubscription].
   DelegatingStreamSubscription(StreamSubscription<T> sourceSubscription)

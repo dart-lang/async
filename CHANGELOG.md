@@ -1,3 +1,7 @@
+## 2.0.1
+
+* Fix a fuzzy arrow type warning.
+
 ## 2.0.0
 * Remove deprecated public `result.dart` and `stream_zip.dart` libraries and
   deprecated classes `ReleaseStreamTransformer` and `CaptureStreamTransformer`.
