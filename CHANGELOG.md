@@ -1,3 +1,7 @@
+## 2.0.2
+
+* Add support for Dart 2.0 library changes to class `Timer`. 
+
 ## 2.0.1
 
 * Fix a fuzzy arrow type warning.
