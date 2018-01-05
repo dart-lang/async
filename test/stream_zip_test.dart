@@ -45,40 +45,87 @@ main() {
   }
 
   test("Basic", () {
-    testZip([mks([1, 2, 3]), mks([4, 5, 6]), mks([7, 8, 9])],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3]),
+      mks([4, 5, 6]),
+      mks([7, 8, 9])
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Uneven length 1", () {
-    testZip([mks([1, 2, 3, 99, 100]), mks([4, 5, 6]), mks([7, 8, 9])],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3, 99, 100]),
+      mks([4, 5, 6]),
+      mks([7, 8, 9])
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Uneven length 2", () {
-    testZip([mks([1, 2, 3]), mks([4, 5, 6, 99, 100]), mks([7, 8, 9])],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3]),
+      mks([4, 5, 6, 99, 100]),
+      mks([7, 8, 9])
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Uneven length 3", () {
-    testZip([mks([1, 2, 3]), mks([4, 5, 6]), mks([7, 8, 9, 99, 100])],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3]),
+      mks([4, 5, 6]),
+      mks([7, 8, 9, 99, 100])
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Uneven length 4", () {
-    testZip([mks([1, 2, 3, 98]), mks([4, 5, 6]), mks([7, 8, 9, 99, 100])],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3, 98]),
+      mks([4, 5, 6]),
+      mks([7, 8, 9, 99, 100])
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Empty 1", () {
-    testZip([mks([]), mks([4, 5, 6]), mks([7, 8, 9])], []);
+    testZip([
+      mks([]),
+      mks([4, 5, 6]),
+      mks([7, 8, 9])
+    ], []);
   });
 
   test("Empty 2", () {
-    testZip([mks([1, 2, 3]), mks([]), mks([7, 8, 9])], []);
+    testZip([
+      mks([1, 2, 3]),
+      mks([]),
+      mks([7, 8, 9])
+    ], []);
   });
 
   test("Empty 3", () {
-    testZip([mks([1, 2, 3]), mks([4, 5, 6]), mks([])], []);
+    testZip([
+      mks([1, 2, 3]),
+      mks([4, 5, 6]),
+      mks([])
+    ], []);
   });
 
   test("Empty source", () {
@@ -86,57 +133,88 @@ main() {
   });
 
   test("Single Source", () {
-    testZip([mks([1, 2, 3])], [[1], [2], [3]]);
+    testZip([
+      mks([1, 2, 3])
+    ], [
+      [1],
+      [2],
+      [3]
+    ]);
   });
 
   test("Other-streams", () {
     Stream st1 = mks([1, 2, 3, 4, 5, 6]).where((x) => x < 4);
-    Stream st2 = new Stream.periodic(const Duration(milliseconds: 5),
-                                     (x) => x + 4).take(3);
+    Stream st2 =
+        new Stream.periodic(const Duration(milliseconds: 5), (x) => x + 4)
+            .take(3);
     StreamController c = new StreamController.broadcast();
     Stream st3 = c.stream;
-    testZip([st1, st2, st3],
-            [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
-    c..add(7)..add(8)..add(9)..close();
+    testZip([
+      st1,
+      st2,
+      st3
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
+    c
+      ..add(7)
+      ..add(8)
+      ..add(9)
+      ..close();
   });
 
   test("Error 1", () {
-    expect(new StreamZip([streamError(mks([1, 2, 3]), 2, "BAD-1"),
-                          mks([4, 5, 6]),
-                          mks([7, 8, 9])]).toList(),
-           throwsA(equals("BAD-1")));
+    expect(
+        new StreamZip([
+          streamError(mks([1, 2, 3]), 2, "BAD-1"),
+          mks([4, 5, 6]),
+          mks([7, 8, 9])
+        ]).toList(),
+        throwsA(equals("BAD-1")));
   });
 
   test("Error 2", () {
-    expect(new StreamZip([mks([1, 2, 3]),
-                          streamError(mks([4, 5, 6]), 5, "BAD-2"),
-                          mks([7, 8, 9])]).toList(),
-           throwsA(equals("BAD-2")));
+    expect(
+        new StreamZip([
+          mks([1, 2, 3]),
+          streamError(mks([4, 5, 6]), 5, "BAD-2"),
+          mks([7, 8, 9])
+        ]).toList(),
+        throwsA(equals("BAD-2")));
   });
 
   test("Error 3", () {
-    expect(new StreamZip([mks([1, 2, 3]),
-                          mks([4, 5, 6]),
-                          streamError(mks([7, 8, 9]), 8, "BAD-3")]).toList(),
-           throwsA(equals("BAD-3")));
+    expect(
+        new StreamZip([
+          mks([1, 2, 3]),
+          mks([4, 5, 6]),
+          streamError(mks([7, 8, 9]), 8, "BAD-3")
+        ]).toList(),
+        throwsA(equals("BAD-3")));
   });
 
   test("Error at end", () {
-    expect(new StreamZip([mks([1, 2, 3]),
-                          streamError(mks([4, 5, 6]), 6, "BAD-4"),
-                          mks([7, 8, 9])]).toList(),
-           throwsA(equals("BAD-4")));
+    expect(
+        new StreamZip([
+          mks([1, 2, 3]),
+          streamError(mks([4, 5, 6]), 6, "BAD-4"),
+          mks([7, 8, 9])
+        ]).toList(),
+        throwsA(equals("BAD-4")));
   });
 
   test("Error before first end", () {
     // StreamControllers' streams with no "close" called will never be done,
     // so the fourth event of the first stream is guaranteed to come first.
-    expect(new StreamZip(
-                [streamError(mks([1, 2, 3, 4]), 4, "BAD-5"),
-                 (new StreamController()..add(4)..add(5)..add(6)).stream,
-                 (new StreamController()..add(7)..add(8)..add(9)).stream]
-               ).toList(),
-           throwsA(equals("BAD-5")));
+    expect(
+        new StreamZip([
+          streamError(mks([1, 2, 3, 4]), 4, "BAD-5"),
+          (new StreamController()..add(4)..add(5)..add(6)).stream,
+          (new StreamController()..add(7)..add(8)..add(9)).stream
+        ]).toList(),
+        throwsA(equals("BAD-5")));
   });
 
   test("Error after first end", () {
@@ -144,40 +222,43 @@ main() {
     controller..add(7)..add(8)..add(9);
     // Transformer that puts error into controller when one of the first two
     // streams have sent a done event.
-    StreamTransformer trans = new StreamTransformer.fromHandlers(
-        handleDone: (EventSink s) {
-      Timer.run(() { controller.addError("BAD-6"); });
+    StreamTransformer trans =
+        new StreamTransformer.fromHandlers(handleDone: (EventSink s) {
+      Timer.run(() {
+        controller.addError("BAD-6");
+      });
       s.close();
     });
-    testZip([mks([1, 2, 3]).transform(trans),
-             mks([4, 5, 6]).transform(trans),
-             controller.stream],
-           [[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+    testZip([
+      mks([1, 2, 3]).transform(trans),
+      mks([4, 5, 6]).transform(trans),
+      controller.stream
+    ], [
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9]
+    ]);
   });
 
   test("Pause/Resume", () {
     int sc1p = 0;
-    StreamController c1 = new StreamController(
-      onPause: () {
-        sc1p++;
-      },
-      onResume: () {
-        sc1p--;
-      });
+    StreamController c1 = new StreamController(onPause: () {
+      sc1p++;
+    }, onResume: () {
+      sc1p--;
+    });
 
     int sc2p = 0;
-    StreamController c2 = new StreamController(
-      onPause: () {
-        sc2p++;
-      },
-      onResume: () {
-        sc2p--;
-      });
+    StreamController c2 = new StreamController(onPause: () {
+      sc2p++;
+    }, onResume: () {
+      sc2p--;
+    });
 
-    var done = expectAsync0((){
+    var done = expectAsync0(() {
       expect(sc1p, equals(1));
       expect(sc2p, equals(0));
-    });  // Call to complete test.
+    }); // Call to complete test.
 
     Stream zip = new StreamZip([c1.stream, c2.stream]);
 
@@ -198,7 +279,9 @@ main() {
     }).then((hasMore) {
       expect(hasMore, isTrue);
       expect(it.current, equals([5, 6]));
-      new Future.delayed(ms25).then((_) { c2.add(8); });
+      new Future.delayed(ms25).then((_) {
+        c2.add(8);
+      });
       return it.moveNext();
     }).then((hasMore) {
       expect(hasMore, isTrue);
@@ -210,7 +293,12 @@ main() {
       done();
     });
 
-    c1..add(1)..add(3)..add(5)..add(7)..close();
+    c1
+      ..add(1)
+      ..add(3)
+      ..add(5)
+      ..add(7)
+      ..close();
     c2..add(2)..add(4);
   });
 

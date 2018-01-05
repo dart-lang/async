@@ -75,22 +75,24 @@ main() {
           new StreamTransformer.fromHandlers(
               handleData: (data, sink) => sink.add("data: $data"),
               handleError: (error, _, sink) => sink.add("error: $error")));
-      expect(transformed.toList(), completion(equals([
-        "data: first",
-        "error: second",
-        "data: third",
-        "error: fourth",
-        "error: fifth",
-        "data: sixth"
-      ])));
+      expect(
+          transformed.toList(),
+          completion(equals([
+            "data: first",
+            "error: second",
+            "data: third",
+            "error: fourth",
+            "error: fifth",
+            "data: sixth"
+          ])));
     });
 
     test("emits events once there's a listener", () {
       var controller = new StreamController<String>();
       streamGroup.add(controller.stream);
 
-      expect(streamGroup.stream.toList(),
-          completion(equals(["first", "second"])));
+      expect(
+          streamGroup.stream.toList(), completion(equals(["first", "second"])));
 
       controller.add("first");
       controller.add("second");
@@ -137,8 +139,8 @@ main() {
       var controller = new StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
-      expect(streamGroup.stream.toList(),
-          completion(equals(["first", "second"])));
+      expect(
+          streamGroup.stream.toList(), completion(equals(["first", "second"])));
 
       controller.add("first");
       controller.add("second");
@@ -150,8 +152,8 @@ main() {
     test("forwards cancel errors", () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var controller = new StreamController<String>(
-          onCancel: () => throw "error");
+      var controller =
+          new StreamController<String>(onCancel: () => throw "error");
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -162,8 +164,8 @@ main() {
       var subscription = streamGroup.stream.listen(null);
 
       var completer = new Completer();
-      var controller = new StreamController<String>(
-          onCancel: () => completer.future);
+      var controller =
+          new StreamController<String>(onCancel: () => completer.future);
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -178,15 +180,15 @@ main() {
       expect(fired, isTrue);
     });
 
-    test("add() while active pauses the stream if the group is paused, then "
+    test(
+        "add() while active pauses the stream if the group is paused, then "
         "resumes once the group resumes", () async {
       var subscription = streamGroup.stream.listen(null);
       await flushMicrotasks();
 
       var paused = false;
       var controller = new StreamController<String>(
-          onPause: () => paused = true,
-          onResume: () => paused = false);
+          onPause: () => paused = true, onResume: () => paused = false);
 
       subscription.pause();
       await flushMicrotasks();
@@ -223,16 +225,16 @@ main() {
       });
 
       test("forwards cancel errors", () {
-        var controller = new StreamController<String>(
-            onCancel: () => throw "error");
+        var controller =
+            new StreamController<String>(onCancel: () => throw "error");
 
         expect(streamGroup.add(controller.stream), throwsA("error"));
       });
 
       test("forwards a cancel future", () async {
         var completer = new Completer();
-        var controller = new StreamController<String>(
-            onCancel: () => completer.future);
+        var controller =
+            new StreamController<String>(onCancel: () => completer.future);
 
         var fired = false;
         streamGroup.add(controller.stream).then((_) => fired = true);
@@ -268,8 +270,8 @@ main() {
 
       expect(streamGroup.close(), completes);
 
-      expect(streamGroup.stream.toList(),
-          completion(equals(["first", "second"])));
+      expect(
+          streamGroup.stream.toList(), completion(equals(["first", "second"])));
     });
 
     test("emits events from multiple sources once there's a listener", () {
@@ -279,8 +281,8 @@ main() {
       var controller2 = new StreamController<String>();
       streamGroup.add(controller2.stream);
 
-      expect(streamGroup.stream.toList(),
-          completion(equals(["first", "second"])));
+      expect(
+          streamGroup.stream.toList(), completion(equals(["first", "second"])));
 
       controller1.add("first");
       controller2.add("second");
@@ -325,8 +327,8 @@ main() {
       var controller = new StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
-      expect(streamGroup.stream.toList(),
-          completion(equals(["first", "second"])));
+      expect(
+          streamGroup.stream.toList(), completion(equals(["first", "second"])));
 
       controller.add("first");
       controller.add("second");
@@ -356,8 +358,8 @@ main() {
     test("never cancels single-subscription streams", () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var controller = new StreamController<String>(
-          onCancel: expectAsync0(() {}, count: 0));
+      var controller =
+          new StreamController<String>(onCancel: expectAsync0(() {}, count: 0));
 
       streamGroup.add(controller.stream);
       await flushMicrotasks();
@@ -568,8 +570,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("forwards cancel errors", () async {
-        var controller = new StreamController<String>(
-            onCancel: () => throw "error");
+        var controller =
+            new StreamController<String>(onCancel: () => throw "error");
         streamGroup.add(controller.stream);
 
         streamGroup.stream.listen(null);
@@ -580,8 +582,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
 
       test("forwards cancel futures", () async {
         var completer = new Completer();
-        var controller = new StreamController<String>(
-            onCancel: () => completer.future);
+        var controller =
+            new StreamController<String>(onCancel: () => completer.future);
 
         streamGroup.stream.listen(null);
         await flushMicrotasks();
@@ -641,7 +643,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
         expect(streamGroup.stream.toList(), completion(isEmpty));
       });
 
-      test("if there are streams, closes the group once those streams close "
+      test(
+          "if there are streams, closes the group once those streams close "
           "and there's a listener", () async {
         var controller1 = new StreamController<String>();
         var controller2 = new StreamController<String>();

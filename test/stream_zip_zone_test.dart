@@ -9,22 +9,22 @@ import "package:test/test.dart";
 // listen occurred.
 
 main() {
- StreamController controller;
- controller = new StreamController();
- testStream("singlesub-async", controller, controller.stream);
- controller = new StreamController.broadcast();
- testStream("broadcast-async", controller, controller.stream);
- controller = new StreamController();
- testStream("asbroadcast-async", controller,
-                                 controller.stream.asBroadcastStream());
+  StreamController controller;
+  controller = new StreamController();
+  testStream("singlesub-async", controller, controller.stream);
+  controller = new StreamController.broadcast();
+  testStream("broadcast-async", controller, controller.stream);
+  controller = new StreamController();
+  testStream(
+      "asbroadcast-async", controller, controller.stream.asBroadcastStream());
 
- controller = new StreamController(sync: true);
- testStream("singlesub-sync", controller, controller.stream);
- controller = new StreamController.broadcast(sync: true);
- testStream("broadcast-sync", controller, controller.stream);
- controller = new StreamController(sync: true);
- testStream("asbroadcast-sync", controller,
-                                controller.stream.asBroadcastStream());
+  controller = new StreamController(sync: true);
+  testStream("singlesub-sync", controller, controller.stream);
+  controller = new StreamController.broadcast(sync: true);
+  testStream("broadcast-sync", controller, controller.stream);
+  controller = new StreamController(sync: true);
+  testStream(
+      "asbroadcast-sync", controller, controller.stream.asBroadcastStream());
 }
 
 void testStream(String name, StreamController controller, Stream stream) {

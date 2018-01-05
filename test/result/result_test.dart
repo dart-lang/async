@@ -58,54 +58,60 @@ void main() {
   test("complete with value", () {
     Result<int> result = new ValueResult<int>(42);
     var c = new Completer<int>();
-    c.future.then(expectAsync1((int v) { expect(v, equals(42)); }),
-                  onError: (e, s) { fail("Unexpected error"); });
+    c.future.then(expectAsync1((int v) {
+      expect(v, equals(42));
+    }), onError: (e, s) {
+      fail("Unexpected error");
+    });
     result.complete(c);
   });
 
   test("complete with error", () {
     Result<bool> result = new ErrorResult("BAD", stack);
     var c = new Completer<bool>();
-    c.future.then((bool v) { fail("Unexpected value $v"); },
-                  onError: expectAsync2((e, s) {
-                    expect(e, equals("BAD"));
-                    expect(s, same(stack));
-                  }));
+    c.future.then((bool v) {
+      fail("Unexpected value $v");
+    }, onError: expectAsync2((e, s) {
+      expect(e, equals("BAD"));
+      expect(s, same(stack));
+    }));
     result.complete(c);
   });
 
   test("add sink value", () {
     var result = new ValueResult<int>(42);
-    EventSink<int> sink = new TestSink(
-        onData: expectAsync1((v) { expect(v, equals(42)); })
-    );
+    EventSink<int> sink = new TestSink(onData: expectAsync1((v) {
+      expect(v, equals(42));
+    }));
     result.addTo(sink);
   });
 
   test("add sink error", () {
     Result<bool> result = new ErrorResult("BAD", stack);
-    EventSink<bool> sink = new TestSink(
-        onError: expectAsync2((e, s) {
-          expect(e, equals("BAD"));
-          expect(s, same(stack));
-        })
-    );
+    EventSink<bool> sink = new TestSink(onError: expectAsync2((e, s) {
+      expect(e, equals("BAD"));
+      expect(s, same(stack));
+    }));
     result.addTo(sink);
   });
 
   test("value as future", () {
     Result<int> result = new ValueResult<int>(42);
-    result.asFuture.then(expectAsync1((int v) { expect(v, equals(42)); }),
-                         onError: (e, s) { fail("Unexpected error"); });
+    result.asFuture.then(expectAsync1((int v) {
+      expect(v, equals(42));
+    }), onError: (e, s) {
+      fail("Unexpected error");
+    });
   });
 
   test("error as future", () {
     Result<bool> result = new ErrorResult("BAD", stack);
-    result.asFuture.then((bool v) { fail("Unexpected value $v"); },
-                         onError: expectAsync2((e, s) {
-                           expect(e, equals("BAD"));
-                           expect(s, same(stack));
-                         }));
+    result.asFuture.then((bool v) {
+      fail("Unexpected value $v");
+    }, onError: expectAsync2((e, s) {
+      expect(e, equals("BAD"));
+      expect(s, same(stack));
+    }));
   });
 
   test("capture future value", () {
@@ -169,17 +175,19 @@ void main() {
   test("capture stream", () {
     StreamController<int> c = new StreamController<int>();
     Stream<Result> stream = Result.captureStream(c.stream);
-    var expectedList = new Queue.from([new Result.value(42),
-                                       new Result.error("BAD", stack),
-                                       new Result.value(37)]);
+    var expectedList = new Queue.from([
+      new Result.value(42),
+      new Result.error("BAD", stack),
+      new Result.value(37)
+    ]);
     void listener(Result actual) {
       expect(expectedList.isEmpty, isFalse);
       expectResult(actual, expectedList.removeFirst());
     }
-    stream.listen(expectAsync1(listener, count: 3),
-                  onError: (e, s) { fail("Unexpected error: $e"); },
-                  onDone: expectAsync0((){}),
-                  cancelOnError: true);
+
+    stream.listen(expectAsync1(listener, count: 3), onError: (e, s) {
+      fail("Unexpected error: $e");
+    }, onDone: expectAsync0(() {}), cancelOnError: true);
     c.add(42);
     c.addError("BAD", stack);
     c.add(37);
@@ -189,12 +197,14 @@ void main() {
   test("release stream", () {
     StreamController<Result<int>> c = new StreamController<Result<int>>();
     Stream<int> stream = Result.releaseStream(c.stream);
-    var events = [new Result<int>.value(42),
-                   new Result<int>.error("BAD", stack),
-                   new Result<int>.value(37)];
+    var events = [
+      new Result<int>.value(42),
+      new Result<int>.error("BAD", stack),
+      new Result<int>.value(37)
+    ];
     // Expect the data events, and an extra error event.
     var expectedList = new Queue.from(events)
-        ..add(new Result.error("BAD2", stack));
+      ..add(new Result.error("BAD2", stack));
 
     void dataListener(int v) {
       expect(expectedList.isEmpty, isFalse);
@@ -212,31 +222,31 @@ void main() {
     }
 
     stream.listen(expectAsync1(dataListener, count: 2),
-                  onError: expectAsync2(errorListener, count: 2),
-                  onDone: expectAsync0((){}));
+        onError: expectAsync2(errorListener, count: 2),
+        onDone: expectAsync0(() {}));
     for (Result<int> result in events) {
-      c.add(result);  // Result value or error in data line.
+      c.add(result); // Result value or error in data line.
     }
-    c.addError("BAD2", stack);  // Error in error line.
+    c.addError("BAD2", stack); // Error in error line.
     c.close();
   });
 
   test("release stream cancel on error", () {
     StreamController<Result<int>> c = new StreamController<Result<int>>();
     Stream<int> stream = Result.releaseStream(c.stream);
-    stream.listen(expectAsync1((v) { expect(v, equals(42)); }),
-                  onError: expectAsync2((e, s) {
-                    expect(e, equals("BAD"));
-                    expect(s, same(stack));
-                  }),
-                  onDone: () { fail("Unexpected done event"); },
-                  cancelOnError: true);
+    stream.listen(expectAsync1((v) {
+      expect(v, equals(42));
+    }), onError: expectAsync2((e, s) {
+      expect(e, equals("BAD"));
+      expect(s, same(stack));
+    }), onDone: () {
+      fail("Unexpected done event");
+    }, cancelOnError: true);
     c.add(new Result.value(42));
     c.add(new Result.error("BAD", stack));
     c.add(new Result.value(37));
     c.close();
   });
-
 
   test("flatten error 1", () {
     Result<int> error = new Result<int>.error("BAD", stack);
@@ -292,18 +302,12 @@ void main() {
 
   test("handle neither unary nor binary", () {
     ErrorResult result = new Result.error("error", stack);
-    expect(() => result.handle(() => fail("unreachable")),
-           throws);
-    expect(() => result.handle((a, b, c) => fail("unreachable")),
-           throws);
-    expect(() => result.handle((a, b, {c}) => fail("unreachable")),
-           throws);
-    expect(() => result.handle((a, {b}) => fail("unreachable")),
-           throws);
-    expect(() => result.handle(({a, b}) => fail("unreachable")),
-           throws);
-    expect(() => result.handle(({a}) => fail("unreachable")),
-           throws);
+    expect(() => result.handle(() => fail("unreachable")), throws);
+    expect(() => result.handle((a, b, c) => fail("unreachable")), throws);
+    expect(() => result.handle((a, b, {c}) => fail("unreachable")), throws);
+    expect(() => result.handle((a, {b}) => fail("unreachable")), throws);
+    expect(() => result.handle(({a, b}) => fail("unreachable")), throws);
+    expect(() => result.handle(({a}) => fail("unreachable")), throws);
   });
 }
 
@@ -323,17 +327,32 @@ class TestSink<T> implements EventSink<T> {
   final Function onError;
   final Function onDone;
 
-  TestSink({void this.onData(T data) : _nullData,
-            void this.onError(e, StackTrace s) : _nullError,
-            void this.onDone() : _nullDone });
+  TestSink(
+      {void this.onData(T data): _nullData,
+      void this.onError(e, StackTrace s): _nullError,
+      void this.onDone(): _nullDone});
 
-  void add(T value) { onData(value); }
-  void addError(error, [StackTrace stack]) { onError(error, stack); }
-  void close() { onDone(); }
+  void add(T value) {
+    onData(value);
+  }
 
-  static void _nullData(value) { fail("Unexpected sink add: $value"); }
+  void addError(error, [StackTrace stack]) {
+    onError(error, stack);
+  }
+
+  void close() {
+    onDone();
+  }
+
+  static void _nullData(value) {
+    fail("Unexpected sink add: $value");
+  }
+
   static void _nullError(e, StackTrace s) {
     fail("Unexpected sink addError: $e");
   }
-  static void _nullDone() { fail("Unepxected sink close"); }
+
+  static void _nullDone() {
+    fail("Unepxected sink close");
+  }
 }

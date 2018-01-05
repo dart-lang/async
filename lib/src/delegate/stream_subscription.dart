@@ -10,7 +10,7 @@ import '../typed/stream_subscription.dart';
 ///
 /// Subclasses can override individual methods.
 class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
-  final StreamSubscription _source;
+  final StreamSubscription<T> _source;
 
   /// Create delegating subscription forwarding calls to [sourceSubscription].
   DelegatingStreamSubscription(StreamSubscription<T> sourceSubscription)
@@ -23,8 +23,7 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
   /// regardless of its original generic type, by asserting that its events are
   /// instances of `T` whenever they're provided. If they're not, the
   /// subscription throws a [CastError].
-  static StreamSubscription<T> typed<T>(
-          StreamSubscription subscription) =>
+  static StreamSubscription<T> typed<T>(StreamSubscription subscription) =>
       subscription is StreamSubscription<T>
           ? subscription
           : new TypeSafeStreamSubscription<T>(subscription);
@@ -51,8 +50,7 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
 
   Future cancel() => _source.cancel();
 
-  Future<E> asFuture<E>([E futureValue]) =>
-      _source.asFuture(futureValue);
+  Future<E> asFuture<E>([E futureValue]) => _source.asFuture(futureValue);
 
   bool get isPaused => _source.isPaused;
 }

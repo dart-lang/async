@@ -27,9 +27,9 @@ main() {
   test("cancel before linking a stream doesn't listen on stream", () async {
     var completer = new StreamCompleter();
     var subscription = completer.stream.listen(null);
-    subscription.pause();  // Should be ignored.
+    subscription.pause(); // Should be ignored.
     subscription.cancel();
-    completer.setSourceStream(new UnusableStream());  // Doesn't throw.
+    completer.setSourceStream(new UnusableStream()); // Doesn't throw.
   });
 
   test("listen and pause before linking stream", () async {
@@ -78,14 +78,13 @@ main() {
     var lastEvent = -1;
     var controller = new StreamController();
     var subscription;
-    subscription = completer.stream.listen(
-        (value) {
-          expect(value, lessThan(3));
-          lastEvent = value;
-          if (value == 2) {
-            subscription.cancel();
-          }
-        },
+    subscription = completer.stream.listen((value) {
+      expect(value, lessThan(3));
+      lastEvent = value;
+      if (value == 2) {
+        subscription.cancel();
+      }
+    },
         onError: unreachable("error"),
         onDone: unreachable("done"),
         cancelOnError: true);
@@ -110,20 +109,16 @@ main() {
     var completer = new StreamCompleter();
     completer.setEmpty();
     var done = new Completer();
-    completer.stream.listen(
-        unreachable("data"),
-        onError: unreachable("error"),
-        onDone: done.complete);
+    completer.stream.listen(unreachable("data"),
+        onError: unreachable("error"), onDone: done.complete);
     await done.future;
   });
 
   test("complete with setEmpty after listening", () async {
     var completer = new StreamCompleter();
     var done = new Completer();
-    completer.stream.listen(
-        unreachable("data"),
-        onError: unreachable("error"),
-        onDone: done.complete);
+    completer.stream.listen(unreachable("data"),
+        onError: unreachable("error"), onDone: done.complete);
     completer.setEmpty();
     await done.future;
   });
@@ -147,17 +142,13 @@ main() {
     var completer = new StreamCompleter();
     var lastEvent = -1;
     var controller = new StreamController();
-    completer.stream.listen(
-        (value) {
-          expect(value, lessThan(3));
-          lastEvent = value;
-        },
-        onError: (value) {
-          expect(value, "3");
-          lastEvent = value;
-        },
-        onDone: unreachable("done"),
-        cancelOnError: true);
+    completer.stream.listen((value) {
+      expect(value, lessThan(3));
+      lastEvent = value;
+    }, onError: (value) {
+      expect(value, "3");
+      lastEvent = value;
+    }, onDone: unreachable("done"), cancelOnError: true);
     completer.setSourceStream(controller.stream);
     expect(controller.hasListener, isTrue);
 
@@ -188,17 +179,13 @@ main() {
     controller.add(1);
     expect(controller.hasListener, isFalse);
 
-    completer.stream.listen(
-        (value) {
-          expect(value, lessThan(3));
-          lastEvent = value;
-        },
-        onError: (value) {
-          expect(value, "3");
-          lastEvent = value;
-        },
-        onDone: unreachable("done"),
-        cancelOnError: true);
+    completer.stream.listen((value) {
+      expect(value, lessThan(3));
+      lastEvent = value;
+    }, onError: (value) {
+      expect(value, "3");
+      lastEvent = value;
+    }, onDone: unreachable("done"), cancelOnError: true);
 
     expect(controller.hasListener, isTrue);
 
@@ -324,8 +311,8 @@ main() {
   test("asFuture with error accross setting stream", () async {
     var completer = new StreamCompleter();
     var controller = new StreamController();
-    var subscription = completer.stream.listen(unreachable("data"),
-                                               cancelOnError: false);
+    var subscription =
+        completer.stream.listen(unreachable("data"), cancelOnError: false);
     var done = subscription.asFuture();
     expect(controller.hasListener, isFalse);
     completer.setSourceStream(controller.stream);
@@ -341,12 +328,10 @@ main() {
   group("setError()", () {
     test("produces a stream that emits a single error", () {
       var completer = new StreamCompleter();
-      completer.stream.listen(
-          unreachable("data"),
+      completer.stream.listen(unreachable("data"),
           onError: expectAsync2((error, stackTrace) {
-            expect(error, equals("oh no"));
-          }),
-          onDone: expectAsync0(() {}));
+        expect(error, equals("oh no"));
+      }), onDone: expectAsync0(() {}));
 
       completer.setError("oh no");
     });
@@ -357,12 +342,10 @@ main() {
       completer.setError("oh no");
       await flushMicrotasks();
 
-      completer.stream.listen(
-          unreachable("data"),
+      completer.stream.listen(unreachable("data"),
           onError: expectAsync2((error, stackTrace) {
-            expect(error, equals("oh no"));
-          }),
-          onDone: expectAsync0(() {}));
+        expect(error, equals("oh no"));
+      }), onDone: expectAsync0(() {}));
     });
   });
 }

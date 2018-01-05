@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import "dart:async";
-import "dart:typed_data";
 
 import "package:test/test.dart";
 import "package:async/async.dart";
@@ -68,7 +67,7 @@ void main() {
       var sc = new StreamController<List<int>>();
       var result = collectBytesCancelable(sc.stream);
       // Value never completes.
-      result.value.whenComplete(expectAsync0((){}, count: 0));
+      result.value.whenComplete(expectAsync0(() {}, count: 0));
 
       expect(sc.hasListener, isTrue);
       sc.add([1, 2]);
@@ -78,7 +77,7 @@ void main() {
       await nextTimerTick();
       expect(sc.hasListener, isTrue);
       result.cancel();
-      expect(sc.hasListener, isFalse);  // Cancelled immediately.
+      expect(sc.hasListener, isFalse); // Cancelled immediately.
       var replacement = await result.valueOrCancellation();
       expect(replacement, isNull);
       await nextTimerTick();
@@ -88,4 +87,4 @@ void main() {
   });
 }
 
-Future nextTimerTick() => new Future((){});
+Future nextTimerTick() => new Future(() {});

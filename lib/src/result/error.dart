@@ -4,18 +4,21 @@
 
 import 'dart:async';
 
-import '../result.dart';
+import 'result.dart';
 import 'value.dart';
 
 /// A result representing a thrown error.
-class ErrorResult<T> implements Result<T> {
+class ErrorResult implements Result<Null> {
+  /// The error object that was thrown.
   final error;
+
+  /// The stack trace corresponding to where [error] was thrown.
   final StackTrace stackTrace;
 
   bool get isValue => false;
   bool get isError => true;
-  ValueResult<T> get asValue => null;
-  ErrorResult<T> get asError => this;
+  ValueResult<Null> get asValue => null;
+  ErrorResult get asError => this;
 
   ErrorResult(this.error, this.stackTrace);
 
@@ -27,7 +30,7 @@ class ErrorResult<T> implements Result<T> {
     sink.addError(error, stackTrace);
   }
 
-  Future<T> get asFuture => new Future.error(error, stackTrace);
+  Future<Null> get asFuture => new Future<Null>.error(error, stackTrace);
 
   /// Calls an error handler with the error and stacktrace.
   ///
@@ -42,4 +45,12 @@ class ErrorResult<T> implements Result<T> {
       errorHandler(error);
     }
   }
+
+  int get hashCode => error.hashCode ^ stackTrace.hashCode ^ 0x1d61823f;
+
+  /// This is equal only to an error result with equal [error] and [stackTrace].
+  bool operator ==(Object other) =>
+      other is ErrorResult &&
+      error == other.error &&
+      stackTrace == other.stackTrace;
 }

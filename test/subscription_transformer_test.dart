@@ -86,13 +86,11 @@ void main() {
       var controller = new StreamController(onCancel: expectAsync0(() {
         isCanceled = true;
       }));
-      var subscription = controller.stream
-          .transform(subscriptionTransformer(
-              handleCancel: expectAsync1((inner) {
-                callbackInvoked = true;
-                inner.cancel();
-              })))
-          .listen(expectAsync1((_) {}, count: 0));
+      var subscription = controller.stream.transform(
+          subscriptionTransformer(handleCancel: expectAsync1((inner) {
+        callbackInvoked = true;
+        inner.cancel();
+      }))).listen(expectAsync1((_) {}, count: 0));
 
       await flushMicrotasks();
       expect(callbackInvoked, isFalse);
@@ -103,7 +101,7 @@ void main() {
       expect(callbackInvoked, isTrue);
       expect(isCanceled, isTrue);
     });
-    
+
     test("invokes the callback once and caches its result", () async {
       var completer = new Completer();
       var controller = new StreamController();
@@ -138,7 +136,8 @@ void main() {
       var pauseCount = 0;
       var controller = new StreamController();
       var subscription = controller.stream
-          .transform(subscriptionTransformer(handlePause: expectAsync1((inner) {
+          .transform(subscriptionTransformer(
+              handlePause: expectAsync1((inner) {
             pauseCount++;
             inner.pause();
           }, count: 3)))
@@ -187,9 +186,9 @@ void main() {
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handleResume: expectAsync1((inner) {
-                resumeCount++;
-                inner.resume();
-              }, count: 3)))
+            resumeCount++;
+            inner.resume();
+          }, count: 3)))
           .listen(expectAsync1((_) {}, count: 0));
 
       await flushMicrotasks();
@@ -216,13 +215,11 @@ void main() {
     test("invokes the callback when a resume future completes", () async {
       var resumed = false;
       var controller = new StreamController();
-      var subscription = controller.stream
-          .transform(subscriptionTransformer(
-              handleResume: expectAsync1((inner) {
-                resumed = true;
-                inner.resume();
-              })))
-          .listen(expectAsync1((_) {}, count: 0));
+      var subscription = controller.stream.transform(
+          subscriptionTransformer(handleResume: expectAsync1((inner) {
+        resumed = true;
+        inner.resume();
+      }))).listen(expectAsync1((_) {}, count: 0));
 
       var completer = new Completer();
       subscription.pause(completer.future);
@@ -255,8 +252,7 @@ void main() {
       var controller = new StreamController();
       subscription = controller.stream
           .transform(subscriptionTransformer(handleCancel: (_) {}))
-          .listen(
-              expectAsync1((_) {}, count: 0),
+          .listen(expectAsync1((_) {}, count: 0),
               onError: expectAsync2((_, __) {}, count: 0),
               onDone: expectAsync0(() {}, count: 0));
       subscription.cancel();

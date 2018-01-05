@@ -43,4 +43,12 @@ class RestartableTimer implements Timer {
   void cancel() {
     _timer.cancel();
   }
+
+  @override
+  // TODO: Dart 2.0 requires this method to be implemented.
+  // See https://github.com/dart-lang/sdk/issues/31664
+  // ignore: override_on_non_overriding_getter
+  int get tick {
+    throw new UnimplementedError("tick");
+  }
 }

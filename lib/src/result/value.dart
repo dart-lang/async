@@ -4,17 +4,18 @@
 
 import 'dart:async';
 
-import '../result.dart';
+import 'result.dart';
 import 'error.dart';
 
 /// A result representing a returned value.
 class ValueResult<T> implements Result<T> {
+  /// The result of a successful computation.
   final T value;
 
   bool get isValue => true;
   bool get isError => false;
   ValueResult<T> get asValue => this;
-  ErrorResult<T> get asError => null;
+  ErrorResult get asError => null;
 
   ValueResult(this.value);
 
@@ -27,4 +28,9 @@ class ValueResult<T> implements Result<T> {
   }
 
   Future<T> get asFuture => new Future.value(value);
+
+  int get hashCode => value.hashCode ^ 0x323f1d61;
+
+  bool operator ==(Object other) =>
+      other is ValueResult && value == other.value;
 }
