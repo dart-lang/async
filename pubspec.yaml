@@ -1,5 +1,5 @@
 name: async
-version: 2.0.2
+version: 2.0.3
 author: Dart Team <misc@dartlang.org>
 description: Utility functions and classes related to the 'dart:async' library.
 homepage: https://www.github.com/dart-lang/async

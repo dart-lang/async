@@ -1,3 +1,8 @@
+## 2.0.3
+
+* Fix a bug in `StreamQueue.startTransaction()` and related methods when
+  rejecting a transaction that isn't the oldest request in the queue.
+
 ## 2.0.2
 
 * Add support for Dart 2.0 library changes to class `Timer`. 
