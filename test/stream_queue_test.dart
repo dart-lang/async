@@ -897,9 +897,27 @@ main() {
         expect(transaction.reject, throwsStateError);
         expect(() => transaction.commit(queue1), throwsStateError);
       });
+
+      test("before the transaction emits any events, does nothing", () async {
+        var controller = new StreamController();
+        var events = new StreamQueue(controller.stream);
+
+        // Queue a request before the transaction, but don't let it complete
+        // until we're done with the transaction.
+        expect(events.next, completion(equals(1)));
+        events.startTransaction().reject();
+        expect(events.next, completion(equals(2)));
+
+        await flushMicrotasks();
+        controller.add(1);
+        await flushMicrotasks();
+        controller.add(2);
+        await flushMicrotasks();
+        controller.close();
+      });
     });
 
-    group("when committed,", () {
+    group("when committed", () {
       test("further original requests use the committed state", () async {
         expect(await queue1.next, 2);
         await flushMicrotasks();
@@ -955,6 +973,25 @@ main() {
         transaction.commit(queue1);
         expect(transaction.reject, throwsStateError);
         expect(() => transaction.commit(queue1), throwsStateError);
+      });
+
+      test("before the transaction emits any events, does nothing", () async {
+        var controller = new StreamController();
+        var events = new StreamQueue(controller.stream);
+
+        // Queue a request before the transaction, but don't let it complete
+        // until we're done with the transaction.
+        expect(events.next, completion(equals(1)));
+        var transaction = events.startTransaction();
+        transaction.commit(transaction.newQueue());
+        expect(events.next, completion(equals(2)));
+
+        await flushMicrotasks();
+        controller.add(1);
+        await flushMicrotasks();
+        controller.add(2);
+        await flushMicrotasks();
+        controller.close();
       });
     });
   });

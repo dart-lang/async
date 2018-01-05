@@ -401,7 +401,7 @@ abstract class StreamQueue<T> {
 
   // ------------------------------------------------------------------
   // Methods that may be called from the request implementations to
-  // control the even stream.
+  // control the event stream.
 
   /// Matches events with requests.
   ///
@@ -650,10 +650,13 @@ class StreamQueueTransaction<T> {
       queue._cancel();
     }
 
-    assert((_parent._requestQueue.first as _TransactionRequest)
-        .transaction == this);
-    _parent._requestQueue.removeFirst();
-    _parent._updateRequests();
+    // If this is the active request in the queue, mark it as finished.
+    var currentRequest = _parent._requestQueue.first;
+    if (currentRequest is _TransactionRequest &&
+        currentRequest.transaction == this) {
+      _parent._requestQueue.removeFirst();
+      _parent._updateRequests();
+    }
   }
 
   /// Throws a [StateError] if [accept] or [reject] has already been called.
@@ -984,6 +987,6 @@ class _TransactionRequest<T> implements _EventRequest<T> {
       events[_eventsSent++].addTo(_controller);
     }
     if (isDone && !_controller.isClosed) _controller.close();
-    return false;
+    return transaction._committed || _transaction._rejected;
   }
 }

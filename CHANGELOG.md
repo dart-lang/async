@@ -1,3 +1,8 @@
+## 1.13.2
+
+* Fix a bug in `StreamQueue.startTransaction()` and related methods when
+  rejecting a transaction that isn't the oldest request in the queue.
+
 ## 1.13.1
 
 * Use `FutureOr` for various APIs that had previously used `dynamic`.
