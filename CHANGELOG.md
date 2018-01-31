@@ -1,3 +1,11 @@
+## 2.0.4
+
+* Add support for Dart 2.0 library changes to Stream and StreamTransformer.
+  Changed classes that implement `StreamTransformer` to extend
+  `StreamTransformerBase`, and changed signatures of `firstWhere`, `lastWhere`,
+  and `singleWhere` on classes extending `Stream`.  See also
+  https://github.com/dart-lang/sdk/issues/31847
+
 ## 2.0.3
 
 * Fix a bug in `StreamQueue.startTransaction()` and related methods when

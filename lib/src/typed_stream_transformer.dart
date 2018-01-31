@@ -20,7 +20,7 @@ StreamTransformer<S, T> typedStreamTransformer<S, T>(
 
 /// A wrapper that coerces the type of the stream returned by an inner
 /// transformer.
-class _TypeSafeStreamTransformer<S, T> implements StreamTransformer<S, T> {
+class _TypeSafeStreamTransformer<S, T> extends StreamTransformerBase<S, T> {
   final StreamTransformer _inner;
 
   _TypeSafeStreamTransformer(this._inner);

@@ -8,7 +8,7 @@ import 'result.dart';
 import 'release_sink.dart';
 
 /// A transformer that releases result events as data and error events.
-class ReleaseStreamTransformer<T> implements StreamTransformer<Result<T>, T> {
+class ReleaseStreamTransformer<T> extends StreamTransformerBase<Result<T>, T> {
   const ReleaseStreamTransformer();
 
   Stream<T> bind(Stream<Result<T>> source) {
