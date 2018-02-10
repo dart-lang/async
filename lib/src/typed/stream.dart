@@ -56,15 +56,15 @@ class TypeSafeStream<T> extends Stream<T> {
   Future<T> firstWhere(bool test(T element),
           {Object defaultValue(), T orElse()}) =>
       _stream.firstWhere(_validateType(test),
-          defaultValue: defaultValue ?? orElse);
+          defaultValue: defaultValue, orElse: orElse);
 
   Future<T> lastWhere(bool test(T element),
           {Object defaultValue(), T orElse()}) =>
       _stream.lastWhere(_validateType(test),
-          defaultValue: defaultValue ?? orElse);
+          defaultValue: defaultValue, orElse: orElse);
 
   Future<T> singleWhere(bool test(T element), {T orElse()}) async =>
-      (await _stream.singleWhere(_validateType(test))) ?? orElse();
+      (await _stream.singleWhere(_validateType(test), orElse: orElse));
 
   Future<S> fold<S>(S initialValue, S combine(S previous, T element)) =>
       _stream.fold(
