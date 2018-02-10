@@ -13,7 +13,7 @@ import 'dart:async';
 /// This also casts the source stream's events to type `T`. If the cast fails,
 /// the result stream will emit a [CastError]. This behavior is deprecated, and
 /// should not be relied upon.
-class SingleSubscriptionTransformer<S, T> implements StreamTransformer<S, T> {
+class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
   const SingleSubscriptionTransformer();
 
   Stream<T> bind(Stream<S> stream) {

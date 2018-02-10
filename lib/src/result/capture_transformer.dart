@@ -11,7 +11,7 @@ import 'capture_sink.dart';
 ///
 /// The result of the transformation is a stream of [Result] values and no
 /// error events. Exposed by [Result.captureStream].
-class CaptureStreamTransformer<T> implements StreamTransformer<T, Result<T>> {
+class CaptureStreamTransformer<T> extends StreamTransformerBase<T, Result<T>> {
   const CaptureStreamTransformer();
 
   Stream<Result<T>> bind(Stream<T> source) {

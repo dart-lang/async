@@ -53,14 +53,18 @@ class TypeSafeStream<T> extends Stream<T> {
   Stream<S> expand<S>(Iterable<S> convert(T value)) =>
       _stream.expand(_validateType(convert));
 
-  Future firstWhere(bool test(T element), {Object defaultValue()}) =>
-      _stream.firstWhere(_validateType(test), defaultValue: defaultValue);
+  Future<T> firstWhere(bool test(T element),
+          {Object defaultValue(), T orElse()}) =>
+      _stream.firstWhere(_validateType(test),
+          defaultValue: defaultValue, orElse: orElse);
 
-  Future lastWhere(bool test(T element), {Object defaultValue()}) =>
-      _stream.lastWhere(_validateType(test), defaultValue: defaultValue);
+  Future<T> lastWhere(bool test(T element),
+          {Object defaultValue(), T orElse()}) =>
+      _stream.lastWhere(_validateType(test),
+          defaultValue: defaultValue, orElse: orElse);
 
-  Future<T> singleWhere(bool test(T element)) async =>
-      (await _stream.singleWhere(_validateType(test))) as T;
+  Future<T> singleWhere(bool test(T element), {T orElse()}) async =>
+      await _stream.singleWhere(_validateType(test), orElse: orElse);
 
   Future<S> fold<S>(S initialValue, S combine(S previous, T element)) =>
       _stream.fold(
