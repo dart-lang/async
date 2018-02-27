@@ -1,12 +1,12 @@
 ## 2.0.5
 
-* Fix Dart 2.0 [runtime cast errors][sdk#27223] in StreamQueue.
+* Fix Dart 2.0 [runtime cast errors][sdk#27223] in `StreamQueue`.
 
 [sdk#27223]: https://github.com/dart-lang/sdk/issues/27223
 
 ## 2.0.4
 
-* Add support for Dart 2.0 library changes to Stream and StreamTransformer.
+* Add support for Dart 2.0 library changes to `Stream` and `StreamTransformer`.
   Changed classes that implement `StreamTransformer` to extend
   `StreamTransformerBase`, and changed signatures of `firstWhere`, `lastWhere`,
   and `singleWhere` on classes extending `Stream`.  See
