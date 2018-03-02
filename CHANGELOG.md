@@ -1,3 +1,7 @@
+## 2.0.6
+
+Deprecate `DelegatingStream.typed`, and make it redirect to `Stream.cast`.
+
 ## 2.0.5
 
 * Fix Dart 2.0 [runtime cast errors][sdk#27223] in `StreamQueue`.
