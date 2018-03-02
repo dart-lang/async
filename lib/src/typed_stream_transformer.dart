@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'delegate/stream.dart';
-
 /// Creates a wrapper that coerces the type of [transformer].
 ///
 /// This soundly converts a [StreamTransformer] to a `StreamTransformer<S, T>`,
@@ -25,6 +23,5 @@ class _TypeSafeStreamTransformer<S, T> extends StreamTransformerBase<S, T> {
 
   _TypeSafeStreamTransformer(this._inner);
 
-  Stream<T> bind(Stream<S> stream) =>
-      DelegatingStream.typed(_inner.bind(stream));
+  Stream<T> bind(Stream<S> stream) => _inner.bind(stream).cast();
 }

@@ -4,7 +4,6 @@
 
 import "dart:async";
 
-import "delegate/stream.dart";
 import "stream_completer.dart";
 import "utils.dart";
 
@@ -40,10 +39,10 @@ class LazyStream<T> extends Stream<T> {
     Stream<T> stream;
     if (result is Future<Stream<T>>) {
       stream = StreamCompleter.fromFuture(result.then((stream) {
-        return DelegatingStream.typed<T>(stream);
+        return stream.cast<T>();
       }));
     } else {
-      stream = DelegatingStream.typed<T>(result as Stream);
+      stream = (result as Stream).cast<T>();
     }
 
     return stream.listen(onData,
