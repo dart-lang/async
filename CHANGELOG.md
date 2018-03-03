@@ -1,6 +1,6 @@
 ## 2.0.6
 
-Deprecate `DelegatingStream.typed`, and make it redirect to `Stream.cast`.
+Make DelegatingStream.typed redirect to `Stream.cast`.
 
 ## 2.0.5
 

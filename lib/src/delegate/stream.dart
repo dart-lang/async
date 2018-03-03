@@ -21,8 +21,5 @@ class DelegatingStream<T> extends StreamView<T> {
   /// original generic type, by asserting that its events are instances of `T`
   /// whenever they're provided. If they're not, the stream throws a
   /// [CastError].
-  /// The [typed] method is deprecated. The `cast` or `retype` method on
-  /// [stream] should be used directly instead.
-  @deprecated
   static Stream<T> typed<T>(Stream stream) => stream.cast();
 }
