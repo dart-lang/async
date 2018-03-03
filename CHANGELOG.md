@@ -1,3 +1,7 @@
+## 2.0.6
+
+* Add further support for Dart 2.0 library changes to `Stream`.
+
 ## 2.0.5
 
 * Fix Dart 2.0 [runtime cast errors][sdk#27223] in `StreamQueue`.
