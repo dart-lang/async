@@ -1,6 +1,6 @@
 ## 2.0.6
 
-Make DelegatingStream.typed redirect to `Stream.cast`.
+* Add further support for Dart 2.0 library changes to `Stream`.
 
 ## 2.0.5
 
