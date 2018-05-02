@@ -1,3 +1,7 @@
+## 2.0.7
+
+* Fix Dart 2 runtime errors.
+
 ## 2.0.6
 
 * Add further support for Dart 2.0 library changes to `Stream`.

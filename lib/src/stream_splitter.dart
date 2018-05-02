@@ -60,7 +60,7 @@ class StreamSplitter<T> {
   static List<Stream<T>> splitFrom<T>(Stream<T> stream, [int count]) {
     if (count == null) count = 2;
     var splitter = new StreamSplitter<T>(stream);
-    var streams = new List<Stream>.generate(count, (_) => splitter.split());
+    var streams = new List<Stream<T>>.generate(count, (_) => splitter.split());
     splitter.close();
     return streams;
   }

@@ -49,7 +49,7 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer.fromHandlers(
+          new StreamTransformer<String, String>.fromHandlers(
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(transformed.toList(),
           completion(equals(["error: first", "error: second"])));
@@ -72,7 +72,7 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer.fromHandlers(
+          new StreamTransformer<String, String>.fromHandlers(
               handleData: (data, sink) => sink.add("data: $data"),
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(

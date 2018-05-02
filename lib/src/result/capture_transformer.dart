@@ -14,10 +14,7 @@ import 'capture_sink.dart';
 class CaptureStreamTransformer<T> extends StreamTransformerBase<T, Result<T>> {
   const CaptureStreamTransformer();
 
-  Stream<Result<T>> bind(Stream<T> source) {
-    return new Stream<Result<T>>.eventTransformed(source, _createSink);
-  }
-
-  // Since Stream.eventTransformed is not generic, this method can be static.
-  static EventSink _createSink(EventSink<Result> sink) => new CaptureSink(sink);
+  Stream<Result<T>> bind(Stream<T> source) =>
+      new Stream<Result<T>>.eventTransformed(
+          source, (sink) => new CaptureSink<T>(sink));
 }
