@@ -1,6 +1,7 @@
 ## 2.0.7
 
 * Fix Dart 2 runtime errors.
+* Stop using deprecated constants from the SDK.
 
 ## 2.0.6
 

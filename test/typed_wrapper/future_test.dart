@@ -61,12 +61,12 @@ void main() {
 
       expect(
           new TypeSafeFuture<int>(new Completer<Object>().future)
-              .timeout(Duration.ZERO),
+              .timeout(Duration.zero),
           throwsA(new isInstanceOf<TimeoutException>()));
 
       expect(
           new TypeSafeFuture<int>(new Completer<Object>().future)
-              .timeout(Duration.ZERO, onTimeout: expectAsync0(() => 15)),
+              .timeout(Duration.zero, onTimeout: expectAsync0(() => 15)),
           completion(equals(15)));
     });
   });
@@ -100,7 +100,7 @@ void main() {
 
         expect(
             new TypeSafeFuture<int>(new Completer<Object>().future)
-                .timeout(Duration.ZERO, onTimeout: expectAsync0(() => "foo"))
+                .timeout(Duration.zero, onTimeout: expectAsync0(() => "foo"))
                 .then((_) {}),
             throwsCastError);
       });

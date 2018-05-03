@@ -9,7 +9,7 @@ import "package:async/async.dart";
 import "package:test/test.dart";
 
 /// A zero-millisecond timer should wait until after all microtasks.
-Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
+Future flushMicrotasks() => new Future.delayed(Duration.zero);
 
 typedef void OptionalArgAction([a, b]);
 
