@@ -1,10 +1,11 @@
+# See https://www.dartlang.org/guides/libraries/private-files
+
 .buildlog
 .DS_Store
 .idea
+
 .dart_tool/
-.pub/
 .settings/
 build/
-packages
 pubspec.lock
 .packages
