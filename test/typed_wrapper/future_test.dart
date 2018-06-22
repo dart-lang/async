@@ -11,7 +11,7 @@ import '../utils.dart';
 
 void main() {
   group("with valid types, forwards", () {
-    var wrapper;
+    TypeSafeFuture<int> wrapper;
     TypeSafeFuture<int> errorWrapper;
     setUp(() {
       wrapper = new TypeSafeFuture<int>(new Future<Object>.value(12));
@@ -62,7 +62,7 @@ void main() {
       expect(
           new TypeSafeFuture<int>(new Completer<Object>().future)
               .timeout(Duration.zero),
-          throwsA(new isInstanceOf<TimeoutException>()));
+          throwsA(new TypeMatcher<TimeoutException>()));
 
       expect(
           new TypeSafeFuture<int>(new Completer<Object>().future)

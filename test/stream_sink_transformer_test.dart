@@ -10,7 +10,7 @@ import "package:test/test.dart";
 import "utils.dart";
 
 void main() {
-  var controller;
+  StreamController controller;
   setUp(() {
     controller = new StreamController();
   });

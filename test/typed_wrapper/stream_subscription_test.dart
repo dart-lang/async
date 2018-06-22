@@ -11,9 +11,9 @@ import '../utils.dart';
 
 void main() {
   group("with valid types, forwards", () {
-    var controller;
-    var wrapper;
-    var isCanceled;
+    StreamController controller;
+    StreamSubscription wrapper;
+    bool isCanceled;
     setUp(() {
       controller = new StreamController<Object>(onCancel: () {
         isCanceled = true;
@@ -68,9 +68,9 @@ void main() {
   });
 
   group("with invalid types,", () {
-    var controller;
-    var wrapper;
-    var isCanceled;
+    StreamController controller;
+    StreamSubscription wrapper;
+    bool isCanceled;
     setUp(() {
       controller = new StreamController<Object>(onCancel: () {
         isCanceled = true;

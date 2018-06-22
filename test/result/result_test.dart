@@ -301,12 +301,17 @@ void main() {
 
   test("handle neither unary nor binary", () {
     ErrorResult result = new Result.error("error", stack);
-    expect(() => result.handle(() => fail("unreachable")), throws);
-    expect(() => result.handle((a, b, c) => fail("unreachable")), throws);
-    expect(() => result.handle((a, b, {c}) => fail("unreachable")), throws);
-    expect(() => result.handle((a, {b}) => fail("unreachable")), throws);
-    expect(() => result.handle(({a, b}) => fail("unreachable")), throws);
-    expect(() => result.handle(({a}) => fail("unreachable")), throws);
+    expect(() => result.handle(() => fail("unreachable")), throwsA(anything));
+    expect(() => result.handle((a, b, c) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle((a, b, {c}) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle((a, {b}) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle(({a, b}) => fail("unreachable")),
+        throwsA(anything));
+    expect(
+        () => result.handle(({a}) => fail("unreachable")), throwsA(anything));
   });
 }
 

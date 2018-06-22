@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  var futureGroup;
+  FutureGroup futureGroup;
   setUp(() {
     futureGroup = new FutureGroup();
   });

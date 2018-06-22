@@ -10,7 +10,7 @@ import "package:test/test.dart";
 import "utils.dart";
 
 main() {
-  var completer;
+  StreamSinkCompleter completer;
   setUp(() {
     completer = new StreamSinkCompleter();
   });

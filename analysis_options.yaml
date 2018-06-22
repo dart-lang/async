@@ -1,2 +1,7 @@
 analyzer:
   strong-mode: true
+  errors:
+    todo: ignore
+linter:
+  rules:
+    - prefer_typing_uninitialized_variables
