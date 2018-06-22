@@ -96,7 +96,7 @@ main() {
   });
 
   test("a lazy stream can't be listened to from within its callback", () {
-    var stream;
+    LazyStream stream;
     stream = new LazyStream(expectAsync0(() {
       expect(() => stream.listen(null), throwsStateError);
       return new Stream.empty();

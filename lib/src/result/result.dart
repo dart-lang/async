@@ -98,7 +98,7 @@ abstract class Result<T> {
   static Future<List<Result<T>>> captureAll<T>(Iterable<FutureOr<T>> elements) {
     var results = <Result<T>>[];
     int pending = 0;
-    var completer;
+    Completer<List<Result<T>>> completer;
     for (var element in elements) {
       if (element is Future<T>) {
         int i = results.length;

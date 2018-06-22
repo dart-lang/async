@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 main() {
   StreamController<int> controller;
-  var splitter;
+  StreamSplitter splitter;
   setUp(() {
     controller = new StreamController<int>();
     splitter = new StreamSplitter<int>(controller.stream);

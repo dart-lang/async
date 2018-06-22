@@ -40,7 +40,7 @@ main() {
     var sourceSubscription = stream.listen(null);
     var subscriptionStream = new SubscriptionStream<int>(sourceSubscription);
     var subscription = subscriptionStream.listen(null);
-    expect(() => subscriptionStream.listen(null), throws);
+    expect(() => subscriptionStream.listen(null), throwsA(anything));
     await subscription.cancel();
   });
 
@@ -49,7 +49,7 @@ main() {
     var sourceSubscription = controller.stream.listen(null);
     var subscriptionStream = new SubscriptionStream(sourceSubscription);
     expect(controller.isPaused, isTrue);
-    var lastEvent;
+    dynamic lastEvent;
     var subscription = subscriptionStream.listen((value) {
       lastEvent = value;
     });
@@ -72,8 +72,8 @@ main() {
   group("cancelOnError source:", () {
     for (var sourceCancels in [false, true]) {
       group("${sourceCancels ? "yes" : "no"}:", () {
-        var subscriptionStream;
-        var onCancel; // Completes if source stream is canceled before done.
+        SubscriptionStream subscriptionStream;
+        Future onCancel; // Completes if source stream is canceled before done.
         setUp(() {
           var cancelCompleter = new Completer();
           var source = createErrorStream(cancelCompleter);
@@ -142,7 +142,7 @@ main() {
 
           var subscription =
               subscriptionStream.listen(null, cancelOnError: cancelOnError);
-          expect(subscription.asFuture(), throws);
+          expect(subscription.asFuture(), throwsA(anything));
         });
       });
     }

@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 main() {
   group("single-subscription", () {
-    var streamGroup;
+    StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = new StreamGroup<String>();
     });
@@ -250,7 +250,7 @@ main() {
   });
 
   group("broadcast", () {
-    var streamGroup;
+    StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = new StreamGroup<String>.broadcast();
     });
@@ -439,7 +439,7 @@ main() {
 }
 
 void regardlessOfType(StreamGroup<String> newStreamGroup()) {
-  var streamGroup;
+  StreamGroup<String> streamGroup;
   setUp(() {
     streamGroup = newStreamGroup();
   });

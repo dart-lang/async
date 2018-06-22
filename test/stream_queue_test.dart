@@ -406,7 +406,7 @@ main() {
       expect(controller.hasListener, isTrue);
       expect(controller.isPaused, isFalse);
 
-      var lastEvent;
+      dynamic lastEvent;
       subscription.onData((value) => lastEvent = value);
 
       controller.add(2);
@@ -445,7 +445,7 @@ main() {
       expect(await events.peek, 4);
       expect(await events.next, 4);
       // Throws at end.
-      expect(events.peek, throws);
+      expect(events.peek, throwsA(anything));
       await events.cancel();
     });
     test("multiple requests at the same time", () async {
@@ -610,7 +610,7 @@ main() {
       var controller = new StreamController<int>();
       var events = new StreamQueue<int>(controller.stream);
 
-      var hasNext;
+      bool hasNext;
       events.hasNext.then((result) {
         hasNext = result;
       });
@@ -626,7 +626,7 @@ main() {
       var controller = new StreamController<int>();
       var events = new StreamQueue<int>(controller.stream);
 
-      var hasNext;
+      bool hasNext;
       events.hasNext.then((result) {
         hasNext = result;
       });

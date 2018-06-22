@@ -77,7 +77,7 @@ main() {
     var completer = new StreamCompleter();
     var lastEvent = -1;
     var controller = new StreamController();
-    var subscription;
+    StreamSubscription subscription;
     subscription = completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
