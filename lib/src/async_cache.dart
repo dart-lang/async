@@ -89,12 +89,13 @@ class AsyncCache<T> {
   }
 
   /// Removes any cached value.
-  void invalidate() {
+  Future invalidate() {
     _cachedValueFuture = null;
-    _cachedStreamSplitter?.close();
+    Future invalidate = _cachedStreamSplitter?.close();
     _cachedStreamSplitter = null;
     _stale?.cancel();
     _stale = null;
+    return invalidate;
   }
 
   void _startStaleTimer() {

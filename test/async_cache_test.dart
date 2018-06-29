@@ -32,7 +32,7 @@ void main() {
     var completer = new Completer<String>();
     expect(cache.fetch(() => completer.future), completion('Expensive'));
     expect(cache.fetch(expectAsync0(() {}, count: 0)), completion('Expensive'));
-    await completer.complete('Expensive');
+    completer.complete('Expensive');
   });
 
   test('should fetch via a callback again when cache expires', () {
