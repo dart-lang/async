@@ -11,7 +11,7 @@ import 'utils.dart';
 
 void main() {
   group("without being canceled", () {
-    var completer;
+    CancelableCompleter completer;
     setUp(() {
       completer =
           new CancelableCompleter(onCancel: expectAsync0(() {}, count: 0));
@@ -118,7 +118,7 @@ void main() {
 
     test("fires onCancel", () {
       var canceled = false;
-      var completer;
+      CancelableCompleter completer;
       completer = new CancelableCompleter(onCancel: expectAsync0(() {
         expect(completer.isCanceled, isTrue);
         canceled = true;

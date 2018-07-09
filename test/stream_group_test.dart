@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 main() {
   group("single-subscription", () {
-    var streamGroup;
+    StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = new StreamGroup<String>();
     });
@@ -49,7 +49,7 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer.fromHandlers(
+          new StreamTransformer<String, String>.fromHandlers(
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(transformed.toList(),
           completion(equals(["error: first", "error: second"])));
@@ -72,7 +72,7 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer.fromHandlers(
+          new StreamTransformer<String, String>.fromHandlers(
               handleData: (data, sink) => sink.add("data: $data"),
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(
@@ -250,7 +250,7 @@ main() {
   });
 
   group("broadcast", () {
-    var streamGroup;
+    StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = new StreamGroup<String>.broadcast();
     });
@@ -439,7 +439,7 @@ main() {
 }
 
 void regardlessOfType(StreamGroup<String> newStreamGroup()) {
-  var streamGroup;
+  StreamGroup<String> streamGroup;
   setUp(() {
     streamGroup = newStreamGroup();
   });
@@ -721,4 +721,4 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
+Future flushMicrotasks() => new Future.delayed(Duration.zero);

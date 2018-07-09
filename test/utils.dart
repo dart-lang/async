@@ -9,7 +9,7 @@ import "package:async/async.dart";
 import "package:test/test.dart";
 
 /// A zero-millisecond timer should wait until after all microtasks.
-Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
+Future flushMicrotasks() => new Future.delayed(Duration.zero);
 
 typedef void OptionalArgAction([a, b]);
 
@@ -38,10 +38,10 @@ Matcher throwsZoned(matcher) => predicate((callback) {
 
 /// A matcher that runs a callback in its own zone and asserts that that zone
 /// emits a [CastError].
-final throwsZonedCastError = throwsZoned(new isInstanceOf<CastError>());
+final throwsZonedCastError = throwsZoned(new TypeMatcher<CastError>());
 
 /// A matcher that matches a callback or future that throws a [CastError].
-final throwsCastError = throwsA(new isInstanceOf<CastError>());
+final throwsCastError = throwsA(new TypeMatcher<CastError>());
 
 /// A badly behaved stream which throws if it's ever listened to.
 ///

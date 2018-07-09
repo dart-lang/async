@@ -307,7 +307,7 @@ main() {
     var s2 = new Stream.fromIterable([1, 3, 5, 7]);
     var sz = new StreamZip([s1, s2]);
     int ctr = 0;
-    var sub;
+    StreamSubscription sub;
     sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));
       if (ctr == 1) {

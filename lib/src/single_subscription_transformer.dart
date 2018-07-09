@@ -17,7 +17,7 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
   const SingleSubscriptionTransformer();
 
   Stream<T> bind(Stream<S> stream) {
-    var subscription;
+    StreamSubscription<S> subscription;
     var controller = new StreamController<T>(
         sync: true, onCancel: () => subscription.cancel());
     subscription = stream.listen((value) {

@@ -173,8 +173,8 @@ void main() {
   });
 
   test("capture stream", () {
-    StreamController<int> c = new StreamController<int>();
-    Stream<Result> stream = Result.captureStream(c.stream);
+    var c = new StreamController<int>();
+    var stream = Result.captureStream(c.stream);
     var expectedList = new Queue.from([
       new Result.value(42),
       new Result.error("BAD", stack),
@@ -185,9 +185,8 @@ void main() {
       expectResult(actual, expectedList.removeFirst());
     }
 
-    stream.listen(expectAsync1(listener, count: 3), onError: (e, s) {
-      fail("Unexpected error: $e");
-    }, onDone: expectAsync0(() {}), cancelOnError: true);
+    stream.listen(expectAsync1(listener, count: 3),
+        onDone: expectAsync0(() {}), cancelOnError: true);
     c.add(42);
     c.addError("BAD", stack);
     c.add(37);
@@ -302,12 +301,17 @@ void main() {
 
   test("handle neither unary nor binary", () {
     ErrorResult result = new Result.error("error", stack);
-    expect(() => result.handle(() => fail("unreachable")), throws);
-    expect(() => result.handle((a, b, c) => fail("unreachable")), throws);
-    expect(() => result.handle((a, b, {c}) => fail("unreachable")), throws);
-    expect(() => result.handle((a, {b}) => fail("unreachable")), throws);
-    expect(() => result.handle(({a, b}) => fail("unreachable")), throws);
-    expect(() => result.handle(({a}) => fail("unreachable")), throws);
+    expect(() => result.handle(() => fail("unreachable")), throwsA(anything));
+    expect(() => result.handle((a, b, c) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle((a, b, {c}) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle((a, {b}) => fail("unreachable")),
+        throwsA(anything));
+    expect(() => result.handle(({a, b}) => fail("unreachable")),
+        throwsA(anything));
+    expect(
+        () => result.handle(({a}) => fail("unreachable")), throwsA(anything));
   });
 }
 

@@ -77,7 +77,7 @@ main() {
     var completer = new StreamCompleter();
     var lastEvent = -1;
     var controller = new StreamController();
-    var subscription;
+    StreamSubscription subscription;
     subscription = completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
@@ -140,7 +140,7 @@ main() {
 
   test("cancelOnError true when listening before linking stream", () async {
     var completer = new StreamCompleter();
-    var lastEvent = -1;
+    Object lastEvent = -1;
     var controller = new StreamController();
     completer.stream.listen((value) {
       expect(value, lessThan(3));
@@ -173,7 +173,7 @@ main() {
 
   test("cancelOnError true when listening after linking stream", () async {
     var completer = new StreamCompleter();
-    var lastEvent = -1;
+    Object lastEvent = -1;
     var controller = new StreamController();
     completer.setSourceStream(controller.stream);
     controller.add(1);

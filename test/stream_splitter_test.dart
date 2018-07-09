@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 main() {
   StreamController<int> controller;
-  var splitter;
+  StreamSplitter splitter;
   setUp(() {
     controller = new StreamController<int>();
     splitter = new StreamSplitter<int>(controller.stream);
@@ -289,4 +289,4 @@ main() {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => new Future.delayed(Duration.ZERO);
+Future flushMicrotasks() => new Future.delayed(Duration.zero);

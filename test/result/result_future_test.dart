@@ -9,8 +9,8 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
 void main() {
-  var completer;
-  var future;
+  Completer completer;
+  ResultFuture future;
   setUp(() {
     completer = new Completer();
     future = new ResultFuture(completer.future);
