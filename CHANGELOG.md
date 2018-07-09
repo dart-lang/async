@@ -1,3 +1,7 @@
+## 2.0.8
+
+* Deprecate `DelegatingFuture.typed`, it is not necessary in Dart 2.
+
 ## 2.0.7
 
 * Fix Dart 2 runtime errors.
