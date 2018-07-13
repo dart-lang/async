@@ -89,9 +89,9 @@ class AsyncCache<T> {
   }
 
   /// Removes any cached value.
-  void invalidate() {
+  Future<void> invalidate() async {
     _cachedValueFuture = null;
-    _cachedStreamSplitter?.close();
+    await _cachedStreamSplitter?.close();
     _cachedStreamSplitter = null;
     _stale?.cancel();
     _stale = null;
