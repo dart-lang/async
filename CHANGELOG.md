@@ -1,6 +1,8 @@
 ## 2.0.8
 
 * Deprecate `DelegatingFuture.typed`, it is not necessary in Dart 2.
+* Change `AsyncCache.invalidate` to return a `Future<void>` since it does _some_
+  async work.
 
 ## 2.0.7
 
