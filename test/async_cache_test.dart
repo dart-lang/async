@@ -58,9 +58,9 @@ void main() {
     var timesCalled = 0;
     call() async => 'Called ${++timesCalled}';
     expect(await cache.fetch(call), 'Called 1');
-    await cache.invalidate();
+    cache.invalidate();
     expect(await cache.fetch(call), 'Called 2');
-    await cache.invalidate();
+    cache.invalidate();
     expect(await cache.fetch(call), 'Called 3');
   });
 
@@ -129,9 +129,9 @@ void main() {
     }
 
     expect(await cache.fetchStream(call).toList(), ['Called 1']);
-    await cache.invalidate();
+    cache.invalidate();
     expect(await cache.fetchStream(call).toList(), ['Called 2']);
-    await cache.invalidate();
+    cache.invalidate();
     expect(await cache.fetchStream(call).toList(), ['Called 3']);
   });
 
