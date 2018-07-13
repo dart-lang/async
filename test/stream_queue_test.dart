@@ -153,8 +153,8 @@ main() {
 
     test("multiple requests at the same time", () async {
       var events = new StreamQueue<int>(createStream());
-      var result = await Future.wait(
-          [events.next, events.next, events.next, events.next]);
+      var result = await Future
+          .wait([events.next, events.next, events.next, events.next]);
       expect(result, [1, 2, 3, 4]);
       await events.cancel();
     });
