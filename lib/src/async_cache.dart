@@ -37,19 +37,19 @@ class AsyncCache<T> {
   /// Fires when the cache should be considered stale.
   Timer _stale;
 
-  /// Creates a cache that invalidates after an in-flight request is complete.
-  ///
-  /// An ephemeral cache guarantees that a callback function will only be
-  /// executed at most once concurrently. This is useful for requests for which
-  /// data is updated frequently but stale data is acceptable.
-  factory AsyncCache.ephemeral() => new AsyncCache(Duration.zero);
-
   /// Creates a cache that invalidates its contents after [duration] has passed.
   ///
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by [fetchStream] emits a done
   /// event.
   AsyncCache(this._duration);
+
+  /// Creates a cache that invalidates after an in-flight request is complete.
+  ///
+  /// An ephemeral cache guarantees that a callback function will only be
+  /// executed at most once concurrently. This is useful for requests for which
+  /// data is updated frequently but stale data is acceptable.
+  factory AsyncCache.ephemeral() => new AsyncCache(Duration.zero);
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -90,7 +90,9 @@ class AsyncCache<T> {
 
   /// Removes any cached value.
   void invalidate() {
+    // TODO: This does not return a future, but probably should.
     _cachedValueFuture = null;
+    // TODO: This does not await, but probably should.
     _cachedStreamSplitter?.close();
     _cachedStreamSplitter = null;
     _stale?.cancel();
