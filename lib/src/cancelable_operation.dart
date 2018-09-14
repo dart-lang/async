@@ -63,7 +63,7 @@ class CancelableOperation<T> {
   /// If this operation completes, this completes to the same result as [value].
   /// If this operation is cancelled, the returned future waits for the future
   /// returned by [cancel], then completes to [cancellationValue].
-  Future valueOrCancellation([T cancellationValue]) {
+  Future<T> valueOrCancellation([T cancellationValue]) {
     var completer = new Completer<T>.sync();
     value.then((result) => completer.complete(result),
         onError: completer.completeError);
