@@ -1,3 +1,7 @@
+## 2.1.0
+
+* Fix `CancelableOperation.valueOrCancellation`'s type signature
+
 ## 2.0.8
 
 * Set max SDK version to `<3.0.0`.
