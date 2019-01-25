@@ -544,3 +544,421 @@ class StreamQueue<T> {
     _requestQueue.add(request);
   }
 }
+
+/// A transaction on a [StreamQueue], created by [StreamQueue.startTransaction].
+///
+/// Copies of the parent queue may be created using [newQueue]. Calling [commit]
+/// moves the parent queue to a copy's position, and calling [reject] causes it
+/// to continue as though [StreamQueue.startTransaction] was never called.
+class StreamQueueTransaction<T> {
+  /// The parent queue on which this transaction is active.
+  final StreamQueue<T> _parent;
+
+  /// The splitter that produces copies of the parent queue's stream.
+  final StreamSplitter<T> _splitter;
+
+  /// Queues created using [newQueue].
+  final _queues = Set<StreamQueue>();
+
+  /// Whether [commit] has been called.
+  var _committed = false;
+
+  /// Whether [reject] has been called.
+  var _rejected = false;
+
+  StreamQueueTransaction._(this._parent, Stream<T> source)
+      : _splitter = StreamSplitter(source);
+
+  /// Creates a new copy of the parent queue.
+  ///
+  /// This copy starts at the parent queue's position when
+  /// [StreamQueue.startTransaction] was called. Its position can be committed
+  /// to the parent queue using [commit].
+  StreamQueue<T> newQueue() {
+    var queue = StreamQueue(_splitter.split());
+    _queues.add(queue);
+    return queue;
+  }
+
+  /// Commits a queue created using [newQueue].
+  ///
+  /// The parent queue's position is updated to be the same as [queue]'s.
+  /// Further requests on all queues created by this transaction, including
+  /// [queue], will complete as though [cancel] were called with `immediate:
+  /// true`.
+  ///
+  /// Throws a [StateError] if [commit] or [reject] have already been called, or
+  /// if there are pending requests on [queue].
+  void commit(StreamQueue<T> queue) {
+    _assertActive();
+    if (!_queues.contains(queue)) {
+      throw ArgumentError("Queue doesn't belong to this transaction.");
+    } else if (queue._requestQueue.isNotEmpty) {
+      throw StateError("A queue with pending requests can't be committed.");
+    }
+    _committed = true;
+
+    // Remove all events from the parent queue that were consumed by the
+    // child queue.
+    for (var j = 0; j < queue.eventsDispatched; j++) {
+      _parent._eventQueue.removeFirst();
+    }
+
+    _done();
+  }
+
+  /// Rejects this transaction without updating the parent queue.
+  ///
+  /// The parent will continue as though [StreamQueue.startTransaction] hadn't
+  /// been called. Further requests on all queues created by this transaction
+  /// will complete as though [cancel] were called with `immediate: true`.
+  ///
+  /// Throws a [StateError] if [commit] or [reject] have already been called.
+  void reject() {
+    _assertActive();
+    _rejected = true;
+    _done();
+  }
+
+  // Cancels all [_queues], removes the [_TransactionRequest] from [_parent]'s
+  // request queue, and runs the next request.
+  void _done() {
+    _splitter.close();
+    for (var queue in _queues) {
+      queue._cancel();
+    }
+    // If this is the active request in the queue, mark it as finished.
+    var currentRequest = _parent._requestQueue.first;
+    if (currentRequest is _TransactionRequest &&
+        currentRequest.transaction == this) {
+      _parent._requestQueue.removeFirst();
+      _parent._updateRequests();
+    }
+  }
+
+  /// Throws a [StateError] if [accept] or [reject] has already been called.
+  void _assertActive() {
+    if (_committed) {
+      throw StateError("This transaction has already been accepted.");
+    } else if (_rejected) {
+      throw StateError("This transaction has already been rejected.");
+    }
+  }
+}
+
+/// Request object that receives events when they arrive, until fulfilled.
+///
+/// Each request that cannot be fulfilled immediately is represented by
+/// an `_EventRequest` object in the request queue.
+///
+/// Events from the source stream are sent to the first request in the
+/// queue until it reports itself as [isComplete].
+///
+/// When the first request in the queue `isComplete`, either when becoming
+/// the first request or after receiving an event, its [close] methods is
+/// called.
+///
+/// The [close] method is also called immediately when the source stream
+/// is done.
+abstract class _EventRequest<T> {
+  /// Handle available events.
+  ///
+  /// The available events are provided as a queue. The `update` function
+  /// should only remove events from the front of the event queue, e.g.,
+  /// using [removeFirst].
+  ///
+  /// Returns `true` if the request is completed, or `false` if it needs
+  /// more events.
+  /// The call may keep events in the queue until the requeust is complete,
+  /// or it may remove them immediately.
+  ///
+  /// If the method returns true, the request is considered fulfilled, and
+  /// will never be called again.
+  ///
+  /// This method is called when a request reaches the front of the request
+  /// queue, and if it returns `false`, it's called again every time a new event
+  /// becomes available, or when the stream closes.
+  /// If the function returns `false` when the stream has already closed
+  /// ([isDone] is true), then the request must call
+  /// [StreamQueue._updateRequests] itself when it's ready to continue.
+  bool update(QueueList<Result<T>> events, bool isDone);
+}
+
+/// Request for a [StreamQueue.next] call.
+///
+/// Completes the returned future when receiving the first event,
+/// and is then complete.
+class _NextRequest<T> implements _EventRequest<T> {
+  /// Completer for the future returned by [StreamQueue.next].
+  final _completer = Completer<T>();
+
+  _NextRequest();
+
+  Future<T> get future => _completer.future;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    if (events.isNotEmpty) {
+      events.removeFirst().complete(_completer);
+      return true;
+    }
+    if (isDone) {
+      _completer.completeError(StateError("No elements"), StackTrace.current);
+      return true;
+    }
+    return false;
+  }
+}
+
+/// Request for a [StreamQueue.peek] call.
+///
+/// Completes the returned future when receiving the first event,
+/// and is then complete, but doesn't consume the event.
+class _PeekRequest<T> implements _EventRequest<T> {
+  /// Completer for the future returned by [StreamQueue.next].
+  final _completer = Completer<T>();
+
+  _PeekRequest();
+
+  Future<T> get future => _completer.future;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    if (events.isNotEmpty) {
+      events.first.complete(_completer);
+      return true;
+    }
+    if (isDone) {
+      _completer.completeError(StateError("No elements"), StackTrace.current);
+      return true;
+    }
+    return false;
+  }
+}
+
+/// Request for a [StreamQueue.skip] call.
+class _SkipRequest<T> implements _EventRequest<T> {
+  /// Completer for the future returned by the skip call.
+  final _completer = Completer<int>();
+
+  /// Number of remaining events to skip.
+  ///
+  /// The request [isComplete] when the values reaches zero.
+  ///
+  /// Decremented when an event is seen.
+  /// Set to zero when an error is seen since errors abort the skip request.
+  int _eventsToSkip;
+
+  _SkipRequest(this._eventsToSkip);
+
+  /// The future completed when the correct number of events have been skipped.
+  Future<int> get future => _completer.future;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    while (_eventsToSkip > 0) {
+      if (events.isEmpty) {
+        if (isDone) break;
+        return false;
+      }
+      _eventsToSkip--;
+
+      var event = events.removeFirst();
+      if (event.isError) {
+        _completer.completeError(event.asError.error, event.asError.stackTrace);
+        return true;
+      }
+    }
+    _completer.complete(_eventsToSkip);
+    return true;
+  }
+}
+
+/// Common superclass for [_TakeRequest] and [_LookAheadRequest].
+abstract class _ListRequest<T> implements _EventRequest<T> {
+  /// Completer for the future returned by the take call.
+  final _completer = Completer<List<T>>();
+
+  /// List collecting events until enough have been seen.
+  final _list = <T>[];
+
+  /// Number of events to capture.
+  ///
+  /// The request [isComplete] when the length of [_list] reaches
+  /// this value.
+  final int _eventsToTake;
+
+  _ListRequest(this._eventsToTake);
+
+  /// The future completed when the correct number of events have been captured.
+  Future<List<T>> get future => _completer.future;
+}
+
+/// Request for a [StreamQueue.take] call.
+class _TakeRequest<T> extends _ListRequest<T> {
+  _TakeRequest(int eventsToTake) : super(eventsToTake);
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    while (_list.length < _eventsToTake) {
+      if (events.isEmpty) {
+        if (isDone) break;
+        return false;
+      }
+
+      var event = events.removeFirst();
+      if (event.isError) {
+        event.asError.complete(_completer);
+        return true;
+      }
+      _list.add(event.asValue.value);
+    }
+    _completer.complete(_list);
+    return true;
+  }
+}
+
+/// Request for a [StreamQueue.lookAhead] call.
+class _LookAheadRequest<T> extends _ListRequest<T> {
+  _LookAheadRequest(int eventsToTake) : super(eventsToTake);
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    while (_list.length < _eventsToTake) {
+      if (events.length == _list.length) {
+        if (isDone) break;
+        return false;
+      }
+      var event = events.elementAt(_list.length);
+      if (event.isError) {
+        event.asError.complete(_completer);
+        return true;
+      }
+      _list.add(event.asValue.value);
+    }
+    _completer.complete(_list);
+    return true;
+  }
+}
+
+/// Request for a [StreamQueue.cancel] call.
+///
+/// The request needs no events, it just waits in the request queue
+/// until all previous events are fulfilled, then it cancels the stream queue
+/// source subscription.
+class _CancelRequest<T> implements _EventRequest<T> {
+  /// Completer for the future returned by the `cancel` call.
+  /// TODO(lrn); make this Completer<void> when that is implemented.
+  final _completer = Completer();
+
+  /// When the event is completed, it needs to cancel the active subscription
+  /// of the `StreamQueue` object, if any.
+  final StreamQueue _streamQueue;
+
+  _CancelRequest(this._streamQueue);
+
+  /// The future completed when the cancel request is completed.
+  Future get future => _completer.future;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    if (_streamQueue._isDone) {
+      _completer.complete();
+    } else {
+      _streamQueue._ensureListening();
+      _completer.complete(_streamQueue._extractStream().listen(null).cancel());
+    }
+    return true;
+  }
+}
+
+/// Request for a [StreamQueue.rest] call.
+///
+/// The request is always complete, it just waits in the request queue
+/// until all previous events are fulfilled, then it takes over the
+/// stream events subscription and creates a stream from it.
+class _RestRequest<T> implements _EventRequest<T> {
+  /// Completer for the stream returned by the `rest` call.
+  final _completer = StreamCompleter<T>();
+
+  /// The [StreamQueue] object that has this request queued.
+  ///
+  /// When the event is completed, it needs to cancel the active subscription
+  /// of the `StreamQueue` object, if any.
+  final StreamQueue<T> _streamQueue;
+
+  _RestRequest(this._streamQueue);
+
+  /// The stream which will contain the remaining events of [_streamQueue].
+  Stream<T> get stream => _completer.stream;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    if (events.isEmpty) {
+      if (_streamQueue._isDone) {
+        _completer.setEmpty();
+      } else {
+        _completer.setSourceStream(_streamQueue._extractStream());
+      }
+    } else {
+      // There are prefetched events which needs to be added before the
+      // remaining stream.
+      var controller = StreamController<T>();
+      for (var event in events) {
+        event.addTo(controller);
+      }
+      controller
+          .addStream(_streamQueue._extractStream(), cancelOnError: false)
+          .whenComplete(controller.close);
+      _completer.setSourceStream(controller.stream);
+    }
+    return true;
+  }
+}
+
+/// Request for a [StreamQueue.hasNext] call.
+///
+/// Completes the [future] with `true` if it sees any event,
+/// but doesn't consume the event.
+/// If the request is closed without seeing an event, then
+/// the [future] is completed with `false`.
+class _HasNextRequest<T> implements _EventRequest<T> {
+  final _completer = Completer<bool>();
+
+  Future<bool> get future => _completer.future;
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    if (events.isNotEmpty) {
+      _completer.complete(true);
+      return true;
+    }
+    if (isDone) {
+      _completer.complete(false);
+      return true;
+    }
+    return false;
+  }
+}
+
+/// Request for a [StreamQueue.startTransaction] call.
+///
+/// This request isn't complete until the user calls
+/// [StreamQueueTransaction.commit] or [StreamQueueTransaction.reject], at which
+/// point it manually removes itself from the request queue and calls
+/// [StreamQueue._updateRequests].
+class _TransactionRequest<T> implements _EventRequest<T> {
+  /// The transaction created by this request.
+  StreamQueueTransaction<T> get transaction => _transaction;
+  StreamQueueTransaction<T> _transaction;
+
+  /// The controller that passes events to [transaction].
+  final _controller = StreamController<T>(sync: true);
+
+  /// The number of events passed to [_controller] so far.
+  var _eventsSent = 0;
+
+  _TransactionRequest(StreamQueue<T> parent) {
+    _transaction = StreamQueueTransaction._(parent, _controller.stream);
+  }
+
+  bool update(QueueList<Result<T>> events, bool isDone) {
+    while (_eventsSent < events.length) {
+      events[_eventsSent++].addTo(_controller);
+    }
+    if (isDone && !_controller.isClosed) _controller.close();
+    return transaction._committed || _transaction._rejected;
+  }
+}
