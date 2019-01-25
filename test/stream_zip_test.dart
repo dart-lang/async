@@ -17,10 +17,10 @@ Stream streamError(Stream base, int errorValue, error) {
 /// at periodic intervals.
 Stream mks(Iterable iterable) {
   Iterator iterator = iterable.iterator;
-  StreamController controller = new StreamController();
+  StreamController controller = StreamController();
   // Some varying time between 3 and 10 ms.
   int ms = ((++ctr) * 5) % 7 + 3;
-  new Timer.periodic(new Duration(milliseconds: ms), (Timer timer) {
+  Timer.periodic(Duration(milliseconds: ms), (Timer timer) {
     if (iterator.moveNext()) {
       controller.add(iterator.current);
     } else {
@@ -38,7 +38,7 @@ main() {
   // Test that zipping [streams] gives the results iterated by [expectedData].
   testZip(Iterable<Stream> streams, Iterable expectedData) {
     List data = [];
-    Stream zip = new StreamZip(streams);
+    Stream zip = StreamZip(streams);
     zip.listen(data.add, onDone: expectAsync0(() {
       expect(data, equals(expectedData));
     }));
@@ -145,9 +145,8 @@ main() {
   test("Other-streams", () {
     Stream st1 = mks([1, 2, 3, 4, 5, 6]).where((x) => x < 4);
     Stream st2 =
-        new Stream.periodic(const Duration(milliseconds: 5), (x) => x + 4)
-            .take(3);
-    StreamController c = new StreamController.broadcast();
+        Stream.periodic(const Duration(milliseconds: 5), (x) => x + 4).take(3);
+    StreamController c = StreamController.broadcast();
     Stream st3 = c.stream;
     testZip([
       st1,
@@ -167,7 +166,7 @@ main() {
 
   test("Error 1", () {
     expect(
-        new StreamZip([
+        StreamZip([
           streamError(mks([1, 2, 3]), 2, "BAD-1"),
           mks([4, 5, 6]),
           mks([7, 8, 9])
@@ -177,7 +176,7 @@ main() {
 
   test("Error 2", () {
     expect(
-        new StreamZip([
+        StreamZip([
           mks([1, 2, 3]),
           streamError(mks([4, 5, 6]), 5, "BAD-2"),
           mks([7, 8, 9])
@@ -187,7 +186,7 @@ main() {
 
   test("Error 3", () {
     expect(
-        new StreamZip([
+        StreamZip([
           mks([1, 2, 3]),
           mks([4, 5, 6]),
           streamError(mks([7, 8, 9]), 8, "BAD-3")
@@ -197,7 +196,7 @@ main() {
 
   test("Error at end", () {
     expect(
-        new StreamZip([
+        StreamZip([
           mks([1, 2, 3]),
           streamError(mks([4, 5, 6]), 6, "BAD-4"),
           mks([7, 8, 9])
@@ -209,21 +208,21 @@ main() {
     // StreamControllers' streams with no "close" called will never be done,
     // so the fourth event of the first stream is guaranteed to come first.
     expect(
-        new StreamZip([
+        StreamZip([
           streamError(mks([1, 2, 3, 4]), 4, "BAD-5"),
-          (new StreamController()..add(4)..add(5)..add(6)).stream,
-          (new StreamController()..add(7)..add(8)..add(9)).stream
+          (StreamController()..add(4)..add(5)..add(6)).stream,
+          (StreamController()..add(7)..add(8)..add(9)).stream
         ]).toList(),
         throwsA(equals("BAD-5")));
   });
 
   test("Error after first end", () {
-    StreamController controller = new StreamController();
+    StreamController controller = StreamController();
     controller..add(7)..add(8)..add(9);
     // Transformer that puts error into controller when one of the first two
     // streams have sent a done event.
     StreamTransformer trans =
-        new StreamTransformer.fromHandlers(handleDone: (EventSink s) {
+        StreamTransformer.fromHandlers(handleDone: (EventSink s) {
       Timer.run(() {
         controller.addError("BAD-6");
       });
@@ -242,14 +241,14 @@ main() {
 
   test("Pause/Resume", () {
     int sc1p = 0;
-    StreamController c1 = new StreamController(onPause: () {
+    StreamController c1 = StreamController(onPause: () {
       sc1p++;
     }, onResume: () {
       sc1p--;
     });
 
     int sc2p = 0;
-    StreamController c2 = new StreamController(onPause: () {
+    StreamController c2 = StreamController(onPause: () {
       sc2p++;
     }, onResume: () {
       sc2p--;
@@ -260,12 +259,12 @@ main() {
       expect(sc2p, equals(0));
     }); // Call to complete test.
 
-    Stream zip = new StreamZip([c1.stream, c2.stream]);
+    Stream zip = StreamZip([c1.stream, c2.stream]);
 
-    const ms25 = const Duration(milliseconds: 25);
+    const ms25 = Duration(milliseconds: 25);
 
     // StreamIterator uses pause and resume to control flow.
-    StreamIterator it = new StreamIterator(zip);
+    StreamIterator it = StreamIterator(zip);
 
     it.moveNext().then((hasMore) {
       expect(hasMore, isTrue);
@@ -279,7 +278,7 @@ main() {
     }).then((hasMore) {
       expect(hasMore, isTrue);
       expect(it.current, equals([5, 6]));
-      new Future.delayed(ms25).then((_) {
+      Future.delayed(ms25).then((_) {
         c2.add(8);
       });
       return it.moveNext();
@@ -303,18 +302,18 @@ main() {
   });
 
   test("pause-resume2", () {
-    var s1 = new Stream.fromIterable([0, 2, 4, 6, 8]);
-    var s2 = new Stream.fromIterable([1, 3, 5, 7]);
-    var sz = new StreamZip([s1, s2]);
+    var s1 = Stream.fromIterable([0, 2, 4, 6, 8]);
+    var s2 = Stream.fromIterable([1, 3, 5, 7]);
+    var sz = StreamZip([s1, s2]);
     int ctr = 0;
     StreamSubscription sub;
     sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));
       if (ctr == 1) {
-        sub.pause(new Future.delayed(const Duration(milliseconds: 25)));
+        sub.pause(Future.delayed(const Duration(milliseconds: 25)));
       } else if (ctr == 2) {
         sub.pause();
-        new Future.delayed(const Duration(milliseconds: 25)).then((_) {
+        Future.delayed(const Duration(milliseconds: 25)).then((_) {
           sub.resume();
         });
       }

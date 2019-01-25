@@ -12,7 +12,7 @@ import 'utils.dart';
 void main() {
   FutureGroup futureGroup;
   setUp(() {
-    futureGroup = new FutureGroup();
+    futureGroup = FutureGroup();
   });
 
   group("with no futures", () {
@@ -32,7 +32,7 @@ void main() {
 
   group("with a future that already completed", () {
     test("never completes if nothing happens", () async {
-      futureGroup.add(new Future.value());
+      futureGroup.add(Future.value());
       await flushMicrotasks();
 
       var completed = false;
@@ -43,7 +43,7 @@ void main() {
     });
 
     test("completes once it's closed", () async {
-      futureGroup.add(new Future.value());
+      futureGroup.add(Future.value());
       await flushMicrotasks();
 
       expect(futureGroup.future, completes);
@@ -51,21 +51,21 @@ void main() {
     });
 
     test("completes to that future's value", () {
-      futureGroup.add(new Future.value(1));
+      futureGroup.add(Future.value(1));
       futureGroup.close();
       expect(futureGroup.future, completion(equals([1])));
     });
 
     test("completes to that future's error, even if it's not closed", () {
-      futureGroup.add(new Future.error("error"));
+      futureGroup.add(Future.error("error"));
       expect(futureGroup.future, throwsA("error"));
     });
   });
 
   test("completes once all contained futures complete", () async {
-    var completer1 = new Completer();
-    var completer2 = new Completer();
-    var completer3 = new Completer();
+    var completer1 = Completer();
+    var completer2 = Completer();
+    var completer3 = Completer();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -89,9 +89,9 @@ void main() {
   });
 
   test("completes to the values of the futures in order of addition", () {
-    var completer1 = new Completer();
-    var completer2 = new Completer();
-    var completer3 = new Completer();
+    var completer1 = Completer();
+    var completer2 = Completer();
+    var completer3 = Completer();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -108,9 +108,9 @@ void main() {
 
   test("completes to the first error to be emitted, even if it's not closed",
       () {
-    var completer1 = new Completer();
-    var completer2 = new Completer();
-    var completer3 = new Completer();
+    var completer1 = Completer();
+    var completer2 = Completer();
+    var completer3 = Completer();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -126,9 +126,9 @@ void main() {
       var idle = false;
       futureGroup.onIdle.listen((_) => idle = true);
 
-      var completer1 = new Completer();
-      var completer2 = new Completer();
-      var completer3 = new Completer();
+      var completer1 = Completer();
+      var completer2 = Completer();
+      var completer3 = Completer();
 
       futureGroup.add(completer1.future);
       futureGroup.add(completer2.future);
@@ -158,7 +158,7 @@ void main() {
       var idle = false;
       futureGroup.onIdle.listen((_) => idle = true);
 
-      var completer = new Completer();
+      var completer = Completer();
       futureGroup.add(completer.future);
 
       completer.complete();
@@ -167,7 +167,7 @@ void main() {
       expect(futureGroup.isIdle, isTrue);
 
       idle = false;
-      completer = new Completer();
+      completer = Completer();
       futureGroup.add(completer.future);
 
       await flushMicrotasks();
@@ -202,7 +202,7 @@ void main() {
         futureFired = true;
       }));
 
-      var completer = new Completer();
+      var completer = Completer();
       futureGroup.add(completer.future);
       futureGroup.close();
 

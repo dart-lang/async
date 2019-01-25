@@ -13,8 +13,8 @@ void main() {
   group("with no callbacks", () {
     test("forwards cancellation", () async {
       var isCanceled = false;
-      var cancelCompleter = new Completer();
-      var controller = new StreamController(onCancel: expectAsync0(() {
+      var cancelCompleter = Completer();
+      var controller = StreamController(onCancel: expectAsync0(() {
         isCanceled = true;
         return cancelCompleter.future;
       }));
@@ -40,7 +40,7 @@ void main() {
     });
 
     test("forwards pausing and resuming", () async {
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer())
           .listen(expectAsync1((_) {}, count: 0));
@@ -63,12 +63,12 @@ void main() {
     });
 
     test("forwards pausing with a resume future", () async {
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer())
           .listen(expectAsync1((_) {}, count: 0));
 
-      var completer = new Completer();
+      var completer = Completer();
       subscription.pause(completer.future);
       await flushMicrotasks();
       expect(controller.isPaused, isTrue);
@@ -83,7 +83,7 @@ void main() {
     test("invokes the callback when the subscription is canceled", () async {
       var isCanceled = false;
       var callbackInvoked = false;
-      var controller = new StreamController(onCancel: expectAsync0(() {
+      var controller = StreamController(onCancel: expectAsync0(() {
         isCanceled = true;
       }));
       var subscription = controller.stream.transform(
@@ -103,8 +103,8 @@ void main() {
     });
 
     test("invokes the callback once and caches its result", () async {
-      var completer = new Completer();
-      var controller = new StreamController();
+      var completer = Completer();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handleCancel: expectAsync1((inner) => completer.future)))
@@ -134,7 +134,7 @@ void main() {
   group("with a pause callback", () {
     test("invokes the callback when pause is called", () async {
       var pauseCount = 0;
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handlePause: expectAsync1((inner) {
@@ -166,7 +166,7 @@ void main() {
 
     test("doesn't invoke the callback when the subscription has been canceled",
         () async {
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handlePause: expectAsync1((_) {}, count: 0)))
@@ -182,7 +182,7 @@ void main() {
   group("with a resume callback", () {
     test("invokes the callback when resume is called", () async {
       var resumeCount = 0;
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handleResume: expectAsync1((inner) {
@@ -214,14 +214,14 @@ void main() {
 
     test("invokes the callback when a resume future completes", () async {
       var resumed = false;
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream.transform(
           subscriptionTransformer(handleResume: expectAsync1((inner) {
         resumed = true;
         inner.resume();
       }))).listen(expectAsync1((_) {}, count: 0));
 
-      var completer = new Completer();
+      var completer = Completer();
       subscription.pause(completer.future);
       await flushMicrotasks();
       expect(resumed, isFalse);
@@ -233,7 +233,7 @@ void main() {
 
     test("doesn't invoke the callback when the subscription has been canceled",
         () async {
-      var controller = new StreamController();
+      var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer(
               handlePause: expectAsync1((_) {}, count: 0)))
@@ -249,7 +249,7 @@ void main() {
   group("when the outer subscription is canceled but the inner is not", () {
     StreamSubscription subscription;
     setUp(() {
-      var controller = new StreamController();
+      var controller = StreamController();
       subscription = controller.stream
           .transform(subscriptionTransformer(handleCancel: (_) {}))
           .listen(expectAsync1((_) {}, count: 0),

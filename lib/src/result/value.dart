@@ -27,7 +27,7 @@ class ValueResult<T> implements Result<T> {
     sink.add(value);
   }
 
-  Future<T> get asFuture => new Future.value(value);
+  Future<T> get asFuture => Future.value(value);
 
   int get hashCode => value.hashCode ^ 0x323f1d61;
 

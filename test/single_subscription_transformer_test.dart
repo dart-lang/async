@@ -11,7 +11,7 @@ import 'utils.dart';
 
 void main() {
   test("buffers events as soon as it's bound", () async {
-    var controller = new StreamController.broadcast();
+    var controller = StreamController.broadcast();
     var stream =
         controller.stream.transform(const SingleSubscriptionTransformer());
 
@@ -31,7 +31,7 @@ void main() {
   test("cancels the subscription to the broadcast stream when it's canceled",
       () async {
     var canceled = false;
-    var controller = new StreamController.broadcast(onCancel: () {
+    var controller = StreamController.broadcast(onCancel: () {
       canceled = true;
     });
     var stream =

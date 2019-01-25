@@ -11,16 +11,16 @@ main() {
   group("single-subscription", () {
     StreamGroup<String> streamGroup;
     setUp(() {
-      streamGroup = new StreamGroup<String>();
+      streamGroup = StreamGroup<String>();
     });
 
     test("buffers events from multiple sources", () async {
-      var controller1 = new StreamController<String>();
+      var controller1 = StreamController<String>();
       streamGroup.add(controller1.stream);
       controller1.add("first");
       controller1.close();
 
-      var controller2 = new StreamController<String>();
+      var controller2 = StreamController<String>();
       streamGroup.add(controller2.stream);
       controller2.add("second");
       controller2.close();
@@ -34,12 +34,12 @@ main() {
     });
 
     test("buffers errors from multiple sources", () async {
-      var controller1 = new StreamController<String>();
+      var controller1 = StreamController<String>();
       streamGroup.add(controller1.stream);
       controller1.addError("first");
       controller1.close();
 
-      var controller2 = new StreamController<String>();
+      var controller2 = StreamController<String>();
       streamGroup.add(controller2.stream);
       controller2.addError("second");
       controller2.close();
@@ -49,14 +49,14 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer<String, String>.fromHandlers(
+          StreamTransformer<String, String>.fromHandlers(
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(transformed.toList(),
           completion(equals(["error: first", "error: second"])));
     });
 
     test("buffers events and errors together", () async {
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
 
       controller.add("first");
@@ -72,7 +72,7 @@ main() {
       expect(streamGroup.close(), completes);
 
       var transformed = streamGroup.stream.transform(
-          new StreamTransformer<String, String>.fromHandlers(
+          StreamTransformer<String, String>.fromHandlers(
               handleData: (data, sink) => sink.add("data: $data"),
               handleError: (error, _, sink) => sink.add("error: $error")));
       expect(
@@ -88,7 +88,7 @@ main() {
     });
 
     test("emits events once there's a listener", () {
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
 
       expect(
@@ -102,7 +102,7 @@ main() {
     });
 
     test("doesn't buffer events from a broadcast stream", () async {
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
       controller.add("first");
@@ -116,7 +116,7 @@ main() {
     });
 
     test("when paused, buffers events from a broadcast stream", () async {
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
       var events = [];
@@ -136,7 +136,7 @@ main() {
     });
 
     test("emits events from a broadcast stream once there's a listener", () {
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
       expect(
@@ -152,8 +152,7 @@ main() {
     test("forwards cancel errors", () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var controller =
-          new StreamController<String>(onCancel: () => throw "error");
+      var controller = StreamController<String>(onCancel: () => throw "error");
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -163,9 +162,9 @@ main() {
     test("forwards a cancel future", () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var completer = new Completer();
+      var completer = Completer();
       var controller =
-          new StreamController<String>(onCancel: () => completer.future);
+          StreamController<String>(onCancel: () => completer.future);
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -187,7 +186,7 @@ main() {
       await flushMicrotasks();
 
       var paused = false;
-      var controller = new StreamController<String>(
+      var controller = StreamController<String>(
           onPause: () => paused = true, onResume: () => paused = false);
 
       subscription.pause();
@@ -211,7 +210,7 @@ main() {
       test("immediately listens to and cancels the stream", () async {
         var listened = false;
         var canceled = false;
-        var controller = new StreamController<String>(onListen: () {
+        var controller = StreamController<String>(onListen: () {
           listened = true;
         }, onCancel: expectAsync0(() {
           expect(listened, isTrue);
@@ -226,15 +225,15 @@ main() {
 
       test("forwards cancel errors", () {
         var controller =
-            new StreamController<String>(onCancel: () => throw "error");
+            StreamController<String>(onCancel: () => throw "error");
 
         expect(streamGroup.add(controller.stream), throwsA("error"));
       });
 
       test("forwards a cancel future", () async {
-        var completer = new Completer();
+        var completer = Completer();
         var controller =
-            new StreamController<String>(onCancel: () => completer.future);
+            StreamController<String>(onCancel: () => completer.future);
 
         var fired = false;
         streamGroup.add(controller.stream).then((_) => fired = true);
@@ -252,16 +251,16 @@ main() {
   group("broadcast", () {
     StreamGroup<String> streamGroup;
     setUp(() {
-      streamGroup = new StreamGroup<String>.broadcast();
+      streamGroup = StreamGroup<String>.broadcast();
     });
 
     test("buffers events from multiple sources", () async {
-      var controller1 = new StreamController<String>();
+      var controller1 = StreamController<String>();
       streamGroup.add(controller1.stream);
       controller1.add("first");
       controller1.close();
 
-      var controller2 = new StreamController<String>();
+      var controller2 = StreamController<String>();
       streamGroup.add(controller2.stream);
       controller2.add("second");
       controller2.close();
@@ -275,10 +274,10 @@ main() {
     });
 
     test("emits events from multiple sources once there's a listener", () {
-      var controller1 = new StreamController<String>();
+      var controller1 = StreamController<String>();
       streamGroup.add(controller1.stream);
 
-      var controller2 = new StreamController<String>();
+      var controller2 = StreamController<String>();
       streamGroup.add(controller2.stream);
 
       expect(
@@ -294,7 +293,7 @@ main() {
 
     test("doesn't buffer events once a listener has been added and removed",
         () async {
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
 
       streamGroup.stream.listen(null).cancel();
@@ -311,7 +310,7 @@ main() {
     });
 
     test("doesn't buffer events from a broadcast stream", () async {
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
       controller.add("first");
       controller.addError("second");
@@ -324,7 +323,7 @@ main() {
     });
 
     test("emits events from a broadcast stream once there's a listener", () {
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
       streamGroup.add(controller.stream);
 
       expect(
@@ -340,7 +339,7 @@ main() {
     test("cancels and re-listens broadcast streams", () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var controller = new StreamController<String>.broadcast();
+      var controller = StreamController<String>.broadcast();
 
       streamGroup.add(controller.stream);
       await flushMicrotasks();
@@ -359,7 +358,7 @@ main() {
       var subscription = streamGroup.stream.listen(null);
 
       var controller =
-          new StreamController<String>(onCancel: expectAsync0(() {}, count: 0));
+          StreamController<String>(onCancel: expectAsync0(() {}, count: 0));
 
       streamGroup.add(controller.stream);
       await flushMicrotasks();
@@ -376,7 +375,7 @@ main() {
       var events = [];
       var subscription = streamGroup.stream.listen(events.add);
 
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -396,7 +395,7 @@ main() {
     });
 
     test("a single-subscription stream can be removed while dormant", () async {
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -415,17 +414,17 @@ main() {
 
   group("regardless of type", () {
     group("single-subscription", () {
-      regardlessOfType(() => new StreamGroup<String>());
+      regardlessOfType(() => StreamGroup<String>());
     });
 
     group("broadcast", () {
-      regardlessOfType(() => new StreamGroup<String>.broadcast());
+      regardlessOfType(() => StreamGroup<String>.broadcast());
     });
   });
 
   test("merge() emits events from all components streams", () {
-    var controller1 = new StreamController<String>();
-    var controller2 = new StreamController<String>();
+    var controller1 = StreamController<String>();
+    var controller2 = StreamController<String>();
 
     var merged = StreamGroup.merge([controller1.stream, controller2.stream]);
 
@@ -448,7 +447,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
     group("while dormant", () {
       test("doesn't listen to the stream until the group is listened to",
           () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
 
         expect(streamGroup.add(controller.stream), isNull);
         await flushMicrotasks();
@@ -460,7 +459,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("is a no-op if the stream is already in the group", () {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         streamGroup.add(controller.stream);
         streamGroup.add(controller.stream);
         streamGroup.add(controller.stream);
@@ -478,7 +477,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("listens to the stream immediately", () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
 
         expect(streamGroup.add(controller.stream), isNull);
         await flushMicrotasks();
@@ -486,7 +485,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("is a no-op if the stream is already in the group", () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
 
         // If the stream were actually listened to more than once, future
         // calls to [add] would throw [StateError]s.
@@ -500,7 +499,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
   group("remove()", () {
     group("while dormant", () {
       test("stops emitting events for a stream that's removed", () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         streamGroup.add(controller.stream);
 
         expect(streamGroup.stream.toList(), completion(equals(["first"])));
@@ -514,14 +513,14 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("is a no-op for an unknown stream", () {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         expect(streamGroup.remove(controller.stream), isNull);
       });
 
       test("and closed closes the group when the last stream is removed",
           () async {
-        var controller1 = new StreamController<String>();
-        var controller2 = new StreamController<String>();
+        var controller1 = StreamController<String>();
+        var controller2 = StreamController<String>();
 
         streamGroup.add(controller1.stream);
         streamGroup.add(controller2.stream);
@@ -541,7 +540,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
 
     group("while listening", () {
       test("doesn't emit events from a removed stream", () {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         streamGroup.add(controller.stream);
 
         // The subscription to [controller.stream] is canceled synchronously, so
@@ -557,7 +556,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("cancels the stream's subscription", () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         streamGroup.add(controller.stream);
 
         streamGroup.stream.listen(null);
@@ -571,7 +570,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
 
       test("forwards cancel errors", () async {
         var controller =
-            new StreamController<String>(onCancel: () => throw "error");
+            StreamController<String>(onCancel: () => throw "error");
         streamGroup.add(controller.stream);
 
         streamGroup.stream.listen(null);
@@ -581,9 +580,9 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("forwards cancel futures", () async {
-        var completer = new Completer();
+        var completer = Completer();
         var controller =
-            new StreamController<String>(onCancel: () => completer.future);
+            StreamController<String>(onCancel: () => completer.future);
 
         streamGroup.stream.listen(null);
         await flushMicrotasks();
@@ -603,7 +602,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       });
 
       test("is a no-op for an unknown stream", () async {
-        var controller = new StreamController<String>();
+        var controller = StreamController<String>();
         streamGroup.stream.listen(null);
         await flushMicrotasks();
 
@@ -616,8 +615,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
         streamGroup.stream.listen(null, onDone: () => done = true);
         await flushMicrotasks();
 
-        var controller1 = new StreamController<String>();
-        var controller2 = new StreamController<String>();
+        var controller1 = StreamController<String>();
+        var controller2 = StreamController<String>();
 
         streamGroup.add(controller1.stream);
         streamGroup.add(controller2.stream);
@@ -646,8 +645,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       test(
           "if there are streams, closes the group once those streams close "
           "and there's a listener", () async {
-        var controller1 = new StreamController<String>();
-        var controller2 = new StreamController<String>();
+        var controller1 = StreamController<String>();
+        var controller2 = StreamController<String>();
 
         streamGroup.add(controller1.stream);
         streamGroup.add(controller2.stream);
@@ -673,8 +672,8 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
         streamGroup.stream.listen(null, onDone: () => done = true);
         await flushMicrotasks();
 
-        var controller1 = new StreamController<String>();
-        var controller2 = new StreamController<String>();
+        var controller1 = StreamController<String>();
+        var controller2 = StreamController<String>();
 
         streamGroup.add(controller1.stream);
         streamGroup.add(controller2.stream);
@@ -699,7 +698,7 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
       var events = [];
       streamGroup.stream.listen(events.add);
 
-      var controller = new StreamController<String>();
+      var controller = StreamController<String>();
       streamGroup.add(controller.stream);
       await flushMicrotasks();
 
@@ -721,4 +720,4 @@ void regardlessOfType(StreamGroup<String> newStreamGroup()) {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => new Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future.delayed(Duration.zero);

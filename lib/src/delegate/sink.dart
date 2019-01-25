@@ -21,7 +21,7 @@ class DelegatingSink<T> implements Sink<T> {
   /// throw a [CastError] if the argument type doesn't match the reified type of
   /// [sink].
   static Sink<T> typed<T>(Sink sink) =>
-      sink is Sink<T> ? sink : new DelegatingSink._(sink);
+      sink is Sink<T> ? sink : DelegatingSink._(sink);
 
   void add(T data) {
     _sink.add(data);

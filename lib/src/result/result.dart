@@ -28,14 +28,14 @@ abstract class Result<T> {
   /// The result of the transformation is a stream of [Result] values and no
   /// error events. This is the transformer used by [captureStream].
   static const StreamTransformer<Object, Result<Object>>
-      captureStreamTransformer = const CaptureStreamTransformer<Object>();
+      captureStreamTransformer = CaptureStreamTransformer<Object>();
 
   /// A stream transformer that releases a stream of result events.
   ///
   /// The result of the transformation is a stream of values and error events.
   /// This is the transformer used by [releaseStream].
   static const StreamTransformer<Result<Object>, Object>
-      releaseStreamTransformer = const ReleaseStreamTransformer<Object>();
+      releaseStreamTransformer = ReleaseStreamTransformer<Object>();
 
   /// A sink transformer that captures events into [Result]s.
   ///
@@ -43,8 +43,8 @@ abstract class Result<T> {
   /// values and no error events.
   static const StreamSinkTransformer<Object, Result<Object>>
       captureSinkTransformer =
-      const StreamSinkTransformer<Object, Result<Object>>.fromStreamTransformer(
-          const CaptureStreamTransformer<Object>());
+      StreamSinkTransformer<Object, Result<Object>>.fromStreamTransformer(
+          CaptureStreamTransformer<Object>());
 
   /// A sink transformer that releases result events.
   ///
@@ -52,8 +52,8 @@ abstract class Result<T> {
   /// error events.
   static const StreamSinkTransformer<Result<Object>, Object>
       releaseSinkTransformer =
-      const StreamSinkTransformer<Result<Object>, Object>.fromStreamTransformer(
-          const ReleaseStreamTransformer<Object>());
+      StreamSinkTransformer<Result<Object>, Object>.fromStreamTransformer(
+          ReleaseStreamTransformer<Object>());
 
   /// Creates a `Result` with the result of calling [computation].
   ///
@@ -62,9 +62,9 @@ abstract class Result<T> {
   /// the call.
   factory Result(T computation()) {
     try {
-      return new ValueResult<T>(computation());
+      return ValueResult<T>(computation());
     } catch (e, s) {
-      return new ErrorResult(e, s);
+      return ErrorResult(e, s);
     }
   }
 
@@ -77,15 +77,15 @@ abstract class Result<T> {
   ///
   /// Alias for [ErrorResult.ErrorResult].
   factory Result.error(Object error, [StackTrace stackTrace]) =>
-      new ErrorResult(error, stackTrace);
+      ErrorResult(error, stackTrace);
 
   /// Captures the result of a future into a `Result` future.
   ///
   /// The resulting future will never have an error.
   /// Errors have been converted to an [ErrorResult] value.
   static Future<Result<T>> capture<T>(Future<T> future) {
-    return future.then((value) => new ValueResult(value),
-        onError: (error, stackTrace) => new ErrorResult(error, stackTrace));
+    return future.then((value) => ValueResult(value),
+        onError: (error, stackTrace) => ErrorResult(error, stackTrace));
   }
 
   /// Captures each future in [elements],
@@ -111,13 +111,13 @@ abstract class Result<T> {
           }
         });
       } else {
-        results.add(new Result<T>.value(element));
+        results.add(Result<T>.value(element));
       }
     }
     if (pending == 0) {
-      return new Future<List<Result<T>>>.value(results);
+      return Future<List<Result<T>>>.value(results);
     }
-    completer = new Completer<List<Result<T>>>();
+    completer = Completer<List<Result<T>>>();
     return completer.future;
   }
 
@@ -136,7 +136,7 @@ abstract class Result<T> {
   /// The returned stream will not have any error events.
   /// Errors from the source stream have been converted to [ErrorResult]s.
   static Stream<Result<T>> captureStream<T>(Stream<T> source) =>
-      source.transform(new CaptureStreamTransformer<T>());
+      source.transform(CaptureStreamTransformer<T>());
 
   /// Releases a stream of [result] values into a stream of the results.
   ///
@@ -144,7 +144,7 @@ abstract class Result<T> {
   /// the returned stream as appropriate.
   /// Errors from the source stream become errors in the returned stream.
   static Stream<T> releaseStream<T>(Stream<Result<T>> source) =>
-      source.transform(new ReleaseStreamTransformer<T>());
+      source.transform(ReleaseStreamTransformer<T>());
 
   /// Releases results added to the returned sink as data and errors on [sink].
   ///
@@ -152,7 +152,7 @@ abstract class Result<T> {
   /// on [sink]. Errors added to the returned sink are forwarded directly to
   /// [sink] and so is the [EventSink.close] calls.
   static EventSink<Result<T>> releaseSink<T>(EventSink<T> sink) =>
-      new ReleaseSink<T>(sink);
+      ReleaseSink<T>(sink);
 
   /// Captures the events of the returned sink into results on [sink].
   ///
@@ -162,7 +162,7 @@ abstract class Result<T> {
   ///
   /// When the returned sink is closed, so is [sink].
   static EventSink<T> captureSink<T>(EventSink<Result<T>> sink) =>
-      new CaptureSink<T>(sink);
+      CaptureSink<T>(sink);
 
   /// Converts a result of a result to a single result.
   ///
@@ -188,7 +188,7 @@ abstract class Result<T> {
         return result.asError;
       }
     }
-    return new Result<List<T>>.value(values);
+    return Result<List<T>>.value(values);
   }
 
   /// Whether this result is a value result.

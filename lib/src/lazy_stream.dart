@@ -22,13 +22,13 @@ class LazyStream<T> extends Stream<T> {
   /// a listener and forwards to the returned stream.
   LazyStream(FutureOr<Stream<T>> callback()) : _callback = callback {
     // Explicitly check for null because we null out [_callback] internally.
-    if (_callback == null) throw new ArgumentError.notNull('callback');
+    if (_callback == null) throw ArgumentError.notNull('callback');
   }
 
   StreamSubscription<T> listen(void onData(T event),
       {Function onError, void onDone(), bool cancelOnError}) {
     if (_callback == null) {
-      throw new StateError("Stream has already been listened to.");
+      throw StateError("Stream has already been listened to.");
     }
 
     // Null out the callback before we invoke it to ensure that even while

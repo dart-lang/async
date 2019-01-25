@@ -9,9 +9,9 @@ import "package:async/async.dart";
 import "package:test/test.dart";
 
 /// A zero-millisecond timer should wait until after all microtasks.
-Future flushMicrotasks() => new Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future.delayed(Duration.zero);
 
-typedef void OptionalArgAction([a, b]);
+typedef OptionalArgAction = void Function([dynamic a, dynamic b]);
 
 /// A generic unreachable callback function.
 ///
@@ -38,17 +38,17 @@ Matcher throwsZoned(matcher) => predicate((callback) {
 
 /// A matcher that runs a callback in its own zone and asserts that that zone
 /// emits a [CastError].
-final throwsZonedCastError = throwsZoned(new TypeMatcher<CastError>());
+final throwsZonedCastError = throwsZoned(TypeMatcher<CastError>());
 
 /// A matcher that matches a callback or future that throws a [CastError].
-final throwsCastError = throwsA(new TypeMatcher<CastError>());
+final throwsCastError = throwsA(TypeMatcher<CastError>());
 
 /// A badly behaved stream which throws if it's ever listened to.
 ///
 /// Can be used to test cases where a stream should not be used.
 class UnusableStream extends Stream {
   listen(onData, {onError, onDone, cancelOnError}) {
-    throw new UnimplementedError("Gotcha!");
+    throw UnimplementedError("Gotcha!");
   }
 }
 
@@ -58,7 +58,7 @@ class UnusableStream extends Stream {
 /// The [completer] field allows the user to control the future returned by
 /// [done] and [close].
 class CompleterStreamSink<T> implements StreamSink<T> {
-  final completer = new Completer();
+  final completer = Completer();
 
   Future get done => completer.future;
 
@@ -80,7 +80,7 @@ class TestSink<T> implements StreamSink<T> {
   var _isClosed = false;
 
   Future get done => _doneCompleter.future;
-  final _doneCompleter = new Completer();
+  final _doneCompleter = Completer();
 
   final Function _onDone;
 
@@ -91,22 +91,22 @@ class TestSink<T> implements StreamSink<T> {
   TestSink({onDone()}) : _onDone = onDone ?? (() {});
 
   void add(T event) {
-    results.add(new Result<T>.value(event));
+    results.add(Result<T>.value(event));
   }
 
   void addError(error, [StackTrace stackTrace]) {
-    results.add(new Result<T>.error(error, stackTrace));
+    results.add(Result<T>.error(error, stackTrace));
   }
 
   Future addStream(Stream<T> stream) {
-    var completer = new Completer.sync();
+    var completer = Completer.sync();
     stream.listen(add, onError: addError, onDone: completer.complete);
     return completer.future;
   }
 
   Future close() {
     _isClosed = true;
-    _doneCompleter.complete(new Future.microtask(_onDone));
+    _doneCompleter.complete(Future.microtask(_onDone));
     return done;
   }
 }

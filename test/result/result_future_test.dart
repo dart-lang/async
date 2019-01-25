@@ -12,8 +12,8 @@ void main() {
   Completer completer;
   ResultFuture future;
   setUp(() {
-    completer = new Completer();
-    future = new ResultFuture(completer.future);
+    completer = Completer();
+    future = ResultFuture(completer.future);
   });
 
   test('before completion, result is null', () {
@@ -30,7 +30,7 @@ void main() {
   });
 
   test("after an error completion, result is the future's error", () {
-    var trace = new Trace.current();
+    var trace = Trace.current();
     completer.completeError('error', trace);
 
     // The completer calls its listeners asynchronously. We have to wait

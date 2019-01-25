@@ -32,20 +32,20 @@ class StreamSplitter<T> {
 
   /// The buffer of events or errors that have already been emitted by
   /// [_stream].
-  final _buffer = new List<Result<T>>();
+  final _buffer = List<Result<T>>();
 
   /// The controllers for branches that are listening for future events from
   /// [_stream].
   ///
   /// Once a branch is canceled, it's removed from this list. When [_stream] is
   /// done, all branches are removed.
-  final _controllers = new Set<StreamController<T>>();
+  final _controllers = Set<StreamController<T>>();
 
   /// A group of futures returned by [close].
   ///
   /// This is used to ensure that [close] doesn't complete until all
   /// [StreamController.close] and [StreamSubscription.cancel] calls complete.
-  final _closeGroup = new FutureGroup();
+  final _closeGroup = FutureGroup();
 
   /// Whether [_stream] is done emitting events.
   var _isDone = false;
@@ -59,8 +59,8 @@ class StreamSplitter<T> {
   /// then closing the [StreamSplitter].
   static List<Stream<T>> splitFrom<T>(Stream<T> stream, [int count]) {
     if (count == null) count = 2;
-    var splitter = new StreamSplitter<T>(stream);
-    var streams = new List<Stream<T>>.generate(count, (_) => splitter.split());
+    var splitter = StreamSplitter<T>(stream);
+    var streams = List<Stream<T>>.generate(count, (_) => splitter.split());
     splitter.close();
     return streams;
   }
@@ -72,10 +72,10 @@ class StreamSplitter<T> {
   /// This will throw a [StateError] if [close] has been called.
   Stream<T> split() {
     if (_isClosed) {
-      throw new StateError("Can't call split() on a closed StreamSplitter.");
+      throw StateError("Can't call split() on a closed StreamSplitter.");
     }
 
-    var controller = new StreamController<T>(
+    var controller = StreamController<T>(
         onListen: _onListen, onPause: _onPause, onResume: _onResume);
     controller.onCancel = () => _onCancel(controller);
 
@@ -183,7 +183,7 @@ class StreamSplitter<T> {
 
   /// Buffers [data] and passes it to [_controllers].
   void _onData(T data) {
-    if (!_isClosed) _buffer.add(new Result.value(data));
+    if (!_isClosed) _buffer.add(Result.value(data));
     for (var controller in _controllers) {
       controller.add(data);
     }
@@ -191,7 +191,7 @@ class StreamSplitter<T> {
 
   /// Buffers [error] and passes it to [_controllers].
   void _onError(Object error, StackTrace stackTrace) {
-    if (!_isClosed) _buffer.add(new Result.error(error, stackTrace));
+    if (!_isClosed) _buffer.add(Result.error(error, stackTrace));
     for (var controller in _controllers) {
       controller.addError(error, stackTrace);
     }

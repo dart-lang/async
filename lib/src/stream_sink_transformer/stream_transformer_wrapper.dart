@@ -14,7 +14,7 @@ class StreamTransformerWrapper<S, T> implements StreamSinkTransformer<S, T> {
   const StreamTransformerWrapper(this._transformer);
 
   StreamSink<S> bind(StreamSink<T> sink) =>
-      new _StreamTransformerWrapperSink<S, T>(_transformer, sink);
+      _StreamTransformerWrapperSink<S, T>(_transformer, sink);
 }
 
 /// A sink created by [StreamTransformerWrapper].
@@ -23,7 +23,7 @@ class _StreamTransformerWrapperSink<S, T> implements StreamSink<S> {
   ///
   /// This is used to create a stream that can be transformed by the wrapped
   /// transformer.
-  final _controller = new StreamController<S>(sync: true);
+  final _controller = StreamController<S>(sync: true);
 
   /// The original sink that's being transformed.
   final StreamSink<T> _inner;

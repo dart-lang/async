@@ -12,12 +12,12 @@ import "utils.dart";
 main() {
   StreamSinkCompleter completer;
   setUp(() {
-    completer = new StreamSinkCompleter();
+    completer = StreamSinkCompleter();
   });
 
   group("when a stream is linked before events are added", () {
     test("data events are forwarded", () {
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       completer.sink..add(1)..add(2)..add(3)..add(4);
 
@@ -28,7 +28,7 @@ main() {
     });
 
     test("error events are forwarded", () {
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       completer.sink..addError("oh no")..addError("that's bad");
 
@@ -37,10 +37,10 @@ main() {
     });
 
     test("addStream is forwarded", () async {
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
 
-      var controller = new StreamController();
+      var controller = StreamController();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);
@@ -61,15 +61,15 @@ main() {
     });
 
     test("close() is forwarded", () {
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       completer.sink.close();
       expect(sink.isClosed, isTrue);
     });
 
     test("the future from the inner close() is returned", () async {
-      var closeCompleter = new Completer();
-      var sink = new TestSink(onDone: () => closeCompleter.future);
+      var closeCompleter = Completer();
+      var sink = TestSink(onDone: () => closeCompleter.future);
       completer.setDestinationSink(sink);
 
       var closeCompleted = false;
@@ -86,14 +86,14 @@ main() {
     });
 
     test("errors are forwarded from the inner close()", () {
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
       expect(completer.sink.done, throwsA("oh no"));
       expect(completer.sink.close(), throwsA("oh no"));
     });
 
     test("errors aren't top-leveled if only close() is listened to", () async {
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
       expect(completer.sink.close(), throwsA("oh no"));
 
@@ -102,7 +102,7 @@ main() {
     });
 
     test("errors aren't top-leveled if only done is listened to", () async {
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
       completer.sink.close();
       expect(completer.sink.done, throwsA("oh no"));
@@ -117,7 +117,7 @@ main() {
       completer.sink..add(1)..add(2)..add(3)..add(4);
       await flushMicrotasks();
 
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
@@ -131,7 +131,7 @@ main() {
       completer.sink..addError("oh no")..addError("that's bad");
       await flushMicrotasks();
 
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
@@ -140,7 +140,7 @@ main() {
     });
 
     test("addStream is forwarded", () async {
-      var controller = new StreamController();
+      var controller = StreamController();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);
@@ -150,7 +150,7 @@ main() {
       controller.close();
       await flushMicrotasks();
 
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
@@ -165,7 +165,7 @@ main() {
       completer.sink.close();
       await flushMicrotasks();
 
-      var sink = new TestSink();
+      var sink = TestSink();
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
@@ -179,8 +179,8 @@ main() {
       }));
       await flushMicrotasks();
 
-      var closeCompleter = new Completer();
-      var sink = new TestSink(onDone: () => closeCompleter.future);
+      var closeCompleter = Completer();
+      var sink = TestSink(onDone: () => closeCompleter.future);
       completer.setDestinationSink(sink);
       await flushMicrotasks();
       expect(closeCompleted, isFalse);
@@ -195,7 +195,7 @@ main() {
       expect(completer.sink.close(), throwsA("oh no"));
       await flushMicrotasks();
 
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
     });
 
@@ -203,7 +203,7 @@ main() {
       expect(completer.sink.close(), throwsA("oh no"));
       await flushMicrotasks();
 
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
 
       // Give the event loop a chance to top-level errors if it's going to.
@@ -215,7 +215,7 @@ main() {
       expect(completer.sink.done, throwsA("oh no"));
       await flushMicrotasks();
 
-      var sink = new TestSink(onDone: () => throw "oh no");
+      var sink = TestSink(onDone: () => throw "oh no");
       completer.setDestinationSink(sink);
 
       // Give the event loop a chance to top-level errors if it's going to.
@@ -228,7 +228,7 @@ main() {
     expect(completer.sink.close(), completes);
     await flushMicrotasks();
 
-    completer.setDestinationSink(new TestSink());
+    completer.setDestinationSink(TestSink());
     await flushMicrotasks();
 
     expect(completer.sink.done, completes);
@@ -239,7 +239,7 @@ main() {
     expect(completer.sink.done, completes);
     await flushMicrotasks();
 
-    completer.setDestinationSink(new TestSink());
+    completer.setDestinationSink(TestSink());
     await flushMicrotasks();
 
     expect(completer.sink.close(), completes);
@@ -247,14 +247,14 @@ main() {
 
   group("fromFuture()", () {
     test("with a successful completion", () async {
-      var futureCompleter = new Completer<StreamSink>();
+      var futureCompleter = Completer<StreamSink>();
       var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
       sink.add(1);
       sink.add(2);
       sink.add(3);
       sink.close();
 
-      var testSink = new TestSink();
+      var testSink = TestSink();
       futureCompleter.complete(testSink);
       await testSink.done;
 
@@ -264,7 +264,7 @@ main() {
     });
 
     test("with an error", () async {
-      var futureCompleter = new Completer<StreamSink>();
+      var futureCompleter = Completer<StreamSink>();
       var sink = StreamSinkCompleter.fromFuture(futureCompleter.future);
       expect(sink.done, throwsA("oh no"));
       futureCompleter.completeError("oh no");
@@ -288,10 +288,8 @@ main() {
   });
 
   test("doesn't allow the destination sink to be set multiple times", () {
-    completer.setDestinationSink(new TestSink());
-    expect(
-        () => completer.setDestinationSink(new TestSink()), throwsStateError);
-    expect(
-        () => completer.setDestinationSink(new TestSink()), throwsStateError);
+    completer.setDestinationSink(TestSink());
+    expect(() => completer.setDestinationSink(TestSink()), throwsStateError);
+    expect(() => completer.setDestinationSink(TestSink()), throwsStateError);
   });
 }

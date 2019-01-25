@@ -10,19 +10,19 @@ import "package:test/test.dart";
 
 main() {
   StreamController controller;
-  controller = new StreamController();
+  controller = StreamController();
   testStream("singlesub-async", controller, controller.stream);
-  controller = new StreamController.broadcast();
+  controller = StreamController.broadcast();
   testStream("broadcast-async", controller, controller.stream);
-  controller = new StreamController();
+  controller = StreamController();
   testStream(
       "asbroadcast-async", controller, controller.stream.asBroadcastStream());
 
-  controller = new StreamController(sync: true);
+  controller = StreamController(sync: true);
   testStream("singlesub-sync", controller, controller.stream);
-  controller = new StreamController.broadcast(sync: true);
+  controller = StreamController.broadcast(sync: true);
   testStream("broadcast-sync", controller, controller.stream);
-  controller = new StreamController(sync: true);
+  controller = StreamController(sync: true);
   testStream(
       "asbroadcast-sync", controller, controller.stream.asBroadcastStream());
 }

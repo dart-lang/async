@@ -16,7 +16,7 @@ StreamTransformer<S, T> typedStreamTransformer<S, T>(
         StreamTransformer transformer) =>
     transformer is StreamTransformer<S, T>
         ? transformer
-        : new _TypeSafeStreamTransformer(transformer);
+        : _TypeSafeStreamTransformer(transformer);
 
 /// A wrapper that coerces the type of the stream returned by an inner
 /// transformer.

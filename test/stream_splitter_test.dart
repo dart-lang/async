@@ -11,8 +11,8 @@ main() {
   StreamController<int> controller;
   StreamSplitter splitter;
   setUp(() {
-    controller = new StreamController<int>();
-    splitter = new StreamSplitter<int>(controller.stream);
+    controller = StreamController<int>();
+    splitter = StreamSplitter<int>(controller.stream);
   });
 
   test("a branch that's created before the stream starts to replay it",
@@ -289,4 +289,4 @@ main() {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => new Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future.delayed(Duration.zero);

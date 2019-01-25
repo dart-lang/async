@@ -6,7 +6,7 @@ author: Dart Team <misc@dartlang.org>
 homepage: https://www.github.com/dart-lang/async
 
 environment:
-  sdk: '>=2.0.0-dev.23.0 <3.0.0'
+  sdk: '>=2.0.0 <3.0.0'
 
 dependencies:
   collection: ^1.5.0

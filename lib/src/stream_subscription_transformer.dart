@@ -6,9 +6,9 @@ import 'dart:async';
 
 import 'async_memoizer.dart';
 
-typedef Future _AsyncHandler<T>(StreamSubscription<T> inner);
+typedef _AsyncHandler<T> = Future Function(StreamSubscription<T> inner);
 
-typedef void _VoidHandler<T>(StreamSubscription<T> inner);
+typedef _VoidHandler<T> = void Function(StreamSubscription<T> inner);
 
 /// Creates a [StreamTransformer] that modifies the behavior of subscriptions to
 /// a stream.
@@ -31,8 +31,8 @@ StreamTransformer<T, T> subscriptionTransformer<T>(
     {Future handleCancel(StreamSubscription<T> inner),
     void handlePause(StreamSubscription<T> inner),
     void handleResume(StreamSubscription<T> inner)}) {
-  return new StreamTransformer((stream, cancelOnError) {
-    return new _TransformedSubscription(
+  return StreamTransformer((stream, cancelOnError) {
+    return _TransformedSubscription(
         stream.listen(null, cancelOnError: cancelOnError),
         handleCancel ?? (inner) => inner.cancel(),
         handlePause ??
@@ -88,7 +88,7 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
         _inner = null;
         return _handleCancel(inner);
       });
-  final _cancelMemoizer = new AsyncMemoizer();
+  final _cancelMemoizer = AsyncMemoizer();
 
   void pause([Future resumeFuture]) {
     if (_cancelMemoizer.hasRun) return;
@@ -102,5 +102,5 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
   }
 
   Future<E> asFuture<E>([E futureValue]) =>
-      _inner?.asFuture(futureValue) ?? new Completer<E>().future;
+      _inner?.asFuture(futureValue) ?? Completer<E>().future;
 }

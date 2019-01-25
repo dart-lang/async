@@ -25,7 +25,7 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
   static StreamConsumer<T> typed<T>(StreamConsumer consumer) =>
       consumer is StreamConsumer<T>
           ? consumer
-          : new DelegatingStreamConsumer._(consumer);
+          : DelegatingStreamConsumer._(consumer);
 
   Future addStream(Stream<T> stream) => _consumer.addStream(stream);
 

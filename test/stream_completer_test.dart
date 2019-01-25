@@ -11,13 +11,13 @@ import "utils.dart";
 
 main() {
   test("a stream is linked before listening", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.setSourceStream(createStream());
     expect(completer.stream.toList(), completion([1, 2, 3, 4]));
   });
 
   test("listened to before a stream is linked", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var done = completer.stream.toList();
     await flushMicrotasks();
     completer.setSourceStream(createStream());
@@ -25,20 +25,20 @@ main() {
   });
 
   test("cancel before linking a stream doesn't listen on stream", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var subscription = completer.stream.listen(null);
     subscription.pause(); // Should be ignored.
     subscription.cancel();
-    completer.setSourceStream(new UnusableStream()); // Doesn't throw.
+    completer.setSourceStream(UnusableStream()); // Doesn't throw.
   });
 
   test("listen and pause before linking stream", () async {
-    var controller = new StreamCompleter();
+    var controller = StreamCompleter();
     var events = [];
     var subscription = controller.stream.listen(events.add);
     var done = subscription.asFuture();
     subscription.pause();
-    var sourceController = new StreamController();
+    var sourceController = StreamController();
     sourceController..add(1)..add(2)..add(3)..add(4);
     controller.setSourceStream(sourceController.stream);
     await flushMicrotasks();
@@ -56,7 +56,7 @@ main() {
   });
 
   test("pause more than once", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var events = [];
     var subscription = completer.stream.listen(events.add);
     var done = subscription.asFuture();
@@ -74,9 +74,9 @@ main() {
   });
 
   test("cancel new stream before source is done", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var lastEvent = -1;
-    var controller = new StreamController();
+    var controller = StreamController();
     StreamSubscription subscription;
     subscription = completer.stream.listen((value) {
       expect(value, lessThan(3));
@@ -106,17 +106,17 @@ main() {
   });
 
   test("complete with setEmpty before listening", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.setEmpty();
-    var done = new Completer();
+    var done = Completer();
     completer.stream.listen(unreachable("data"),
         onError: unreachable("error"), onDone: done.complete);
     await done.future;
   });
 
   test("complete with setEmpty after listening", () async {
-    var completer = new StreamCompleter();
-    var done = new Completer();
+    var completer = StreamCompleter();
+    var done = Completer();
     completer.stream.listen(unreachable("data"),
         onError: unreachable("error"), onDone: done.complete);
     completer.setEmpty();
@@ -124,9 +124,9 @@ main() {
   });
 
   test("source stream isn't listened to until completer stream is", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     StreamController controller;
-    controller = new StreamController(onListen: () {
+    controller = StreamController(onListen: () {
       scheduleMicrotask(controller.close);
     });
 
@@ -139,9 +139,9 @@ main() {
   });
 
   test("cancelOnError true when listening before linking stream", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     Object lastEvent = -1;
-    var controller = new StreamController();
+    var controller = StreamController();
     completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
@@ -172,9 +172,9 @@ main() {
   });
 
   test("cancelOnError true when listening after linking stream", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     Object lastEvent = -1;
-    var controller = new StreamController();
+    var controller = StreamController();
     completer.setSourceStream(controller.stream);
     controller.add(1);
     expect(controller.hasListener, isFalse);
@@ -204,7 +204,7 @@ main() {
   });
 
   test("linking a stream after setSourceStream before listen", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.setSourceStream(createStream());
     expect(() => completer.setSourceStream(createStream()), throwsStateError);
     expect(() => completer.setEmpty(), throwsStateError);
@@ -215,7 +215,7 @@ main() {
   });
 
   test("linking a stream after setSourceStream after listen", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var list = completer.stream.toList();
     completer.setSourceStream(createStream());
     expect(() => completer.setSourceStream(createStream()), throwsStateError);
@@ -227,7 +227,7 @@ main() {
   });
 
   test("linking a stream after setEmpty before listen", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.setEmpty();
     expect(() => completer.setSourceStream(createStream()), throwsStateError);
     expect(() => completer.setEmpty(), throwsStateError);
@@ -238,7 +238,7 @@ main() {
   });
 
   test("linking a stream after setEmpty() after listen", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     var list = completer.stream.toList();
     completer.setEmpty();
     expect(() => completer.setSourceStream(createStream()), throwsStateError);
@@ -250,7 +250,7 @@ main() {
   });
 
   test("listening more than once after setting stream", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.setSourceStream(createStream());
     var list = completer.stream.toList();
     expect(() => completer.stream.toList(), throwsStateError);
@@ -259,14 +259,14 @@ main() {
   });
 
   test("listening more than once before setting stream", () async {
-    var completer = new StreamCompleter();
+    var completer = StreamCompleter();
     completer.stream.toList();
     expect(() => completer.stream.toList(), throwsStateError);
   });
 
   test("setting onData etc. before and after setting stream", () async {
-    var completer = new StreamCompleter();
-    var controller = new StreamController();
+    var completer = StreamCompleter();
+    var controller = StreamController();
     var subscription = completer.stream.listen(null);
     Object lastEvent = 0;
     subscription.onData((value) => lastEvent = value);
@@ -294,8 +294,8 @@ main() {
   });
 
   test("pause w/ resume future accross setting stream", () async {
-    var completer = new StreamCompleter();
-    var resume = new Completer();
+    var completer = StreamCompleter();
+    var resume = Completer();
     var subscription = completer.stream.listen(unreachable("data"));
     subscription.pause(resume.future);
     await flushMicrotasks();
@@ -309,8 +309,8 @@ main() {
   });
 
   test("asFuture with error accross setting stream", () async {
-    var completer = new StreamCompleter();
-    var controller = new StreamController();
+    var completer = StreamCompleter();
+    var controller = StreamController();
     var subscription =
         completer.stream.listen(unreachable("data"), cancelOnError: false);
     var done = subscription.asFuture();
@@ -327,7 +327,7 @@ main() {
 
   group("setError()", () {
     test("produces a stream that emits a single error", () {
-      var completer = new StreamCompleter();
+      var completer = StreamCompleter();
       completer.stream.listen(unreachable("data"),
           onError: expectAsync2((error, stackTrace) {
         expect(error, equals("oh no"));
@@ -338,7 +338,7 @@ main() {
 
     test("produces a stream that emits a single error on a later listen",
         () async {
-      var completer = new StreamCompleter();
+      var completer = StreamCompleter();
       completer.setError("oh no");
       await flushMicrotasks();
 

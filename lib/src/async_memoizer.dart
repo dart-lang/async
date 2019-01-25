@@ -31,7 +31,7 @@ class AsyncMemoizer<T> {
   ///
   /// This can be accessed at any time, and will fire once [runOnce] is called.
   Future<T> get future => _completer.future;
-  final _completer = new Completer<T>();
+  final _completer = Completer<T>();
 
   /// Whether [runOnce] has been called yet.
   bool get hasRun => _completer.isCompleted;
@@ -40,7 +40,7 @@ class AsyncMemoizer<T> {
   ///
   /// If [runOnce] has already been called, this returns the original result.
   Future<T> runOnce(FutureOr<T> computation()) {
-    if (!hasRun) _completer.complete(new Future.sync(computation));
+    if (!hasRun) _completer.complete(Future.sync(computation));
     return future;
   }
 }

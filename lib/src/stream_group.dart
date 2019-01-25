@@ -47,14 +47,14 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// subscriptions will be canceled and set to null again. Single-subscriber
   /// stream subscriptions will be left intact, since they can't be
   /// re-subscribed.
-  final _subscriptions = new Map<Stream<T>, StreamSubscription<T>>();
+  final _subscriptions = Map<Stream<T>, StreamSubscription<T>>();
 
   /// Merges the events from [streams] into a single (single-subscriber) stream.
   ///
   /// This is equivalent to adding [streams] to a group, closing that group, and
   /// returning its stream.
   static Stream<T> merge<T>(Iterable<Stream<T>> streams) {
-    var group = new StreamGroup<T>();
+    var group = StreamGroup<T>();
     streams.forEach(group.add);
     group.close();
     return group.stream;
@@ -62,7 +62,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
 
   /// Creates a new stream group where [stream] is single-subscriber.
   StreamGroup() {
-    _controller = new StreamController<T>(
+    _controller = StreamController<T>(
         onListen: _onListen,
         onPause: _onPause,
         onResume: _onResume,
@@ -72,7 +72,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
 
   /// Creates a new stream group where [stream] is a broadcast stream.
   StreamGroup.broadcast() {
-    _controller = new StreamController<T>.broadcast(
+    _controller = StreamController<T>.broadcast(
         onListen: _onListen, onCancel: _onCancelBroadcast, sync: true);
   }
 
@@ -90,7 +90,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// Throws a [StateError] if this group is closed.
   Future add(Stream<T> stream) {
     if (_closed) {
-      throw new StateError("Can't add a Stream to a closed StreamGroup.");
+      throw StateError("Can't add a Stream to a closed StreamGroup.");
     }
 
     if (_state == _StreamGroupState.dormant) {
@@ -219,12 +219,12 @@ class _StreamGroupState {
   ///
   /// New streams added to the group will be listened once the group has a
   /// listener.
-  static const dormant = const _StreamGroupState("dormant");
+  static const dormant = _StreamGroupState("dormant");
 
   /// The group has one or more listeners and is actively firing events.
   ///
   /// New streams added to the group will be immediately listeners.
-  static const listening = const _StreamGroupState("listening");
+  static const listening = _StreamGroupState("listening");
 
   /// The group is paused and no more events will be fired until it resumes.
   ///
@@ -232,7 +232,7 @@ class _StreamGroupState {
   /// will be resumed once the group itself is resumed.
   ///
   /// This state is only used by single-subscriber groups.
-  static const paused = const _StreamGroupState("paused");
+  static const paused = _StreamGroupState("paused");
 
   /// The group is canceled and no more events will be fired ever.
   ///
@@ -240,7 +240,7 @@ class _StreamGroupState {
   /// discarded.
   ///
   /// This state is only used by single-subscriber groups.
-  static const canceled = const _StreamGroupState("canceled");
+  static const canceled = _StreamGroupState("canceled");
 
   /// The name of the state.
   ///

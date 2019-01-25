@@ -31,7 +31,7 @@ class StreamZip<T> extends Stream<List<T>> {
       dataCount++;
       if (dataCount == subscriptions.length) {
         var data = current;
-        current = new List(subscriptions.length);
+        current = List(subscriptions.length);
         dataCount = 0;
         for (int i = 0; i < subscriptions.length; i++) {
           if (i != index) subscriptions[i].resume();
@@ -84,9 +84,9 @@ class StreamZip<T> extends Stream<List<T>> {
       rethrow;
     }
 
-    current = new List(subscriptions.length);
+    current = List(subscriptions.length);
 
-    controller = new StreamController<List<T>>(onPause: () {
+    controller = StreamController<List<T>>(onPause: () {
       for (int i = 0; i < subscriptions.length; i++) {
         // This may pause some subscriptions more than once.
         // These will not be resumed by onResume below, but must wait for the

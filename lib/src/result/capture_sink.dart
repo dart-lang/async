@@ -13,11 +13,11 @@ class CaptureSink<T> implements EventSink<T> {
   CaptureSink(EventSink<Result<T>> sink) : _sink = sink;
 
   void add(T value) {
-    _sink.add(new Result<T>.value(value));
+    _sink.add(Result<T>.value(value));
   }
 
   void addError(Object error, [StackTrace stackTrace]) {
-    _sink.add(new Result.error(error, stackTrace));
+    _sink.add(Result.error(error, stackTrace));
   }
 
   void close() {

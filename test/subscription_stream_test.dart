@@ -13,7 +13,7 @@ main() {
   test("subscription stream of an entire subscription", () async {
     var stream = createStream();
     var subscription = stream.listen(null);
-    var subscriptionStream = new SubscriptionStream<int>(subscription);
+    var subscriptionStream = SubscriptionStream<int>(subscription);
     await flushMicrotasks();
     expect(subscriptionStream.toList(), completion([1, 2, 3, 4]));
   });
@@ -21,13 +21,13 @@ main() {
   test("subscription stream after two events", () async {
     var stream = createStream();
     var skips = 0;
-    var completer = new Completer();
+    var completer = Completer();
     StreamSubscription<int> subscription;
     subscription = stream.listen((value) {
       ++skips;
       expect(value, skips);
       if (skips == 2) {
-        completer.complete(new SubscriptionStream<int>(subscription));
+        completer.complete(SubscriptionStream<int>(subscription));
       }
     });
     var subscriptionStream = await completer.future;
@@ -38,16 +38,16 @@ main() {
   test("listening twice fails", () async {
     var stream = createStream();
     var sourceSubscription = stream.listen(null);
-    var subscriptionStream = new SubscriptionStream<int>(sourceSubscription);
+    var subscriptionStream = SubscriptionStream<int>(sourceSubscription);
     var subscription = subscriptionStream.listen(null);
     expect(() => subscriptionStream.listen(null), throwsA(anything));
     await subscription.cancel();
   });
 
   test("pause and cancel passed through to original stream", () async {
-    var controller = new StreamController(onCancel: () async => 42);
+    var controller = StreamController(onCancel: () async => 42);
     var sourceSubscription = controller.stream.listen(null);
-    var subscriptionStream = new SubscriptionStream(sourceSubscription);
+    var subscriptionStream = SubscriptionStream(sourceSubscription);
     expect(controller.isPaused, isTrue);
     dynamic lastEvent;
     var subscription = subscriptionStream.listen((value) {
@@ -75,16 +75,16 @@ main() {
         SubscriptionStream subscriptionStream;
         Future onCancel; // Completes if source stream is canceled before done.
         setUp(() {
-          var cancelCompleter = new Completer();
+          var cancelCompleter = Completer();
           var source = createErrorStream(cancelCompleter);
           onCancel = cancelCompleter.future;
           var sourceSubscription =
               source.listen(null, cancelOnError: sourceCancels);
-          subscriptionStream = new SubscriptionStream<int>(sourceSubscription);
+          subscriptionStream = SubscriptionStream<int>(sourceSubscription);
         });
 
         test("- subscriptionStream: no", () async {
-          var done = new Completer();
+          var done = Completer();
           var events = [];
           subscriptionStream.listen(events.add,
               onError: events.add, onDone: done.complete, cancelOnError: false);
@@ -96,7 +96,7 @@ main() {
             done.future.then((_) {
               isDone = true;
             });
-            await new Future.delayed(const Duration(milliseconds: 5));
+            await Future.delayed(const Duration(milliseconds: 5));
             expect(isDone, false);
           } else {
             expected.add(4);
@@ -106,7 +106,7 @@ main() {
         });
 
         test("- subscriptionStream: yes", () async {
-          var completer = new Completer();
+          var completer = Completer();
           var events = [];
           subscriptionStream.listen(events.add,
               onError: (value) {
@@ -128,7 +128,7 @@ main() {
           var stream = createStream();
           var sourceSubscription =
               stream.listen(null, cancelOnError: cancelOnError);
-          var subscriptionStream = new SubscriptionStream(sourceSubscription);
+          var subscriptionStream = SubscriptionStream(sourceSubscription);
           var subscription =
               subscriptionStream.listen(null, cancelOnError: cancelOnError);
           expect(subscription.asFuture(42), completion(42));
@@ -138,7 +138,7 @@ main() {
           var stream = createErrorStream();
           var sourceSubscription =
               stream.listen(null, cancelOnError: cancelOnError);
-          var subscriptionStream = new SubscriptionStream(sourceSubscription);
+          var subscriptionStream = SubscriptionStream(sourceSubscription);
 
           var subscription =
               subscriptionStream.listen(null, cancelOnError: cancelOnError);
@@ -166,7 +166,7 @@ Stream<int> createErrorStream([Completer onCancel]) async* {
     await flushMicrotasks();
     yield 2;
     await flushMicrotasks();
-    yield* new Future<int>.error("To err is divine!").asStream();
+    yield* Future<int>.error("To err is divine!").asStream();
     await flushMicrotasks();
     yield 4;
     await flushMicrotasks();

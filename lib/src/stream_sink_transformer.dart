@@ -37,7 +37,7 @@ abstract class StreamSinkTransformer<S, T> {
       {void handleData(S data, EventSink<T> sink),
       void handleError(Object error, StackTrace stackTrace, EventSink<T> sink),
       void handleDone(EventSink<T> sink)}) {
-    return new HandlerTransformer<S, T>(handleData, handleError, handleDone);
+    return HandlerTransformer<S, T>(handleData, handleError, handleDone);
   }
 
   /// Transforms the events passed to [sink].
@@ -57,5 +57,5 @@ abstract class StreamSinkTransformer<S, T> {
           StreamSinkTransformer transformer) =>
       transformer is StreamSinkTransformer<S, T>
           ? transformer
-          : new TypeSafeStreamSinkTransformer(transformer);
+          : TypeSafeStreamSinkTransformer(transformer);
 }

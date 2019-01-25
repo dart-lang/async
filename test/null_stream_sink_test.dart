@@ -12,13 +12,13 @@ import "utils.dart";
 void main() {
   group("constructors", () {
     test("done defaults to a completed future", () {
-      var sink = new NullStreamSink();
+      var sink = NullStreamSink();
       expect(sink.done, completes);
     });
 
     test("a custom future may be passed to done", () async {
-      var completer = new Completer();
-      var sink = new NullStreamSink(done: completer.future);
+      var completer = Completer();
+      var sink = NullStreamSink(done: completer.future);
 
       var doneFired = false;
       sink.done.then((_) {
@@ -33,32 +33,32 @@ void main() {
     });
 
     test("NullStreamSink.error passes an error to done", () {
-      var sink = new NullStreamSink.error("oh no");
+      var sink = NullStreamSink.error("oh no");
       expect(sink.done, throwsA("oh no"));
     });
   });
 
   group("events", () {
     test("are silently dropped before close", () {
-      var sink = new NullStreamSink();
+      var sink = NullStreamSink();
       sink.add(1);
       sink.addError("oh no");
     });
 
     test("throw StateErrors after close", () {
-      var sink = new NullStreamSink();
+      var sink = NullStreamSink();
       expect(sink.close(), completes);
 
       expect(() => sink.add(1), throwsStateError);
       expect(() => sink.addError("oh no"), throwsStateError);
-      expect(() => sink.addStream(new Stream.empty()), throwsStateError);
+      expect(() => sink.addStream(Stream.empty()), throwsStateError);
     });
 
     group("addStream", () {
       test("listens to the stream then cancels immediately", () async {
-        var sink = new NullStreamSink();
+        var sink = NullStreamSink();
         var canceled = false;
-        var controller = new StreamController(onCancel: () {
+        var controller = StreamController(onCancel: () {
           canceled = true;
         });
 
@@ -68,9 +68,9 @@ void main() {
       });
 
       test("returns the cancel future", () async {
-        var completer = new Completer();
-        var sink = new NullStreamSink();
-        var controller = new StreamController(onCancel: () => completer.future);
+        var completer = Completer();
+        var sink = NullStreamSink();
+        var controller = StreamController(onCancel: () => completer.future);
 
         var addStreamFired = false;
         sink.addStream(controller.stream).then((_) {
@@ -85,29 +85,29 @@ void main() {
       });
 
       test("pipes errors from the cancel future through addStream", () async {
-        var sink = new NullStreamSink();
-        var controller = new StreamController(onCancel: () => throw "oh no");
+        var sink = NullStreamSink();
+        var controller = StreamController(onCancel: () => throw "oh no");
         expect(sink.addStream(controller.stream), throwsA("oh no"));
       });
 
       test("causes events to throw StateErrors until the future completes",
           () async {
-        var sink = new NullStreamSink();
-        var future = sink.addStream(new Stream.empty());
+        var sink = NullStreamSink();
+        var future = sink.addStream(Stream.empty());
         expect(() => sink.add(1), throwsStateError);
         expect(() => sink.addError("oh no"), throwsStateError);
-        expect(() => sink.addStream(new Stream.empty()), throwsStateError);
+        expect(() => sink.addStream(Stream.empty()), throwsStateError);
 
         await future;
         sink.add(1);
         sink.addError("oh no");
-        expect(sink.addStream(new Stream.empty()), completes);
+        expect(sink.addStream(Stream.empty()), completes);
       });
     });
   });
 
   test("close returns the done future", () {
-    var sink = new NullStreamSink.error("oh no");
+    var sink = NullStreamSink.error("oh no");
     expect(sink.close(), throwsA("oh no"));
   });
 }

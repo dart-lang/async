@@ -26,7 +26,7 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
   static StreamSubscription<T> typed<T>(StreamSubscription subscription) =>
       subscription is StreamSubscription<T>
           ? subscription
-          : new TypeSafeStreamSubscription<T>(subscription);
+          : TypeSafeStreamSubscription<T>(subscription);
 
   void onData(void handleData(T data)) {
     _source.onData(handleData);

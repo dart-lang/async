@@ -26,7 +26,7 @@ class RestartableTimer implements Timer {
   /// The [callback] function is invoked after the given [duration]. Unlike a
   /// normal non-periodic [Timer], [callback] may be called more than once.
   RestartableTimer(this._duration, this._callback) {
-    _timer = new Timer(_duration, _callback);
+    _timer = Timer(_duration, _callback);
   }
 
   bool get isActive => _timer.isActive;
@@ -37,7 +37,7 @@ class RestartableTimer implements Timer {
   /// This restarts the timer even if it has already fired or has been canceled.
   void reset() {
     _timer.cancel();
-    _timer = new Timer(_duration, _callback);
+    _timer = Timer(_duration, _callback);
   }
 
   void cancel() {
@@ -49,6 +49,6 @@ class RestartableTimer implements Timer {
   // See https://github.com/dart-lang/sdk/issues/31664
   // ignore: override_on_non_overriding_getter
   int get tick {
-    throw new UnimplementedError("tick");
+    throw UnimplementedError("tick");
   }
 }

@@ -30,7 +30,7 @@ class ErrorResult implements Result<Null> {
     sink.addError(error, stackTrace);
   }
 
-  Future<Null> get asFuture => new Future<Null>.error(error, stackTrace);
+  Future<Null> get asFuture => Future<Null>.error(error, stackTrace);
 
   /// Calls an error handler with the error and stacktrace.
   ///
