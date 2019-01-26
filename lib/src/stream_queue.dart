@@ -473,7 +473,7 @@ class StreamQueue<T> {
   }
 
   /// Ensures that we are listening on events from the event source.
-  ///new
+  ///
   /// Starts listening for the first time or resumes after a [_pause].
   ///
   /// Is called automatically if a request requires more events.
