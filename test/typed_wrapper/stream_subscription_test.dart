@@ -15,11 +15,10 @@ void main() {
     StreamSubscription wrapper;
     bool isCanceled;
     setUp(() {
-      controller = new StreamController<Object>(onCancel: () {
+      controller = StreamController<Object>(onCancel: () {
         isCanceled = true;
       });
-      wrapper =
-          new TypeSafeStreamSubscription<int>(controller.stream.listen(null));
+      wrapper = TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
     test("onData()", () {
@@ -72,11 +71,10 @@ void main() {
     StreamSubscription wrapper;
     bool isCanceled;
     setUp(() {
-      controller = new StreamController<Object>(onCancel: () {
+      controller = StreamController<Object>(onCancel: () {
         isCanceled = true;
       });
-      wrapper =
-          new TypeSafeStreamSubscription<int>(controller.stream.listen(null));
+      wrapper = TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
     group("throws a CastError for", () {
@@ -84,9 +82,9 @@ void main() {
         expect(() {
           // TODO(nweiz): Use the wrapper declared in setUp when sdk#26226 is
           // fixed.
-          controller = new StreamController<Object>();
-          wrapper = new TypeSafeStreamSubscription<int>(
-              controller.stream.listen(null));
+          controller = StreamController<Object>();
+          wrapper =
+              TypeSafeStreamSubscription<int>(controller.stream.listen(null));
 
           wrapper.onData(expectAsync1((_) {}, count: 0));
           controller.add("foo");

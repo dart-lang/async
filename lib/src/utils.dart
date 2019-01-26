@@ -5,8 +5,8 @@
 import 'dart:async';
 
 /// A generic typedef for a function that takes one type and returns another.
-typedef F UnaryFunction<E, F>(E argument);
+typedef UnaryFunction<E, F> = F Function(E argument);
 
 /// A typedef for a function that takes no arguments and returns a Future or a
 /// value.
-typedef FutureOr<T> FutureOrCallback<T>();
+typedef FutureOrCallback<T> = FutureOr<T> Function();

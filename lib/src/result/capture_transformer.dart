@@ -15,6 +15,6 @@ class CaptureStreamTransformer<T> extends StreamTransformerBase<T, Result<T>> {
   const CaptureStreamTransformer();
 
   Stream<Result<T>> bind(Stream<T> source) =>
-      new Stream<Result<T>>.eventTransformed(
-          source, (sink) => new CaptureSink<T>(sink));
+      Stream<Result<T>>.eventTransformed(
+          source, (sink) => CaptureSink<T>(sink));
 }

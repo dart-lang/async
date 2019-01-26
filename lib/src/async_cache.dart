@@ -49,7 +49,7 @@ class AsyncCache<T> {
   /// An ephemeral cache guarantees that a callback function will only be
   /// executed at most once concurrently. This is useful for requests for which
   /// data is updated frequently but stale data is acceptable.
-  factory AsyncCache.ephemeral() => new AsyncCache(Duration.zero);
+  factory AsyncCache.ephemeral() => AsyncCache(Duration.zero);
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -58,7 +58,7 @@ class AsyncCache<T> {
   /// value. Otherwise, runs [callback] and returns its new return value.
   Future<T> fetch(Future<T> callback()) async {
     if (_cachedStreamSplitter != null) {
-      throw new StateError('Previously used to cache via `fetchStream`');
+      throw StateError('Previously used to cache via `fetchStream`');
     }
     if (_cachedValueFuture == null) {
       _cachedValueFuture = callback();
@@ -76,11 +76,11 @@ class AsyncCache<T> {
   /// return value.
   Stream<T> fetchStream(Stream<T> callback()) {
     if (_cachedValueFuture != null) {
-      throw new StateError('Previously used to cache via `fetch`');
+      throw StateError('Previously used to cache via `fetch`');
     }
     if (_cachedStreamSplitter == null) {
-      _cachedStreamSplitter = new StreamSplitter(callback()
-          .transform(new StreamTransformer.fromHandlers(handleDone: (sink) {
+      _cachedStreamSplitter = StreamSplitter(callback()
+          .transform(StreamTransformer.fromHandlers(handleDone: (sink) {
         _startStaleTimer();
         sink.close();
       })));
@@ -100,6 +100,6 @@ class AsyncCache<T> {
   }
 
   void _startStaleTimer() {
-    _stale = new Timer(_duration, invalidate);
+    _stale = Timer(_duration, invalidate);
   }
 }

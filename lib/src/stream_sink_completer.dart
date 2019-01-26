@@ -24,7 +24,7 @@ class StreamSinkCompleter<T> {
   ///
   /// Events can be added to the sink either before or after a destination sink
   /// is set.
-  final StreamSink<T> sink = new _CompleterSink<T>();
+  final StreamSink<T> sink = _CompleterSink<T>();
 
   /// Returns [sink] typed as a [_CompleterSink].
   _CompleterSink<T> get _sink => sink;
@@ -37,7 +37,7 @@ class StreamSinkCompleter<T> {
   /// If the future completes with an error, the returned sink will instead
   /// be closed. Its [Sink.done] future will contain the error.
   static StreamSink<T> fromFuture<T>(Future<StreamSink<T>> sinkFuture) {
-    var completer = new StreamSinkCompleter<T>();
+    var completer = StreamSinkCompleter<T>();
     sinkFuture.then(completer.setDestinationSink, onError: completer.setError);
     return completer.sink;
   }
@@ -59,7 +59,7 @@ class StreamSinkCompleter<T> {
   /// Trying to call either of them again will fail.
   void setDestinationSink(StreamSink<T> destinationSink) {
     if (_sink._destinationSink != null) {
-      throw new StateError("Destination sink already set");
+      throw StateError("Destination sink already set");
     }
     _sink._setDestinationSink(destinationSink);
   }
@@ -71,7 +71,7 @@ class StreamSinkCompleter<T> {
   /// Either of [setDestinationSink] or [setError] may be called at most once.
   /// Trying to call either of them again will fail.
   void setError(error, [StackTrace stackTrace]) {
-    setDestinationSink(new NullStreamSink.error(error, stackTrace));
+    setDestinationSink(NullStreamSink.error(error, stackTrace));
   }
 }
 
@@ -101,7 +101,7 @@ class _CompleterSink<T> implements StreamSink<T> {
   Future get done {
     if (_doneCompleter != null) return _doneCompleter.future;
     if (_destinationSink == null) {
-      _doneCompleter = new Completer.sync();
+      _doneCompleter = Completer.sync();
       return _doneCompleter.future;
     }
     return _destinationSink.done;
@@ -144,7 +144,7 @@ class _CompleterSink<T> implements StreamSink<T> {
 
   /// Create [_controller] if it doesn't yet exist.
   void _ensureController() {
-    if (_controller == null) _controller = new StreamController(sync: true);
+    if (_controller == null) _controller = StreamController(sync: true);
   }
 
   /// Sets the destination sink to which events from this sink will be provided.

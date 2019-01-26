@@ -8,16 +8,16 @@ import "package:async/async.dart";
 import "package:test/test.dart";
 
 final someStack = StackTrace.current;
-Result<int> res(int n) => new Result<int>.value(n);
-Result err(n) => new ErrorResult("$n", someStack);
+Result<int> res(int n) => Result<int>.value(n);
+Result err(n) => ErrorResult("$n", someStack);
 
 /// Helper function creating an iterable of futures.
 Iterable<Future<int>> futures(int count, {bool throwWhen(int index)}) sync* {
   for (int i = 0; i < count; i++) {
     if (throwWhen != null && throwWhen(i)) {
-      yield new Future<int>.error("$i", someStack);
+      yield Future<int>.error("$i", someStack);
     } else {
-      yield new Future<int>.value(i);
+      yield Future<int>.value(i);
     }
   }
 }
@@ -58,7 +58,7 @@ main() {
     });
 
     test("completion permutation 1-2-3", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -70,7 +70,7 @@ main() {
     });
 
     test("completion permutation 1-3-2", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -82,7 +82,7 @@ main() {
     });
 
     test("completion permutation 2-1-3", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -94,7 +94,7 @@ main() {
     });
 
     test("completion permutation 2-3-1", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -106,7 +106,7 @@ main() {
     });
 
     test("completion permutation 3-1-2", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -118,7 +118,7 @@ main() {
     });
 
     test("completion permutation 3-2-1", () async {
-      var cs = new List.generate(3, (_) => new Completer<int>());
+      var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
       await 0;
@@ -129,19 +129,19 @@ main() {
       cs[0].complete(1);
     });
 
-    var seed = new Random().nextInt(0x100000000);
+    var seed = Random().nextInt(0x100000000);
     int n = 25; // max 32, otherwise rnd.nextInt(1<<n) won't work.
     test("randomized #$n seed:${seed.toRadixString(16)}", () async {
-      var cs = new List.generate(n, (_) => new Completer<int>());
+      var cs = List.generate(n, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
-      var rnd = new Random(seed);
+      var rnd = Random(seed);
       var throwFlags = rnd.nextInt(1 << n); // Bit-flag for throwing.
       bool throws(index) => (throwFlags & (1 << index)) != 0;
-      var expected = new List.generate(n, (x) => throws(x) ? err(x) : res(x));
+      var expected = List.generate(n, (x) => throws(x) ? err(x) : res(x));
 
       expect(all, completion(expected));
 
-      var completeFunctions = new List<Function()>.generate(n, (i) {
+      var completeFunctions = List<Function()>.generate(n, (i) {
         var c = cs[i];
         return () =>
             throws(i) ? c.completeError("$i", someStack) : c.complete(i);
@@ -167,19 +167,19 @@ main() {
     test("no error", () async {
       var all = await Result.captureAll<int>(<FutureOr<int>>[
         1,
-        new Future<int>(() => 2),
+        Future<int>(() => 2),
         3,
-        new Future<int>.value(4),
+        Future<int>.value(4),
       ]);
       expect(all, [res(1), res(2), res(3), res(4)]);
     });
     test("error", () async {
       var all = await Result.captureAll<int>(<FutureOr<int>>[
         1,
-        new Future<int>(() => 2),
+        Future<int>(() => 2),
         3,
-        new Future<int>(() async => await new Future.error("4", someStack)),
-        new Future<int>.value(5)
+        Future<int>(() async => await Future.error("4", someStack)),
+        Future<int>.value(5)
       ]);
       expect(all, [res(1), res(2), res(3), err(4), res(5)]);
     });

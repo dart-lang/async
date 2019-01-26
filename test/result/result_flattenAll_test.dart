@@ -6,8 +6,8 @@ import "package:async/async.dart";
 import "package:test/test.dart";
 
 final someStack = StackTrace.current;
-Result<T> res<T>(T n) => new Result<T>.value(n);
-Result err(n) => new ErrorResult("$n", someStack);
+Result<T> res<T>(T n) => Result<T>.value(n);
+Result err(n) => ErrorResult("$n", someStack);
 
 /// Helper function creating an iterable of results.
 Iterable<Result<int>> results(int count, {bool throwWhen(int index)}) sync* {

@@ -12,9 +12,9 @@ class ReleaseStreamTransformer<T> extends StreamTransformerBase<Result<T>, T> {
   const ReleaseStreamTransformer();
 
   Stream<T> bind(Stream<Result<T>> source) {
-    return new Stream<T>.eventTransformed(source, _createSink);
+    return Stream<T>.eventTransformed(source, _createSink);
   }
 
   // Since Stream.eventTransformed is not generic, this method can be static.
-  static EventSink<Result> _createSink(EventSink sink) => new ReleaseSink(sink);
+  static EventSink<Result> _createSink(EventSink sink) => ReleaseSink(sink);
 }

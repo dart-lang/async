@@ -24,7 +24,7 @@ import "dart:async";
 /// the listen is performed directly on the source stream.
 class StreamCompleter<T> {
   /// The stream doing the actual work, is returned by [stream].
-  final _stream = new _CompleterStream<T>();
+  final _stream = _CompleterStream<T>();
 
   /// Convert a `Future<Stream>` to a `Stream`.
   ///
@@ -35,7 +35,7 @@ class StreamCompleter<T> {
   /// If the future completes with an error, the returned stream will
   /// instead contain just that error.
   static Stream<T> fromFuture<T>(Future<Stream<T>> streamFuture) {
-    var completer = new StreamCompleter<T>();
+    var completer = StreamCompleter<T>();
     streamFuture.then(completer.setSourceStream, onError: completer.setError);
     return completer.stream;
   }
@@ -75,7 +75,7 @@ class StreamCompleter<T> {
   /// most once. Trying to call any of them again will fail.
   void setSourceStream(Stream<T> sourceStream) {
     if (_stream._isSourceStreamSet) {
-      throw new StateError("Source stream already set");
+      throw StateError("Source stream already set");
     }
     _stream._setSourceStream(sourceStream);
   }
@@ -86,7 +86,7 @@ class StreamCompleter<T> {
   /// most once. Trying to call any of them again will fail.
   void setEmpty() {
     if (_stream._isSourceStreamSet) {
-      throw new StateError("Source stream already set");
+      throw StateError("Source stream already set");
     }
     _stream._setEmpty();
   }
@@ -98,7 +98,7 @@ class StreamCompleter<T> {
   /// Any one of [setSourceStream], [setEmpty], and [setError] may be called at
   /// most once. Trying to call any of them again will fail.
   void setError(error, [StackTrace stackTrace]) {
-    setSourceStream(new Stream.fromFuture(new Future.error(error, stackTrace)));
+    setSourceStream(Stream.fromFuture(Future.error(error, stackTrace)));
   }
 }
 
@@ -179,6 +179,6 @@ class _CompleterStream<T> extends Stream<T> {
   // Creates the [_controller].
   void _createController() {
     assert(_controller == null);
-    _controller = new StreamController<T>(sync: true);
+    _controller = StreamController<T>(sync: true);
   }
 }

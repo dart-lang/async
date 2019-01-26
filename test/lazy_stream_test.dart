@@ -11,14 +11,14 @@ import "utils.dart";
 
 main() {
   test("disallows a null callback", () {
-    expect(() => new LazyStream(null), throwsArgumentError);
+    expect(() => LazyStream(null), throwsArgumentError);
   });
 
   test("calls the callback when the stream is listened", () async {
     var callbackCalled = false;
-    var stream = new LazyStream(expectAsync0(() {
+    var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
-      return new Stream.empty();
+      return Stream.empty();
     }));
 
     await flushMicrotasks();
@@ -30,9 +30,9 @@ main() {
 
   test("calls the callback when the stream is listened", () async {
     var callbackCalled = false;
-    var stream = new LazyStream(expectAsync0(() {
+    var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
-      return new Stream.empty();
+      return Stream.empty();
     }));
 
     await flushMicrotasks();
@@ -43,8 +43,8 @@ main() {
   });
 
   test("forwards to a synchronously-provided stream", () async {
-    var controller = new StreamController<int>();
-    var stream = new LazyStream(expectAsync0(() => controller.stream));
+    var controller = StreamController<int>();
+    var stream = LazyStream(expectAsync0(() => controller.stream));
 
     var events = [];
     stream.listen(events.add);
@@ -65,8 +65,8 @@ main() {
   });
 
   test("forwards to an asynchronously-provided stream", () async {
-    var controller = new StreamController<int>();
-    var stream = new LazyStream(expectAsync0(() async => controller.stream));
+    var controller = StreamController<int>();
+    var stream = LazyStream(expectAsync0(() async => controller.stream));
 
     var events = [];
     stream.listen(events.add);
@@ -87,7 +87,7 @@ main() {
   });
 
   test("a lazy stream can't be listened to multiple times", () {
-    var stream = new LazyStream(expectAsync0(() => new Stream.empty()));
+    var stream = LazyStream(expectAsync0(() => Stream.empty()));
     expect(stream.isBroadcast, isFalse);
 
     stream.listen(null);
@@ -97,9 +97,9 @@ main() {
 
   test("a lazy stream can't be listened to from within its callback", () {
     LazyStream stream;
-    stream = new LazyStream(expectAsync0(() {
+    stream = LazyStream(expectAsync0(() {
       expect(() => stream.listen(null), throwsStateError);
-      return new Stream.empty();
+      return Stream.empty();
     }));
     stream.listen(null);
   });

@@ -8,14 +8,14 @@ import '../stream_sink_transformer.dart';
 import '../delegate/stream_sink.dart';
 
 /// The type of the callback for handling data events.
-typedef void HandleData<S, T>(S data, EventSink<T> sink);
+typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
 
 /// The type of the callback for handling error events.
-typedef void HandleError<T>(
+typedef HandleError<T> = void Function(
     Object error, StackTrace stackTrace, EventSink<T> sink);
 
 /// The type of the callback for handling done events.
-typedef void HandleDone<T>(EventSink<T> sink);
+typedef HandleDone<T> = void Function(EventSink<T> sink);
 
 /// A [StreamSinkTransformer] that delegates events to the given handlers.
 class HandlerTransformer<S, T> implements StreamSinkTransformer<S, T> {
@@ -30,7 +30,7 @@ class HandlerTransformer<S, T> implements StreamSinkTransformer<S, T> {
 
   HandlerTransformer(this._handleData, this._handleError, this._handleDone);
 
-  StreamSink<S> bind(StreamSink<T> sink) => new _HandlerSink<S, T>(this, sink);
+  StreamSink<S> bind(StreamSink<T> sink) => _HandlerSink<S, T>(this, sink);
 }
 
 /// A sink created by [HandlerTransformer].
@@ -49,7 +49,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 
   _HandlerSink(this._transformer, StreamSink<T> inner)
       : _inner = inner,
-        _safeCloseInner = new _SafeCloseSink<T>(inner);
+        _safeCloseInner = _SafeCloseSink<T>(inner);
 
   void add(S event) {
     if (_transformer._handleData == null) {
@@ -69,7 +69,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 
   Future addStream(Stream<S> stream) {
     return _inner.addStream(stream.transform(
-        new StreamTransformer<S, T>.fromHandlers(
+        StreamTransformer<S, T>.fromHandlers(
             handleData: _transformer._handleData,
             handleError: _transformer._handleError,
             handleDone: _closeSink)));

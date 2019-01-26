@@ -13,7 +13,7 @@ void main() {
 
   setUp(() {
     // Create a cache that is fresh for an hour.
-    cache = new AsyncCache(const Duration(hours: 1));
+    cache = AsyncCache(const Duration(hours: 1));
   });
 
   test('should fetch via a callback when no cache exists', () async {
@@ -27,16 +27,16 @@ void main() {
 
   test('should not fetch via callback when a future is in-flight', () async {
     // No actual caching is done, just avoid duplicate requests.
-    cache = new AsyncCache.ephemeral();
+    cache = AsyncCache.ephemeral();
 
-    var completer = new Completer<String>();
+    var completer = Completer<String>();
     expect(cache.fetch(() => completer.future), completion('Expensive'));
     expect(cache.fetch(expectAsync0(() {}, count: 0)), completion('Expensive'));
     completer.complete('Expensive');
   });
 
   test('should fetch via a callback again when cache expires', () {
-    new FakeAsync().run((fakeAsync) async {
+    FakeAsync().run((fakeAsync) async {
       var timesCalled = 0;
       call() async => 'Called ${++timesCalled}';
       expect(await cache.fetch(call), 'Called 1');
@@ -67,7 +67,7 @@ void main() {
   test('should fetch a stream via a callback', () async {
     expect(
         await cache.fetchStream(expectAsync0(() {
-          return new Stream.fromIterable(['1', '2', '3']);
+          return Stream.fromIterable(['1', '2', '3']);
         })).toList(),
         ['1', '2', '3']);
   });
@@ -86,22 +86,22 @@ void main() {
     // Unlike the above test, we want to verify that we don't make multiple
     // calls if a cache is being filled currently, and instead wait for that
     // cache to be completed.
-    var controller = new StreamController<String>();
+    var controller = StreamController<String>();
     Stream<String> call() => controller.stream;
     expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
     controller.add('1');
     controller.add('2');
-    await new Future.value();
+    await Future.value();
     expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
     controller.add('3');
     await controller.close();
   });
 
   test('should fetch stream via a callback again when cache expires', () {
-    new FakeAsync().run((fakeAsync) async {
+    FakeAsync().run((fakeAsync) async {
       var timesCalled = 0;
       Stream<String> call() {
-        return new Stream.fromIterable(['Called ${++timesCalled}']);
+        return Stream.fromIterable(['Called ${++timesCalled}']);
       }
 
       expect(await cache.fetchStream(call).toList(), ['Called 1']);
@@ -125,7 +125,7 @@ void main() {
   test('should fetch via a callback when manually invalidated', () async {
     var timesCalled = 0;
     Stream<String> call() {
-      return new Stream.fromIterable(['Called ${++timesCalled}']);
+      return Stream.fromIterable(['Called ${++timesCalled}']);
     }
 
     expect(await cache.fetchStream(call).toList(), ['Called 1']);
@@ -136,7 +136,7 @@ void main() {
   });
 
   test('should cancel a cached stream without affecting others', () async {
-    Stream<String> call() => new Stream.fromIterable(['1', '2', '3']);
+    Stream<String> call() => Stream.fromIterable(['1', '2', '3']);
 
     expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
 
@@ -145,7 +145,7 @@ void main() {
   });
 
   test('should pause a cached stream without affecting others', () async {
-    Stream<String> call() => new Stream.fromIterable(['1', '2', '3']);
+    Stream<String> call() => Stream.fromIterable(['1', '2', '3']);
 
     StreamSubscription sub;
     sub = cache.fetchStream(call).listen(expectAsync1((event) {

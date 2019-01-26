@@ -12,13 +12,13 @@ import "utils.dart";
 void main() {
   StreamController controller;
   setUp(() {
-    controller = new StreamController();
+    controller = StreamController();
   });
 
   group("fromStreamTransformer", () {
     test("transforms data events", () {
-      var transformer = new StreamSinkTransformer.fromStreamTransformer(
-          new StreamTransformer.fromHandlers(handleData: (i, sink) {
+      var transformer = StreamSinkTransformer.fromStreamTransformer(
+          StreamTransformer.fromHandlers(handleData: (i, sink) {
         sink.add(i * 2);
       }));
       var sink = transformer.bind(controller.sink);
@@ -35,9 +35,8 @@ void main() {
     });
 
     test("transforms error events", () {
-      var transformer = new StreamSinkTransformer.fromStreamTransformer(
-          new StreamTransformer.fromHandlers(
-              handleError: (i, stackTrace, sink) {
+      var transformer = StreamSinkTransformer.fromStreamTransformer(
+          StreamTransformer.fromHandlers(handleError: (i, stackTrace, sink) {
         sink.addError((i as num) * 2, stackTrace);
       }));
       var sink = transformer.bind(controller.sink);
@@ -57,8 +56,8 @@ void main() {
     });
 
     test("transforms done events", () {
-      var transformer = new StreamSinkTransformer.fromStreamTransformer(
-          new StreamTransformer.fromHandlers(handleDone: (sink) {
+      var transformer = StreamSinkTransformer.fromStreamTransformer(
+          StreamTransformer.fromHandlers(handleDone: (sink) {
         sink.add(1);
         sink.close();
       }));
@@ -73,16 +72,16 @@ void main() {
     });
 
     test("forwards the future from inner.close", () async {
-      var transformer = new StreamSinkTransformer.fromStreamTransformer(
-          new StreamTransformer.fromHandlers());
-      var innerSink = new CompleterStreamSink();
+      var transformer = StreamSinkTransformer.fromStreamTransformer(
+          StreamTransformer.fromHandlers());
+      var innerSink = CompleterStreamSink();
       var sink = transformer.bind(innerSink);
 
       // The futures shouldn't complete until the inner sink's close future
       // completes.
-      var doneResult = new ResultFuture(sink.done);
+      var doneResult = ResultFuture(sink.done);
       doneResult.catchError((_) {});
-      var closeResult = new ResultFuture(sink.close());
+      var closeResult = ResultFuture(sink.close());
       closeResult.catchError((_) {});
       await flushMicrotasks();
       expect(doneResult.isComplete, isFalse);
@@ -96,11 +95,11 @@ void main() {
     });
 
     test("doesn't top-level the future from inner.close", () async {
-      var transformer = new StreamSinkTransformer.fromStreamTransformer(
-          new StreamTransformer.fromHandlers(handleData: (_, sink) {
+      var transformer = StreamSinkTransformer.fromStreamTransformer(
+          StreamTransformer.fromHandlers(handleData: (_, sink) {
         sink.close();
       }));
-      var innerSink = new CompleterStreamSink();
+      var innerSink = CompleterStreamSink();
       var sink = transformer.bind(innerSink);
 
       // This will close the inner sink, but it shouldn't top-level the error.
@@ -118,7 +117,7 @@ void main() {
   group("fromHandlers", () {
     test("transforms data events", () {
       var transformer =
-          new StreamSinkTransformer.fromHandlers(handleData: (i, sink) {
+          StreamSinkTransformer.fromHandlers(handleData: (i, sink) {
         sink.add(i * 2);
       });
       var sink = transformer.bind(controller.sink);
@@ -135,7 +134,7 @@ void main() {
     });
 
     test("transforms error events", () {
-      var transformer = new StreamSinkTransformer.fromHandlers(
+      var transformer = StreamSinkTransformer.fromHandlers(
           handleError: (i, stackTrace, sink) {
         sink.addError((i as num) * 2, stackTrace);
       });
@@ -156,8 +155,7 @@ void main() {
     });
 
     test("transforms done events", () {
-      var transformer =
-          new StreamSinkTransformer.fromHandlers(handleDone: (sink) {
+      var transformer = StreamSinkTransformer.fromHandlers(handleDone: (sink) {
         sink.add(1);
         sink.close();
       });
@@ -172,15 +170,15 @@ void main() {
     });
 
     test("forwards the future from inner.close", () async {
-      var transformer = new StreamSinkTransformer.fromHandlers();
-      var innerSink = new CompleterStreamSink();
+      var transformer = StreamSinkTransformer.fromHandlers();
+      var innerSink = CompleterStreamSink();
       var sink = transformer.bind(innerSink);
 
       // The futures shouldn't complete until the inner sink's close future
       // completes.
-      var doneResult = new ResultFuture(sink.done);
+      var doneResult = ResultFuture(sink.done);
       doneResult.catchError((_) {});
-      var closeResult = new ResultFuture(sink.close());
+      var closeResult = ResultFuture(sink.close());
       closeResult.catchError((_) {});
       await flushMicrotasks();
       expect(doneResult.isComplete, isFalse);
@@ -195,10 +193,10 @@ void main() {
 
     test("doesn't top-level the future from inner.close", () async {
       var transformer =
-          new StreamSinkTransformer.fromHandlers(handleData: (_, sink) {
+          StreamSinkTransformer.fromHandlers(handleData: (_, sink) {
         sink.close();
       });
-      var innerSink = new CompleterStreamSink();
+      var innerSink = CompleterStreamSink();
       var sink = transformer.bind(innerSink);
 
       // This will close the inner sink, but it shouldn't top-level the error.

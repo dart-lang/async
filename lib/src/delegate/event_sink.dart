@@ -23,7 +23,7 @@ class DelegatingEventSink<T> implements EventSink<T> {
   /// [add] may throw a [CastError] if the argument type doesn't match the
   /// reified type of [sink].
   static EventSink<T> typed<T>(EventSink sink) =>
-      sink is EventSink<T> ? sink : new DelegatingEventSink._(sink);
+      sink is EventSink<T> ? sink : DelegatingEventSink._(sink);
 
   void add(T data) {
     _sink.add(data);

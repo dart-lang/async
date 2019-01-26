@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 main() {
   AsyncMemoizer cache;
-  setUp(() => cache = new AsyncMemoizer());
+  setUp(() => cache = AsyncMemoizer());
 
   test("runs the function only the first time runOnce() is called", () async {
     var count = 0;

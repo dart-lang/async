@@ -42,13 +42,13 @@ class NullStreamSink<T> implements StreamSink<T> {
   ///
   /// If [done] is passed, it's used as the [Sink.done] future. Otherwise, a
   /// completed future is used.
-  NullStreamSink({Future done}) : done = done ?? new Future.value();
+  NullStreamSink({Future done}) : done = done ?? Future.value();
 
   /// Creates a null sink whose [done] future emits [error].
   ///
   /// Note that this error will not be considered uncaught.
   NullStreamSink.error(error, [StackTrace stackTrace])
-      : done = new Future.error(error, stackTrace)
+      : done = Future.error(error, stackTrace)
           // Don't top-level the error. This gives the user a change to call
           // [close] or [done], and matches the behavior of a remote endpoint
           // experiencing an error.
@@ -66,7 +66,7 @@ class NullStreamSink<T> implements StreamSink<T> {
     _checkEventAllowed();
 
     _addingStream = true;
-    var future = stream.listen(null).cancel() ?? new Future.value();
+    var future = stream.listen(null).cancel() ?? Future.value();
     return future.whenComplete(() {
       _addingStream = false;
     });
@@ -75,9 +75,9 @@ class NullStreamSink<T> implements StreamSink<T> {
   /// Throws a [StateError] if [close] has been called or an [addStream] call is
   /// pending.
   void _checkEventAllowed() {
-    if (_closed) throw new StateError("Cannot add to a closed sink.");
+    if (_closed) throw StateError("Cannot add to a closed sink.");
     if (_addingStream) {
-      throw new StateError("Cannot add to a sink while adding a stream.");
+      throw StateError("Cannot add to a sink while adding a stream.");
     }
   }
 

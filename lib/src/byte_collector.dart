@@ -31,7 +31,7 @@ CancelableOperation<Uint8List> collectBytesCancelable(
     Stream<List<int>> source) {
   return _collectBytes(
       source,
-      (subscription, result) => new CancelableOperation.fromFuture(result,
+      (subscription, result) => CancelableOperation.fromFuture(result,
           onCancel: subscription.cancel));
 }
 
@@ -46,7 +46,7 @@ T _collectBytes<T>(
         StreamSubscription<List<int>> subscription, Future<Uint8List> result)) {
   var byteLists = <List<int>>[];
   var length = 0;
-  var completer = new Completer<Uint8List>.sync();
+  var completer = Completer<Uint8List>.sync();
   var subscription = source.listen(
       (bytes) {
         byteLists.add(bytes);
@@ -62,7 +62,7 @@ T _collectBytes<T>(
 
 // Join a lists of bytes with a known total length into a single [Uint8List].
 Uint8List _collect(int length, List<List<int>> byteLists) {
-  var result = new Uint8List(length);
+  var result = Uint8List(length);
   int i = 0;
   for (var byteList in byteLists) {
     var end = i + byteList.length;

@@ -41,14 +41,14 @@ class SubscriptionStream<T> extends Stream<T> {
   StreamSubscription<T> listen(void onData(T event),
       {Function onError, void onDone(), bool cancelOnError}) {
     if (_source == null) {
-      throw new StateError("Stream has already been listened to.");
+      throw StateError("Stream has already been listened to.");
     }
     cancelOnError = (true == cancelOnError);
     var subscription = _source;
     _source = null;
 
     var result = cancelOnError
-        ? new _CancelOnErrorSubscriptionWrapper<T>(subscription)
+        ? _CancelOnErrorSubscriptionWrapper<T>(subscription)
         : subscription;
     result.onData(onData);
     result.onError(onError);

@@ -10,7 +10,7 @@ import "package:async/async.dart";
 void main() {
   group("collectBytes", () {
     test("simple list and overflow", () {
-      var result = collectBytes(new Stream.fromIterable([
+      var result = collectBytes(Stream.fromIterable([
         [0],
         [1],
         [2],
@@ -20,25 +20,25 @@ void main() {
     });
 
     test("no events", () {
-      var result = collectBytes(new Stream.fromIterable([]));
+      var result = collectBytes(Stream.fromIterable([]));
       expect(result, completion([]));
     });
 
     test("empty events", () {
-      var result = collectBytes(new Stream.fromIterable([[], []]));
+      var result = collectBytes(Stream.fromIterable([[], []]));
       expect(result, completion([]));
     });
 
     test("error event", () {
-      var result = collectBytes(new Stream.fromIterable(
-          new Iterable.generate(3, (n) => n == 2 ? throw "badness" : [n])));
+      var result = collectBytes(Stream.fromIterable(
+          Iterable.generate(3, (n) => n == 2 ? throw "badness" : [n])));
       expect(result, throwsA("badness"));
     });
   });
 
   group("collectBytes", () {
     test("simple list and overflow", () {
-      var result = collectBytesCancelable(new Stream.fromIterable([
+      var result = collectBytesCancelable(Stream.fromIterable([
         [0],
         [1],
         [2],
@@ -48,23 +48,23 @@ void main() {
     });
 
     test("no events", () {
-      var result = collectBytesCancelable(new Stream.fromIterable([]));
+      var result = collectBytesCancelable(Stream.fromIterable([]));
       expect(result.value, completion([]));
     });
 
     test("empty events", () {
-      var result = collectBytesCancelable(new Stream.fromIterable([[], []]));
+      var result = collectBytesCancelable(Stream.fromIterable([[], []]));
       expect(result.value, completion([]));
     });
 
     test("error event", () {
-      var result = collectBytesCancelable(new Stream.fromIterable(
-          new Iterable.generate(3, (n) => n == 2 ? throw "badness" : [n])));
+      var result = collectBytesCancelable(Stream.fromIterable(
+          Iterable.generate(3, (n) => n == 2 ? throw "badness" : [n])));
       expect(result.value, throwsA("badness"));
     });
 
     test("cancelled", () async {
-      var sc = new StreamController<List<int>>();
+      var sc = StreamController<List<int>>();
       var result = collectBytesCancelable(sc.stream);
       // Value never completes.
       result.value.whenComplete(expectAsync0(() {}, count: 0));
@@ -87,4 +87,4 @@ void main() {
   });
 }
 
-Future nextTimerTick() => new Future(() {});
+Future nextTimerTick() => Future(() {});

@@ -18,8 +18,8 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
 
   Stream<T> bind(Stream<S> stream) {
     StreamSubscription<S> subscription;
-    var controller = new StreamController<T>(
-        sync: true, onCancel: () => subscription.cancel());
+    var controller =
+        StreamController<T>(sync: true, onCancel: () => subscription.cancel());
     subscription = stream.listen((value) {
       // TODO(nweiz): When we release a new major version, get rid of the second
       // type parameter and avoid this conversion.
