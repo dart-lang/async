@@ -80,6 +80,12 @@ class CancelableOperation<T> {
   /// This returns the [Future] returned by the [CancelableCompleter]'s
   /// `onCancel` callback. Unlike [Stream.cancel], it never returns `null`.
   Future cancel() => _completer._cancel();
+
+  /// Whether this operation has been canceled before it completed.
+  bool get isCanceled => _completer.isCanceled;
+
+  /// Whether this operation completed before being canceled.
+  bool get isCompleted => _completer.isCompleted;
 }
 
 /// A completer for a [CancelableOperation].
