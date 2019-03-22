@@ -40,8 +40,10 @@ void main() {
     test("sends errors in a future to the future", () {
       expect(completer.operation.value, throwsA("error"));
       expect(completer.isCompleted, isFalse);
+      expect(completer.operation.isCompleted, isFalse);
       completer.complete(Future.error("error"));
       expect(completer.isCompleted, isTrue);
+      expect(completer.operation.isCompleted, isTrue);
     });
 
     test("sends values to valueOrCancellation", () {
@@ -122,11 +124,15 @@ void main() {
 
       expect(canceled, isFalse);
       expect(completer.isCanceled, isFalse);
+      expect(completer.operation.isCanceled, isFalse);
       expect(completer.isCompleted, isFalse);
+      expect(completer.operation.isCompleted, isFalse);
       completer.operation.cancel();
       expect(canceled, isTrue);
       expect(completer.isCanceled, isTrue);
+      expect(completer.operation.isCanceled, isTrue);
       expect(completer.isCompleted, isFalse);
+      expect(completer.operation.isCompleted, isFalse);
     });
 
     test("returns the onCancel future each time cancel is called", () {
