@@ -1,6 +1,7 @@
 ## 2.1.0
 
 * Fix `CancelableOperation.valueOrCancellation`'s type signature
+* Add `isCanceled` and `isCompleted` to `CancelableOperation`.
 
 ## 2.0.8
 
