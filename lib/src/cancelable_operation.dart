@@ -75,6 +75,49 @@ class CancelableOperation<T> {
     return completer.future;
   }
 
+  /// Registers callbacks to be called when this operation completes.
+  ///
+  /// Behaves similarly to [Future.then] but with the following cancellation
+  /// behaviour:
+  /// - If this operation is canceled then the result operation is canceled.
+  /// - If the operation created by [onValue] or [onError] is canceled then the
+  ///   result operation is canceled.
+  /// - If the result operation is canceled then the operation created by
+  ///   [onValue] or [onError] is canceled if one has been called otherwise this
+  ///   operation is canceled.
+  CancelableOperation<R> then<R>(CancelableOperation<R> Function(T) onValue,
+      {CancelableOperation<R> Function(Object, StackTrace) onError}) {
+    CancelableOperation<R> nextOperation;
+
+    // Cancel this operation or the nextOperation if the result operation is
+    // canceled.
+    Future onCancel() =>
+        nextOperation == null ? cancel() : nextOperation.cancel();
+
+    final completer = CancelableCompleter<R>(onCancel: onCancel);
+
+    FutureOr cancelThen() {
+      // Prevent loops.
+      if (!completer.isCanceled) {
+        return completer._cancel();
+      }
+    }
+
+    Future<R> runNextOperation(CancelableOperation<R> operation) {
+      nextOperation = operation;
+      nextOperation._canceled.whenComplete(cancelThen);
+      return nextOperation.value;
+    }
+
+    completer.complete(value.then((v) => runNextOperation(onValue(v)),
+        onError: onError != null
+            ? (e, s) => runNextOperation(onError(e, s))
+            : null));
+
+    _canceled.whenComplete(cancelThen);
+    return completer.operation;
+  }
+
   /// Cancels this operation.
   ///
   /// This returns the [Future] returned by the [CancelableCompleter]'s
@@ -86,6 +129,8 @@ class CancelableOperation<T> {
 
   /// Whether this operation completed before being canceled.
   bool get isCompleted => _completer.isCompleted;
+
+  Future<void> get _canceled => _completer._cancelMemo.future;
 }
 
 /// A completer for a [CancelableOperation].
