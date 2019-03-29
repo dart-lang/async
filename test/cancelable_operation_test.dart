@@ -406,4 +406,106 @@ void main() {
       expect(onErrorOperation.isCanceled, true);
     });
   });
+
+  group("thenFuture", () {
+    FutureOr<String> Function(int) onValue;
+    FutureOr<String> Function(Object, StackTrace) onError;
+    CancelableCompleter<int> originalCompleter;
+
+    setUp(() {
+      // Initialize all functions to ones that expect to not be called.
+      onValue = expectAsync1((_) {}, count: 0, id: "onValue");
+      onError = expectAsync2((e, s) {}, count: 0, id: "onError");
+    });
+
+    CancelableOperation<String> runThenFuture() {
+      originalCompleter = CancelableCompleter();
+      return originalCompleter.operation.thenFuture(onValue, onError: onError);
+    }
+
+    test("onValue completes successfully", () {
+      onValue = expectAsync1((v) => v.toString(), count: 1, id: "onValue");
+
+      final operation = runThenFuture();
+
+      expect(operation.value, completion("1"));
+      originalCompleter.complete(1);
+    });
+
+    test("onValue throws error", () {
+      // expectAsync1 only works with functions that do not throw.
+      onValue = (_) => throw "error";
+
+      final operation = runThenFuture();
+
+      expect(operation.value, throwsA("error"));
+      originalCompleter.complete(1);
+    });
+
+    test("onValue returned Future throws error", () {
+      onValue =
+          expectAsync1((v) => Future.error("error"), count: 1, id: "onValue");
+
+      final operation = runThenFuture();
+
+      expect(operation.value, throwsA("error"));
+      originalCompleter.complete(1);
+    });
+
+    test("original operation errors with no onError", () {
+      onError = null;
+
+      final operation = runThenFuture();
+
+      expect(operation.value, throwsA("error"));
+      originalCompleter.completeError("error");
+    });
+
+    test("original operation errors with onError that completes successfully",
+        () {
+      onError =
+          expectAsync2((e, s) => "onError caught $e", count: 1, id: "onError");
+
+      final operation = runThenFuture();
+
+      expect(operation.value, completion("onError caught error"));
+      originalCompleter.completeError("error");
+    });
+
+    test("original operation errors with onError that throws", () {
+      // expectAsync2 does not work with functions that throw.
+      onError = (e, s) => throw "onError caught $e";
+
+      final operation = runThenFuture();
+
+      expect(operation.value, throwsA("onError caught error"));
+      originalCompleter.completeError("error");
+    });
+
+    test(
+        "original operation errors with onError that returns Future that "
+        "throws", () {
+      onError = expectAsync2((e, s) => Future.error("onError caught $e"),
+          count: 1, id: "onError");
+
+      final operation = runThenFuture();
+
+      expect(operation.value, throwsA("onError caught error"));
+      originalCompleter.completeError("error");
+    });
+
+    test("original operation canceled", () {
+      final operation = runThenFuture();
+
+      expect(originalCompleter.operation.cancel(), completes);
+      expect(operation.isCanceled, true);
+    });
+
+    test("canceling cancels original operation", () async {
+      final operation = runThenFuture();
+      await operation.cancel();
+
+      expect(originalCompleter.isCanceled, true);
+    });
+  });
 }

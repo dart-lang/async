@@ -118,6 +118,22 @@ class CancelableOperation<T> {
     return completer.operation;
   }
 
+  /// Registers callbacks to be called when this operation completes.
+  ///
+  /// Behaves similarly to [Future.then] but if either the returned operation or
+  /// this operation is canceled then the other is canceled too.
+  CancelableOperation<R> thenFuture<R>(FutureOr<R> Function(T) onValue,
+      {Function onError}) {
+    final completer = CancelableCompleter<R>(onCancel: cancel);
+    _canceled.whenComplete(() {
+      if (!completer.isCanceled) {
+        return completer._cancel();
+      }
+    });
+    completer.complete(value.then(onValue, onError: onError));
+    return completer.operation;
+  }
+
   /// Cancels this operation.
   ///
   /// This returns the [Future] returned by the [CancelableCompleter]'s
