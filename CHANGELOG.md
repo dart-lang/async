@@ -1,3 +1,7 @@
+## 2.2.0
+
+* Add `then` to `CancelableOperation`.
+
 ## 2.1.0
 
 * Fix `CancelableOperation.valueOrCancellation`'s type signature
