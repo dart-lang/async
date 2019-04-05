@@ -75,6 +75,47 @@ class CancelableOperation<T> {
     return completer.future;
   }
 
+  /// Registers callbacks to be called when this operation completes.
+  ///
+  /// [onValue] and [onError] behave in the same way as [Future.then].
+  ///
+  /// If [onCancel] is provided, and this operation is canceled, the [onCancel]
+  /// callback is called and the returned operation completes with the result.
+  ///
+  /// If [onCancel] is not given, and this operation is canceled, then the
+  /// returned operation is canceled.
+  ///
+  /// If [propagateCancel] is `true` and the returned operation is canceled then
+  /// this operation is canceled. The default is `false`.
+  CancelableOperation<R> then<R>(FutureOr<R> Function(T) onValue,
+      {FutureOr<R> Function(Object, StackTrace) onError,
+      FutureOr<R> Function() onCancel,
+      bool propagateCancel = false}) {
+    final completer =
+        CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
+
+    valueOrCancellation().then((T result) {
+      if (!completer.isCanceled) {
+        if (isCompleted) {
+          completer.complete(Future.sync(() => onValue(result)));
+        } else if (onCancel != null) {
+          completer.complete(Future.sync(onCancel));
+        } else {
+          completer._cancel();
+        }
+      }
+    }, onError: (error, stackTrace) {
+      if (!completer.isCanceled) {
+        if (onError != null) {
+          completer.complete(Future.sync(() => onError(error, stackTrace)));
+        } else {
+          completer.completeError(error, stackTrace);
+        }
+      }
+    });
+    return completer.operation;
+  }
+
   /// Cancels this operation.
   ///
   /// This returns the [Future] returned by the [CancelableCompleter]'s
