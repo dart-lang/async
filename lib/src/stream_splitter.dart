@@ -125,7 +125,7 @@ class StreamSplitter<T> {
     assert(_controllers.isEmpty);
     assert(_isClosed);
 
-    var future = null;
+    Future future;
     if (_subscription != null) future = _subscription.cancel();
     if (future != null) _closeGroup.add(future);
     _closeGroup.close();
