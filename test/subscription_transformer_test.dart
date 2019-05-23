@@ -90,6 +90,7 @@ void main() {
           subscriptionTransformer(handleCancel: expectAsync1((inner) {
         callbackInvoked = true;
         inner.cancel();
+        return null;
       }))).listen(expectAsync1((_) {}, count: 0));
 
       await flushMicrotasks();
@@ -251,7 +252,7 @@ void main() {
     setUp(() {
       var controller = StreamController();
       subscription = controller.stream
-          .transform(subscriptionTransformer(handleCancel: (_) {}))
+          .transform(subscriptionTransformer(handleCancel: (_) => null))
           .listen(expectAsync1((_) {}, count: 0),
               onError: expectAsync2((_, __) {}, count: 0),
               onDone: expectAsync0(() {}, count: 0));

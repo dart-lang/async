@@ -251,9 +251,9 @@ void main() {
 
     setUp(() {
       // Initialize all functions to ones that expect to not be called.
-      onValue = expectAsync1((_) {}, count: 0, id: "onValue");
-      onError = expectAsync2((e, s) {}, count: 0, id: "onError");
-      onCancel = expectAsync0(() {}, count: 0, id: "onCancel");
+      onValue = expectAsync1((_) => null, count: 0, id: "onValue");
+      onError = expectAsync2((e, s) => null, count: 0, id: "onError");
+      onCancel = expectAsync0(() => null, count: 0, id: "onCancel");
       propagateCancel = false;
     });
 
