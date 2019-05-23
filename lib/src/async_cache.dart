@@ -23,7 +23,7 @@ import 'package:async/async.dart';
 ///
 /// This class's timing can be mocked using [`fake_async`][fake_async].
 ///
-/// [fake_async]: https://pub.dartlang.org/packages/fake_async
+/// [fake_async]: https://pub.dev/packages/fake_async
 class AsyncCache<T> {
   /// How long cached values stay fresh.
   final Duration _duration;
