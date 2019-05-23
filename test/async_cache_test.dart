@@ -31,7 +31,8 @@ void main() {
 
     var completer = Completer<String>();
     expect(cache.fetch(() => completer.future), completion('Expensive'));
-    expect(cache.fetch(expectAsync0(() => null, count: 0)), completion('Expensive'));
+    expect(cache.fetch(expectAsync0(() => null, count: 0)),
+        completion('Expensive'));
     completer.complete('Expensive');
   });
 
