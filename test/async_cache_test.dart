@@ -22,7 +22,7 @@ void main() {
 
   test('should not fetch via callback when a cache exists', () async {
     await cache.fetch(() async => 'Expensive');
-    expect(await cache.fetch(expectAsync0(() {}, count: 0)), 'Expensive');
+    expect(await cache.fetch(expectAsync0(() => null, count: 0)), 'Expensive');
   });
 
   test('should not fetch via callback when a future is in-flight', () async {
@@ -31,7 +31,7 @@ void main() {
 
     var completer = Completer<String>();
     expect(cache.fetch(() => completer.future), completion('Expensive'));
-    expect(cache.fetch(expectAsync0(() {}, count: 0)), completion('Expensive'));
+    expect(cache.fetch(expectAsync0(() => null, count: 0)), completion('Expensive'));
     completer.complete('Expensive');
   });
 
@@ -78,7 +78,7 @@ void main() {
       yield '2';
       yield '3';
     }).toList();
-    expect(await cache.fetchStream(expectAsync0(() {}, count: 0)).toList(),
+    expect(await cache.fetchStream(expectAsync0(() => null, count: 0)).toList(),
         ['1', '2', '3']);
   });
 

@@ -254,6 +254,7 @@ main() {
             expect(value, expectedValue);
             expect(index, sequenceIndex);
             index++;
+            return null;
           };
       await Future.wait([
         skip1.then(sequence(0, 0)),
