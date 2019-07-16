@@ -44,11 +44,11 @@ class RestartableTimer implements Timer {
     _timer.cancel();
   }
 
+  /// The number of durations preceding the most recent timer event on the most
+  /// recent countdown.
+  ///
+  /// Calls to [reset] will also reset the tick so subsequent tick values may
+  /// not be strictly larger than previous values.
   @override
-  // TODO: Dart 2.0 requires this method to be implemented.
-  // See https://github.com/dart-lang/sdk/issues/31664
-  // ignore: override_on_non_overriding_getter
-  int get tick {
-    throw UnimplementedError("tick");
-  }
+  int get tick => _timer.tick;
 }
