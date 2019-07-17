@@ -25,9 +25,8 @@ class RestartableTimer implements Timer {
   ///
   /// The [callback] function is invoked after the given [duration]. Unlike a
   /// normal non-periodic [Timer], [callback] may be called more than once.
-  RestartableTimer(this._duration, this._callback) {
-    _timer = Timer(_duration, _callback);
-  }
+  RestartableTimer(this._duration, this._callback)
+      : _timer = Timer(_duration, _callback);
 
   bool get isActive => _timer.isActive;
 
@@ -49,6 +48,5 @@ class RestartableTimer implements Timer {
   ///
   /// Calls to [reset] will also reset the tick so subsequent tick values may
   /// not be strictly larger than previous values.
-  @override
   int get tick => _timer.tick;
 }
