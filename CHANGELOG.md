@@ -1,3 +1,7 @@
+## 2.3.0
+
+* Implement `RestartableTimer.tick`.
+
 ## 2.2.0
 
 * Add `then` to `CancelableOperation`.
