@@ -85,9 +85,9 @@ computations.
 [StreamGroup]: https://pub.dev/documentation/async/latest/async/StreamGroup-class.html
 [StreamQueue]: https://pub.dev/documentation/async/latest/async/StreamQueue-class.html
 [StreamSinkTransformer]: https://pub.dev/documentation/async/latest/async/StreamSinkTransformer-class.html
-[StreamSink]: https://api.dartlang.org/stable/latest/dart-async/StreamSink-class.html
+[StreamSink]: https://api.dart.dev/stable/dart-async/StreamSink-class.html
 [StreamSplitter]: https://pub.dev/documentation/async/latest/async/StreamSplitter-class.html
-[StreamTransformer]: https://api.dartlang.org/stable/latest/dart-async/StreamTransformer-class.html
+[StreamTransformer]: https://api.dart.dev/stable/dart-async/StreamTransformer-class.html
 [StreamZip]: https://pub.dev/documentation/async/latest/async/StreamZip-class.html
 [SubscriptionStream]: https://pub.dev/documentation/async/latest/async/SubscriptionStream-class.html
 [typedStreamTransformer]: https://pub.dev/documentation/async/latest/async/typedStreamTransformer.html
