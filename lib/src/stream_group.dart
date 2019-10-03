@@ -49,12 +49,23 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// re-subscribed.
   final _subscriptions = Map<Stream<T>, StreamSubscription<T>>();
 
-  /// Merges the events from [streams] into a single (single-subscriber) stream.
+  /// Merges the events from [streams] into a single single-subscription stream.
   ///
   /// This is equivalent to adding [streams] to a group, closing that group, and
   /// returning its stream.
   static Stream<T> merge<T>(Iterable<Stream<T>> streams) {
     var group = StreamGroup<T>();
+    streams.forEach(group.add);
+    group.close();
+    return group.stream;
+  }
+
+  /// Merges the events from [streams] into a single broadcast stream.
+  ///
+  /// This is equivalent to adding [streams] to a broadcast group, closing that
+  /// group, and returning its stream.
+  static Stream<T> mergeBroadcast<T>(Iterable<Stream<T>> streams) {
+    var group = StreamGroup<T>.broadcast();
     streams.forEach(group.add);
     group.close();
     return group.stream;

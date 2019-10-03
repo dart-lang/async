@@ -435,6 +435,23 @@ main() {
 
     expect(merged.toList(), completion(unorderedEquals(["first", "second"])));
   });
+
+  test("mergeBroadcast() emits events from all components streams", () {
+    var controller1 = StreamController<String>();
+    var controller2 = StreamController<String>();
+
+    var merged =
+        StreamGroup.mergeBroadcast([controller1.stream, controller2.stream]);
+
+    controller1.add("first");
+    controller1.close();
+    controller2.add("second");
+    controller2.close();
+
+    expect(merged.isBroadcast, isTrue);
+
+    expect(merged.toList(), completion(unorderedEquals(["first", "second"])));
+  });
 }
 
 void regardlessOfType(StreamGroup<String> newStreamGroup()) {

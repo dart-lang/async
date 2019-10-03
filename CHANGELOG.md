@@ -1,3 +1,7 @@
+## 2.4.0
+
+* Add `StreamGroup.mergeBroadcast()` utility.
+
 ## 2.3.0
 
 * Implement `RestartableTimer.tick`.
