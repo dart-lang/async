@@ -422,7 +422,7 @@ main() {
     });
   });
 
-  test("merge() emits events from all components streams", () {
+  test("merge() emits events from all components streams", () async {
     var controller1 = StreamController<String>();
     var controller2 = StreamController<String>();
 
@@ -433,10 +433,10 @@ main() {
     controller2.add("second");
     controller2.close();
 
-    expect(merged.toList(), completion(unorderedEquals(["first", "second"])));
+    expect(await merged.toList(), ["first", "second"]);
   });
 
-  test("mergeBroadcast() emits events from all components streams", () {
+  test("mergeBroadcast() emits events from all components streams", () async {
     var controller1 = StreamController<String>();
     var controller2 = StreamController<String>();
 
@@ -450,7 +450,7 @@ main() {
 
     expect(merged.isBroadcast, isTrue);
 
-    expect(merged.toList(), completion(unorderedEquals(["first", "second"])));
+    expect(await merged.toList(), ["first", "second"]);
   });
 }
 
