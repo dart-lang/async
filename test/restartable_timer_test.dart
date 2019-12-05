@@ -6,8 +6,8 @@ import 'package:async/async.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:test/test.dart';
 
-main() {
-  test("runs the callback once the duration has elapsed", () {
+void main() {
+  test('runs the callback once the duration has elapsed', () {
     FakeAsync().run((async) {
       var fired = false;
       RestartableTimer(Duration(seconds: 5), () {
@@ -38,7 +38,7 @@ main() {
     });
   });
 
-  test("resets the duration if the timer is reset before it fires", () {
+  test('resets the duration if the timer is reset before it fires', () {
     FakeAsync().run((async) {
       var fired = false;
       var timer = RestartableTimer(Duration(seconds: 5), () {
@@ -57,7 +57,7 @@ main() {
     });
   });
 
-  test("re-runs the callback if the timer is reset after firing", () {
+  test('re-runs the callback if the timer is reset after firing', () {
     FakeAsync().run((async) {
       var fired = 0;
       var timer = RestartableTimer(Duration(seconds: 5), () {
@@ -77,7 +77,7 @@ main() {
     });
   });
 
-  test("runs the callback if the timer is reset after being canceled", () {
+  test('runs the callback if the timer is reset after being canceled', () {
     FakeAsync().run((async) {
       var fired = false;
       var timer = RestartableTimer(Duration(seconds: 5), () {

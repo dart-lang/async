@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   StreamController<int> controller;
   StreamSplitter splitter;
   setUp(() {

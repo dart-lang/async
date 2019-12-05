@@ -39,7 +39,7 @@ void main() {
   test('should fetch via a callback again when cache expires', () {
     FakeAsync().run((fakeAsync) async {
       var timesCalled = 0;
-      call() async => 'Called ${++timesCalled}';
+      Future<String> call() async => 'Called ${++timesCalled}';
       expect(await cache.fetch(call), 'Called 1');
       expect(await cache.fetch(call), 'Called 1', reason: 'Cache still fresh');
 
@@ -57,7 +57,7 @@ void main() {
 
   test('should fetch via a callback when manually invalidated', () async {
     var timesCalled = 0;
-    call() async => 'Called ${++timesCalled}';
+    Future<String> call() async => 'Called ${++timesCalled}';
     expect(await cache.fetch(call), 'Called 1');
     cache.invalidate();
     expect(await cache.fetch(call), 'Called 2');

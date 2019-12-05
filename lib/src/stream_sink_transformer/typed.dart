@@ -15,6 +15,7 @@ class TypeSafeStreamSinkTransformer<S, T>
 
   TypeSafeStreamSinkTransformer(this._inner);
 
+  @override
   StreamSink<S> bind(StreamSink<T> sink) =>
       DelegatingStreamSink.typed(_inner.bind(sink));
 }

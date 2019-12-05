@@ -2,9 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
-import "dart:typed_data";
-import "cancelable_operation.dart";
+import 'dart:async';
+import 'dart:typed_data';
+import 'cancelable_operation.dart';
 
 /// Collects an asynchronous sequence of byte lists into a single list of bytes.
 ///
@@ -40,10 +40,8 @@ CancelableOperation<Uint8List> collectBytesCancelable(
 /// Performs all the same operations, but the final result is created
 /// by the [result] function, which has access to the stream subscription
 /// so it can cancel the operation.
-T _collectBytes<T>(
-    Stream<List<int>> source,
-    T result(
-        StreamSubscription<List<int>> subscription, Future<Uint8List> result)) {
+T _collectBytes<T>(Stream<List<int>> source,
+    T Function(StreamSubscription<List<int>>, Future<Uint8List>) result) {
   var byteLists = <List<int>>[];
   var length = 0;
   var completer = Completer<Uint8List>.sync();
@@ -63,7 +61,7 @@ T _collectBytes<T>(
 // Join a lists of bytes with a known total length into a single [Uint8List].
 Uint8List _collect(int length, List<List<int>> byteLists) {
   var result = Uint8List(length);
-  int i = 0;
+  var i = 0;
   for (var byteList in byteLists) {
     var end = i + byteList.length;
     result.setRange(i, end, byteList);

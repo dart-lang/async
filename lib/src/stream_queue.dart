@@ -7,11 +7,11 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
-import "cancelable_operation.dart";
-import "result/result.dart";
-import "subscription_stream.dart";
-import "stream_completer.dart";
-import "stream_splitter.dart";
+import 'cancelable_operation.dart';
+import 'result/result.dart';
+import 'subscription_stream.dart';
+import 'stream_completer.dart';
+import 'stream_splitter.dart';
 
 /// An asynchronous pull-based interface for accessing stream events.
 ///
@@ -146,7 +146,7 @@ class StreamQueue<T> {
   /// If one of the next [count] events is an error, the returned future
   /// completes with this error, and the error is still left in the queue.
   Future<List<T>> lookAhead(int count) {
-    if (count < 0) throw RangeError.range(count, 0, null, "count");
+    if (count < 0) throw RangeError.range(count, 0, null, 'count');
     if (!_isClosed) {
       var request = _LookAheadRequest<T>(count);
       _addRequest(request);
@@ -226,7 +226,7 @@ class StreamQueue<T> {
   /// then all events were succssfully skipped. If the value
   /// is greater than zero then the stream ended early.
   Future<int> skip(int count) {
-    if (count < 0) throw RangeError.range(count, 0, null, "count");
+    if (count < 0) throw RangeError.range(count, 0, null, 'count');
     if (!_isClosed) {
       var request = _SkipRequest<T>(count);
       _addRequest(request);
@@ -251,7 +251,7 @@ class StreamQueue<T> {
   /// of data collected so far. That is, the returned
   /// list may have fewer than [count] elements.
   Future<List<T>> take(int count) {
-    if (count < 0) throw RangeError.range(count, 0, null, "count");
+    if (count < 0) throw RangeError.range(count, 0, null, 'count');
     if (!_isClosed) {
       var request = _TakeRequest<T>(count);
       _addRequest(request);
@@ -324,7 +324,7 @@ class StreamQueue<T> {
   ///   }
   /// }
   /// ```
-  Future<bool> withTransaction(Future<bool> callback(StreamQueue<T> queue)) {
+  Future<bool> withTransaction(Future<bool> Function(StreamQueue<T>) callback) {
     var transaction = startTransaction();
 
     /// Avoid async/await to ensure that [startTransaction] is called
@@ -363,7 +363,7 @@ class StreamQueue<T> {
   ///     _stdinQueue.cancelable((queue) => queue.next);
   /// ```
   CancelableOperation<S> cancelable<S>(
-      Future<S> callback(StreamQueue<T> queue)) {
+      Future<S> Function(StreamQueue<T>) callback) {
     var transaction = startTransaction();
     var completer = CancelableCompleter<S>(onCancel: () {
       transaction.reject();
@@ -486,7 +486,7 @@ class StreamQueue<T> {
         _addResult(Result.error(error, stackTrace));
       }, onDone: () {
         _subscription = null;
-        this._close();
+        _close();
       });
     } else {
       _subscription.resume();
@@ -529,7 +529,7 @@ class StreamQueue<T> {
   /// Returns a [StateError] with a message saying that either
   /// [cancel] or [rest] have already been called.
   Error _failClosed() {
-    return StateError("Already cancelled");
+    return StateError('Already cancelled');
   }
 
   /// Adds a new request to the queue.
@@ -558,7 +558,7 @@ class StreamQueueTransaction<T> {
   final StreamSplitter<T> _splitter;
 
   /// Queues created using [newQueue].
-  final _queues = Set<StreamQueue>();
+  final _queues = <StreamQueue>{};
 
   /// Whether [commit] has been called.
   var _committed = false;
@@ -639,9 +639,9 @@ class StreamQueueTransaction<T> {
   /// Throws a [StateError] if [accept] or [reject] has already been called.
   void _assertActive() {
     if (_committed) {
-      throw StateError("This transaction has already been accepted.");
+      throw StateError('This transaction has already been accepted.');
     } else if (_rejected) {
-      throw StateError("This transaction has already been rejected.");
+      throw StateError('This transaction has already been rejected.');
     }
   }
 }
@@ -696,13 +696,14 @@ class _NextRequest<T> implements _EventRequest<T> {
 
   Future<T> get future => _completer.future;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     if (events.isNotEmpty) {
       events.removeFirst().complete(_completer);
       return true;
     }
     if (isDone) {
-      _completer.completeError(StateError("No elements"), StackTrace.current);
+      _completer.completeError(StateError('No elements'), StackTrace.current);
       return true;
     }
     return false;
@@ -721,13 +722,14 @@ class _PeekRequest<T> implements _EventRequest<T> {
 
   Future<T> get future => _completer.future;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     if (events.isNotEmpty) {
       events.first.complete(_completer);
       return true;
     }
     if (isDone) {
-      _completer.completeError(StateError("No elements"), StackTrace.current);
+      _completer.completeError(StateError('No elements'), StackTrace.current);
       return true;
     }
     return false;
@@ -752,6 +754,7 @@ class _SkipRequest<T> implements _EventRequest<T> {
   /// The future completed when the correct number of events have been skipped.
   Future<int> get future => _completer.future;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     while (_eventsToSkip > 0) {
       if (events.isEmpty) {
@@ -795,6 +798,7 @@ abstract class _ListRequest<T> implements _EventRequest<T> {
 class _TakeRequest<T> extends _ListRequest<T> {
   _TakeRequest(int eventsToTake) : super(eventsToTake);
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     while (_list.length < _eventsToTake) {
       if (events.isEmpty) {
@@ -818,6 +822,7 @@ class _TakeRequest<T> extends _ListRequest<T> {
 class _LookAheadRequest<T> extends _ListRequest<T> {
   _LookAheadRequest(int eventsToTake) : super(eventsToTake);
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     while (_list.length < _eventsToTake) {
       if (events.length == _list.length) {
@@ -855,6 +860,7 @@ class _CancelRequest<T> implements _EventRequest<T> {
   /// The future completed when the cancel request is completed.
   Future get future => _completer.future;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     if (_streamQueue._isDone) {
       _completer.complete();
@@ -886,6 +892,7 @@ class _RestRequest<T> implements _EventRequest<T> {
   /// The stream which will contain the remaining events of [_streamQueue].
   Stream<T> get stream => _completer.stream;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     if (events.isEmpty) {
       if (_streamQueue._isDone) {
@@ -920,6 +927,7 @@ class _HasNextRequest<T> implements _EventRequest<T> {
 
   Future<bool> get future => _completer.future;
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     if (events.isNotEmpty) {
       _completer.complete(true);
@@ -954,6 +962,7 @@ class _TransactionRequest<T> implements _EventRequest<T> {
     _transaction = StreamQueueTransaction._(parent, _controller.stream);
   }
 
+  @override
   bool update(QueueList<Result<T>> events, bool isDone) {
     while (_eventsSent < events.length) {
       events[_eventsSent++].addTo(_controller);

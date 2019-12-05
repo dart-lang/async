@@ -28,6 +28,7 @@ class RestartableTimer implements Timer {
   RestartableTimer(this._duration, this._callback)
       : _timer = Timer(_duration, _callback);
 
+  @override
   bool get isActive => _timer.isActive;
 
   /// Restarts the timer so that it counts down from its original duration
@@ -39,6 +40,7 @@ class RestartableTimer implements Timer {
     _timer = Timer(_duration, _callback);
   }
 
+  @override
   void cancel() {
     _timer.cancel();
   }
@@ -48,5 +50,6 @@ class RestartableTimer implements Timer {
   ///
   /// Calls to [reset] will also reset the tick so subsequent tick values may
   /// not be strictly larger than previous values.
+  @override
   int get tick => _timer.tick;
 }

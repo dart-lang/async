@@ -60,7 +60,7 @@ abstract class Result<T> {
   /// This generates either a [ValueResult] with the value returned by
   /// calling `computation`, or an [ErrorResult] with an error thrown by
   /// the call.
-  factory Result(T computation()) {
+  factory Result(T Function() computation) {
     try {
       return ValueResult<T>(computation());
     } catch (e, s) {
@@ -97,11 +97,11 @@ abstract class Result<T> {
   /// The returned future will never have an error.
   static Future<List<Result<T>>> captureAll<T>(Iterable<FutureOr<T>> elements) {
     var results = <Result<T>>[];
-    int pending = 0;
+    var pending = 0;
     Completer<List<Result<T>>> completer;
     for (var element in elements) {
       if (element is Future<T>) {
-        int i = results.length;
+        var i = results.length;
         results.add(null);
         pending++;
         Result.capture<T>(element).then((result) {

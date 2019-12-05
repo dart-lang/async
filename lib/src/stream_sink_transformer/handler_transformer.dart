@@ -30,6 +30,7 @@ class HandlerTransformer<S, T> implements StreamSinkTransformer<S, T> {
 
   HandlerTransformer(this._handleData, this._handleError, this._handleDone);
 
+  @override
   StreamSink<S> bind(StreamSink<T> sink) => _HandlerSink<S, T>(this, sink);
 }
 
@@ -45,12 +46,14 @@ class _HandlerSink<S, T> implements StreamSink<S> {
   /// errors.
   final StreamSink<T> _safeCloseInner;
 
+  @override
   Future get done => _inner.done;
 
   _HandlerSink(this._transformer, StreamSink<T> inner)
       : _inner = inner,
         _safeCloseInner = _SafeCloseSink<T>(inner);
 
+  @override
   void add(S event) {
     if (_transformer._handleData == null) {
       _inner.add(event as T);
@@ -59,6 +62,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     }
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     if (_transformer._handleError == null) {
       _inner.addError(error, stackTrace);
@@ -67,6 +71,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     }
   }
 
+  @override
   Future addStream(Stream<S> stream) {
     return _inner.addStream(stream.transform(
         StreamTransformer<S, T>.fromHandlers(
@@ -75,6 +80,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
             handleDone: _closeSink)));
   }
 
+  @override
   Future close() {
     if (_transformer._handleDone == null) return _inner.close();
 
@@ -91,6 +97,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 class _SafeCloseSink<T> extends DelegatingStreamSink<T> {
   _SafeCloseSink(StreamSink<T> inner) : super(inner);
 
+  @override
   Future close() => super.close().catchError((_) {});
 }
 

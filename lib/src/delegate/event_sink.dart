@@ -25,14 +25,17 @@ class DelegatingEventSink<T> implements EventSink<T> {
   static EventSink<T> typed<T>(EventSink sink) =>
       sink is EventSink<T> ? sink : DelegatingEventSink._(sink);
 
+  @override
   void add(T data) {
     _sink.add(data);
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 
+  @override
   void close() {
     _sink.close();
   }

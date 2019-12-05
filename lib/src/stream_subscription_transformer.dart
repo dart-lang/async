@@ -28,9 +28,9 @@ typedef _VoidHandler<T> = void Function(StreamSubscription<T> inner);
 /// [StreamSubscription]: [handleCancel] must call `cancel()`, [handlePause]
 /// must call `pause()`, and [handleResume] must call `resume()`.
 StreamTransformer<T, T> subscriptionTransformer<T>(
-    {Future handleCancel(StreamSubscription<T> inner),
-    void handlePause(StreamSubscription<T> inner),
-    void handleResume(StreamSubscription<T> inner)}) {
+    {Future Function(StreamSubscription<T>) handleCancel,
+    void Function(StreamSubscription<T>) handlePause,
+    void Function(StreamSubscription<T>) handleResume}) {
   return StreamTransformer((stream, cancelOnError) {
     return _TransformedSubscription(
         stream.listen(null, cancelOnError: cancelOnError),
@@ -61,23 +61,28 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
   /// The callback to run when [resume] is called.
   final _VoidHandler<T> _handleResume;
 
+  @override
   bool get isPaused => _inner?.isPaused ?? false;
 
   _TransformedSubscription(
       this._inner, this._handleCancel, this._handlePause, this._handleResume);
 
-  void onData(void handleData(T data)) {
+  @override
+  void onData(void Function(T) handleData) {
     _inner?.onData(handleData);
   }
 
+  @override
   void onError(Function handleError) {
     _inner?.onError(handleError);
   }
 
-  void onDone(void handleDone()) {
+  @override
+  void onDone(void Function() handleDone) {
     _inner?.onDone(handleDone);
   }
 
+  @override
   Future cancel() => _cancelMemoizer.runOnce(() {
         var inner = _inner;
         _inner.onData(null);
@@ -90,17 +95,20 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
       });
   final _cancelMemoizer = AsyncMemoizer();
 
+  @override
   void pause([Future resumeFuture]) {
     if (_cancelMemoizer.hasRun) return;
     if (resumeFuture != null) resumeFuture.whenComplete(resume);
     _handlePause(_inner);
   }
 
+  @override
   void resume() {
     if (_cancelMemoizer.hasRun) return;
     _handleResume(_inner);
   }
 
+  @override
   Future<E> asFuture<E>([E futureValue]) =>
       _inner?.asFuture(futureValue) ?? Completer<E>().future;
 }

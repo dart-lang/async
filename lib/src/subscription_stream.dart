@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import "delegate/stream_subscription.dart";
+import 'delegate/stream_subscription.dart';
 
 /// A [Stream] adapter for a [StreamSubscription].
 ///
@@ -38,10 +38,11 @@ class SubscriptionStream<T> extends Stream<T> {
     _source.onDone(null);
   }
 
-  StreamSubscription<T> listen(void onData(T event),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  @override
+  StreamSubscription<T> listen(void Function(T) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
     if (_source == null) {
-      throw StateError("Stream has already been listened to.");
+      throw StateError('Stream has already been listened to.');
     }
     cancelOnError = (true == cancelOnError);
     var subscription = _source;
@@ -69,6 +70,7 @@ class _CancelOnErrorSubscriptionWrapper<T>
   _CancelOnErrorSubscriptionWrapper(StreamSubscription<T> subscription)
       : super(subscription);
 
+  @override
   void onError(Function handleError) {
     // Cancel when receiving an error.
     super.onError((error, StackTrace stackTrace) {

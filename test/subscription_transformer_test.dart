@@ -10,8 +10,8 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  group("with no callbacks", () {
-    test("forwards cancellation", () async {
+  group('with no callbacks', () {
+    test('forwards cancellation', () async {
       var isCanceled = false;
       var cancelCompleter = Completer();
       var controller = StreamController(onCancel: expectAsync0(() {
@@ -39,7 +39,7 @@ void main() {
       expect(subscription.cancel(), completes);
     });
 
-    test("forwards pausing and resuming", () async {
+    test('forwards pausing and resuming', () async {
       var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer())
@@ -62,7 +62,7 @@ void main() {
       expect(controller.isPaused, isFalse);
     });
 
-    test("forwards pausing with a resume future", () async {
+    test('forwards pausing with a resume future', () async {
       var controller = StreamController();
       var subscription = controller.stream
           .transform(subscriptionTransformer())
@@ -79,8 +79,8 @@ void main() {
     });
   });
 
-  group("with a cancel callback", () {
-    test("invokes the callback when the subscription is canceled", () async {
+  group('with a cancel callback', () {
+    test('invokes the callback when the subscription is canceled', () async {
       var isCanceled = false;
       var callbackInvoked = false;
       var controller = StreamController(onCancel: expectAsync0(() {
@@ -103,7 +103,7 @@ void main() {
       expect(isCanceled, isTrue);
     });
 
-    test("invokes the callback once and caches its result", () async {
+    test('invokes the callback once and caches its result', () async {
       var completer = Completer();
       var controller = StreamController();
       var subscription = controller.stream
@@ -132,8 +132,8 @@ void main() {
     });
   });
 
-  group("with a pause callback", () {
-    test("invokes the callback when pause is called", () async {
+  group('with a pause callback', () {
+    test('invokes the callback when pause is called', () async {
       var pauseCount = 0;
       var controller = StreamController();
       var subscription = controller.stream
@@ -180,8 +180,8 @@ void main() {
     });
   });
 
-  group("with a resume callback", () {
-    test("invokes the callback when resume is called", () async {
+  group('with a resume callback', () {
+    test('invokes the callback when resume is called', () async {
       var resumeCount = 0;
       var controller = StreamController();
       var subscription = controller.stream
@@ -213,7 +213,7 @@ void main() {
       expect(resumeCount, equals(3));
     });
 
-    test("invokes the callback when a resume future completes", () async {
+    test('invokes the callback when a resume future completes', () async {
       var resumed = false;
       var controller = StreamController();
       var subscription = controller.stream.transform(

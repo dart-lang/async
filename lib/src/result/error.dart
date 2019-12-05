@@ -15,21 +15,28 @@ class ErrorResult implements Result<Null> {
   /// The stack trace corresponding to where [error] was thrown.
   final StackTrace stackTrace;
 
+  @override
   bool get isValue => false;
+  @override
   bool get isError => true;
+  @override
   ValueResult<Null> get asValue => null;
+  @override
   ErrorResult get asError => this;
 
   ErrorResult(this.error, this.stackTrace);
 
+  @override
   void complete(Completer completer) {
     completer.completeError(error, stackTrace);
   }
 
+  @override
   void addTo(EventSink sink) {
     sink.addError(error, stackTrace);
   }
 
+  @override
   Future<Null> get asFuture => Future<Null>.error(error, stackTrace);
 
   /// Calls an error handler with the error and stacktrace.
@@ -46,9 +53,11 @@ class ErrorResult implements Result<Null> {
     }
   }
 
+  @override
   int get hashCode => error.hashCode ^ stackTrace.hashCode ^ 0x1d61823f;
 
   /// This is equal only to an error result with equal [error] and [stackTrace].
+  @override
   bool operator ==(Object other) =>
       other is ErrorResult &&
       error == other.error &&

@@ -26,6 +26,7 @@ import 'dart:async';
 /// }
 /// ```
 class NullStreamSink<T> implements StreamSink<T> {
+  @override
   final Future done;
 
   /// Whether the sink has been closed.
@@ -54,14 +55,17 @@ class NullStreamSink<T> implements StreamSink<T> {
           // experiencing an error.
           ..catchError((_) {});
 
+  @override
   void add(T data) {
     _checkEventAllowed();
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     _checkEventAllowed();
   }
 
+  @override
   Future addStream(Stream<T> stream) {
     _checkEventAllowed();
 
@@ -75,12 +79,13 @@ class NullStreamSink<T> implements StreamSink<T> {
   /// Throws a [StateError] if [close] has been called or an [addStream] call is
   /// pending.
   void _checkEventAllowed() {
-    if (_closed) throw StateError("Cannot add to a closed sink.");
+    if (_closed) throw StateError('Cannot add to a closed sink.');
     if (_addingStream) {
-      throw StateError("Cannot add to a sink while adding a stream.");
+      throw StateError('Cannot add to a sink while adding a stream.');
     }
   }
 
+  @override
   Future close() {
     _closed = true;
     return done;

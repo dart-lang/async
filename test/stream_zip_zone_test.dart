@@ -2,29 +2,30 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
-import "package:test/test.dart";
+import 'dart:async';
+
+import 'package:test/test.dart';
 
 // Test that stream listener callbacks all happen in the zone where the
 // listen occurred.
 
-main() {
+void main() {
   StreamController controller;
   controller = StreamController();
-  testStream("singlesub-async", controller, controller.stream);
+  testStream('singlesub-async', controller, controller.stream);
   controller = StreamController.broadcast();
-  testStream("broadcast-async", controller, controller.stream);
+  testStream('broadcast-async', controller, controller.stream);
   controller = StreamController();
   testStream(
-      "asbroadcast-async", controller, controller.stream.asBroadcastStream());
+      'asbroadcast-async', controller, controller.stream.asBroadcastStream());
 
   controller = StreamController(sync: true);
-  testStream("singlesub-sync", controller, controller.stream);
+  testStream('singlesub-sync', controller, controller.stream);
   controller = StreamController.broadcast(sync: true);
-  testStream("broadcast-sync", controller, controller.stream);
+  testStream('broadcast-sync', controller, controller.stream);
   controller = StreamController(sync: true);
   testStream(
-      "asbroadcast-sync", controller, controller.stream.asBroadcastStream());
+      'asbroadcast-sync', controller, controller.stream.asBroadcastStream());
 }
 
 void testStream(String name, StreamController controller, Stream stream) {

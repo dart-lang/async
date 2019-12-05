@@ -2,16 +2,16 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE filevents.
 
-import "dart:async";
+import 'dart:async';
 
-import "package:async/async.dart";
-import "package:test/test.dart";
+import 'package:async/async.dart';
+import 'package:test/test.dart';
 
-import "utils.dart";
+import 'utils.dart';
 
-main() {
-  group("source stream", () {
-    test("is listened to on first request, paused between requests", () async {
+void main() {
+  group('source stream', () {
+    test('is listened to on first request, paused between requests', () async {
       var controller = StreamController<int>();
       var events = StreamQueue<int>(controller.stream);
       await flushMicrotasks();
@@ -42,8 +42,8 @@ main() {
     });
   });
 
-  group("eventsDispatched", () {
-    test("increments after a next future completes", () async {
+  group('eventsDispatched', () {
+    test('increments after a next future completes', () async {
       var events = StreamQueue<int>(createStream());
 
       expect(events.eventsDispatched, equals(0));
@@ -60,13 +60,13 @@ main() {
       expect(events.eventsDispatched, equals(2));
     });
 
-    test("increments multiple times for multi-value requests", () async {
+    test('increments multiple times for multi-value requests', () async {
       var events = StreamQueue<int>(createStream());
       await events.take(3);
       expect(events.eventsDispatched, equals(3));
     });
 
-    test("increments multiple times for an accepted transaction", () async {
+    test('increments multiple times for an accepted transaction', () async {
       var events = StreamQueue<int>(createStream());
       await events.withTransaction((queue) async {
         await queue.next;
@@ -83,8 +83,8 @@ main() {
     });
   });
 
-  group("lookAhead operation", () {
-    test("as simple list of events", () async {
+  group('lookAhead operation', () {
+    test('as simple list of events', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.lookAhead(4), [1, 2, 3, 4]);
       expect(await events.next, 1);
@@ -94,7 +94,7 @@ main() {
       await events.cancel();
     });
 
-    test("of 0 events", () async {
+    test('of 0 events', () async {
       var events = StreamQueue<int>(createStream());
       expect(events.lookAhead(0), completion([]));
       expect(events.next, completion(1));
@@ -110,7 +110,7 @@ main() {
       await events.cancel();
     });
 
-    test("with bad arguments throws", () async {
+    test('with bad arguments throws', () async {
       var events = StreamQueue<int>(createStream());
       expect(() => events.lookAhead(-1), throwsArgumentError);
       expect(await events.next, 1); // Did not consume event.
@@ -119,13 +119,13 @@ main() {
       await events.cancel();
     });
 
-    test("of too many arguments", () async {
+    test('of too many arguments', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.lookAhead(6), [1, 2, 3, 4]);
       await events.cancel();
     });
 
-    test("too large later", () async {
+    test('too large later', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -133,25 +133,25 @@ main() {
       await events.cancel();
     });
 
-    test("error", () async {
+    test('error', () async {
       var events = StreamQueue<int>(createErrorStream());
-      expect(events.lookAhead(4), throwsA("To err is divine!"));
-      expect(events.take(4), throwsA("To err is divine!"));
+      expect(events.lookAhead(4), throwsA('To err is divine!'));
+      expect(events.take(4), throwsA('To err is divine!'));
       expect(await events.next, 4);
       await events.cancel();
     });
   });
 
-  group("next operation", () {
-    test("simple sequence of requests", () async {
+  group('next operation', () {
+    test('simple sequence of requests', () async {
       var events = StreamQueue<int>(createStream());
-      for (int i = 1; i <= 4; i++) {
+      for (var i = 1; i <= 4; i++) {
         expect(await events.next, i);
       }
       expect(events.next, throwsStateError);
     });
 
-    test("multiple requests at the same time", () async {
+    test('multiple requests at the same time', () async {
       var events = StreamQueue<int>(createStream());
       var result = await Future.wait(
           [events.next, events.next, events.next, events.next]);
@@ -159,18 +159,18 @@ main() {
       await events.cancel();
     });
 
-    test("sequence of requests with error", () async {
+    test('sequence of requests with error', () async {
       var events = StreamQueue<int>(createErrorStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
-      expect(events.next, throwsA("To err is divine!"));
+      expect(events.next, throwsA('To err is divine!'));
       expect(await events.next, 4);
       await events.cancel();
     });
   });
 
-  group("skip operation", () {
-    test("of two elements in the middle of sequence", () async {
+  group('skip operation', () {
+    test('of two elements in the middle of sequence', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.skip(2), 0);
@@ -178,7 +178,7 @@ main() {
       await events.cancel();
     });
 
-    test("with negative/bad arguments throws", () async {
+    test('with negative/bad arguments throws', () async {
       var events = StreamQueue<int>(createStream());
       expect(() => events.skip(-1), throwsArgumentError);
       // A non-int throws either a type error or an argument error,
@@ -189,7 +189,7 @@ main() {
       await events.cancel();
     });
 
-    test("of 0 elements works", () async {
+    test('of 0 elements works', () async {
       var events = StreamQueue<int>(createStream());
       expect(events.skip(0), completion(0));
       expect(events.next, completion(1));
@@ -205,13 +205,13 @@ main() {
       await events.cancel();
     });
 
-    test("of too many events ends at stream start", () async {
+    test('of too many events ends at stream start', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.skip(6), 2);
       await events.cancel();
     });
 
-    test("of too many events after some events", () async {
+    test('of too many events after some events', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -219,7 +219,7 @@ main() {
       await events.cancel();
     });
 
-    test("of too many events ends at stream end", () async {
+    test('of too many events ends at stream end', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -229,20 +229,20 @@ main() {
       await events.cancel();
     });
 
-    test("of events with error", () async {
+    test('of events with error', () async {
       var events = StreamQueue<int>(createErrorStream());
-      expect(events.skip(4), throwsA("To err is divine!"));
+      expect(events.skip(4), throwsA('To err is divine!'));
       expect(await events.next, 4);
       await events.cancel();
     });
 
-    test("of events with error, and skip again after", () async {
+    test('of events with error, and skip again after', () async {
       var events = StreamQueue<int>(createErrorStream());
-      expect(events.skip(4), throwsA("To err is divine!"));
+      expect(events.skip(4), throwsA('To err is divine!'));
       expect(events.skip(2), completion(1));
       await events.cancel();
     });
-    test("multiple skips at same time complete in order.", () async {
+    test('multiple skips at same time complete in order.', () async {
       var events = StreamQueue<int>(createStream());
       var skip1 = events.skip(1);
       var skip2 = events.skip(0);
@@ -266,8 +266,8 @@ main() {
     });
   });
 
-  group("take operation", () {
-    test("as simple take of events", () async {
+  group('take operation', () {
+    test('as simple take of events', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.take(2), [2, 3]);
@@ -275,7 +275,7 @@ main() {
       await events.cancel();
     });
 
-    test("of 0 events", () async {
+    test('of 0 events', () async {
       var events = StreamQueue<int>(createStream());
       expect(events.take(0), completion([]));
       expect(events.next, completion(1));
@@ -291,7 +291,7 @@ main() {
       await events.cancel();
     });
 
-    test("with bad arguments throws", () async {
+    test('with bad arguments throws', () async {
       var events = StreamQueue<int>(createStream());
       expect(() => events.take(-1), throwsArgumentError);
       expect(await events.next, 1); // Did not consume event.
@@ -300,13 +300,13 @@ main() {
       await events.cancel();
     });
 
-    test("of too many arguments", () async {
+    test('of too many arguments', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.take(6), [1, 2, 3, 4]);
       await events.cancel();
     });
 
-    test("too large later", () async {
+    test('too large later', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -314,27 +314,27 @@ main() {
       await events.cancel();
     });
 
-    test("error", () async {
+    test('error', () async {
       var events = StreamQueue<int>(createErrorStream());
-      expect(events.take(4), throwsA("To err is divine!"));
+      expect(events.take(4), throwsA('To err is divine!'));
       expect(await events.next, 4);
       await events.cancel();
     });
   });
 
-  group("rest operation", () {
-    test("after single next", () async {
+  group('rest operation', () {
+    test('after single next', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.rest.toList(), [2, 3, 4]);
     });
 
-    test("at start", () async {
+    test('at start', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.rest.toList(), [1, 2, 3, 4]);
     });
 
-    test("at end", () async {
+    test('at end', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -343,7 +343,7 @@ main() {
       expect(await events.rest.toList(), isEmpty);
     });
 
-    test("after end", () async {
+    test('after end', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -353,13 +353,13 @@ main() {
       expect(await events.rest.toList(), isEmpty);
     });
 
-    test("after receiving done requested before", () async {
+    test('after receiving done requested before', () async {
       var events = StreamQueue<int>(createStream());
       var next1 = events.next;
       var next2 = events.next;
       var next3 = events.next;
       var rest = events.rest;
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         await flushMicrotasks();
       }
       expect(await next1, 1);
@@ -368,17 +368,17 @@ main() {
       expect(await rest.toList(), [4]);
     });
 
-    test("with an error event error", () async {
+    test('with an error event error', () async {
       var events = StreamQueue<int>(createErrorStream());
       expect(await events.next, 1);
       var rest = events.rest;
       var events2 = StreamQueue(rest);
       expect(await events2.next, 2);
-      expect(events2.next, throwsA("To err is divine!"));
+      expect(events2.next, throwsA('To err is divine!'));
       expect(await events2.next, 4);
     });
 
-    test("closes the events, prevents other operations", () async {
+    test('closes the events, prevents other operations', () async {
       var events = StreamQueue<int>(createStream());
       var stream = events.rest;
       expect(() => events.next, throwsStateError);
@@ -389,7 +389,7 @@ main() {
       expect(stream.toList(), completion([1, 2, 3, 4]));
     });
 
-    test("forwards to underlying stream", () async {
+    test('forwards to underlying stream', () async {
       var cancel = Completer();
       var controller = StreamController<int>(onCancel: () => cancel.future);
       var events = StreamQueue<int>(controller.stream);
@@ -436,8 +436,8 @@ main() {
     });
   });
 
-  group("peek operation", () {
-    test("peeks one event", () async {
+  group('peek operation', () {
+    test('peeks one event', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.peek, 1);
       expect(await events.next, 1);
@@ -449,28 +449,28 @@ main() {
       expect(events.peek, throwsA(anything));
       await events.cancel();
     });
-    test("multiple requests at the same time", () async {
+    test('multiple requests at the same time', () async {
       var events = StreamQueue<int>(createStream());
       var result = await Future.wait(
           [events.peek, events.peek, events.next, events.peek, events.peek]);
       expect(result, [1, 1, 1, 2, 2]);
       await events.cancel();
     });
-    test("sequence of requests with error", () async {
+    test('sequence of requests with error', () async {
       var events = StreamQueue<int>(createErrorStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
-      expect(events.peek, throwsA("To err is divine!"));
+      expect(events.peek, throwsA('To err is divine!'));
       // Error stays in queue.
-      expect(events.peek, throwsA("To err is divine!"));
-      expect(events.next, throwsA("To err is divine!"));
+      expect(events.peek, throwsA('To err is divine!'));
+      expect(events.next, throwsA('To err is divine!'));
       expect(await events.next, 4);
       await events.cancel();
     });
   });
 
-  group("cancel operation", () {
-    test("closes the events, prevents any other operation", () async {
+  group('cancel operation', () {
+    test('closes the events, prevents any other operation', () async {
       var events = StreamQueue<int>(createStream());
       await events.cancel();
       expect(() => events.lookAhead(1), throwsStateError);
@@ -482,7 +482,7 @@ main() {
       expect(() => events.cancel(), throwsStateError);
     });
 
-    test("cancels underlying subscription when called before any event",
+    test('cancels underlying subscription when called before any event',
         () async {
       var cancelFuture = Future.value(42);
       var controller = StreamController<int>(onCancel: () => cancelFuture);
@@ -490,7 +490,7 @@ main() {
       expect(await events.cancel(), 42);
     });
 
-    test("cancels underlying subscription, returns result", () async {
+    test('cancels underlying subscription, returns result', () async {
       var cancelFuture = Future.value(42);
       var controller = StreamController<int>(onCancel: () => cancelFuture);
       var events = StreamQueue<int>(controller.stream);
@@ -499,8 +499,8 @@ main() {
       expect(await events.cancel(), 42);
     });
 
-    group("with immediate: true", () {
-      test("closes the events, prevents any other operation", () async {
+    group('with immediate: true', () {
+      test('closes the events, prevents any other operation', () async {
         var events = StreamQueue<int>(createStream());
         await events.cancel(immediate: true);
         expect(() => events.next, throwsStateError);
@@ -510,7 +510,7 @@ main() {
         expect(() => events.cancel(), throwsStateError);
       });
 
-      test("cancels the underlying subscription immediately", () async {
+      test('cancels the underlying subscription immediately', () async {
         var controller = StreamController<int>();
         controller.add(1);
 
@@ -522,7 +522,7 @@ main() {
         expect(controller.hasListener, isFalse);
       });
 
-      test("cancels the underlying subscription when called before any event",
+      test('cancels the underlying subscription when called before any event',
           () async {
         var cancelFuture = Future.value(42);
         var controller = StreamController<int>(onCancel: () => cancelFuture);
@@ -531,7 +531,7 @@ main() {
         expect(await events.cancel(immediate: true), 42);
       });
 
-      test("closes pending requests", () async {
+      test('closes pending requests', () async {
         var events = StreamQueue<int>(createStream());
         expect(await events.next, 1);
         expect(events.next, throwsStateError);
@@ -540,7 +540,7 @@ main() {
         await events.cancel(immediate: true);
       });
 
-      test("returns the result of closing the underlying subscription",
+      test('returns the result of closing the underlying subscription',
           () async {
         var controller =
             StreamController<int>(onCancel: () => Future.value(42));
@@ -564,30 +564,30 @@ main() {
     });
   });
 
-  group("hasNext operation", () {
-    test("true at start", () async {
+  group('hasNext operation', () {
+    test('true at start', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.hasNext, isTrue);
     });
 
-    test("true after start", () async {
+    test('true after start', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, isTrue);
     });
 
-    test("true at end", () async {
+    test('true at end', () async {
       var events = StreamQueue<int>(createStream());
-      for (int i = 1; i <= 4; i++) {
+      for (var i = 1; i <= 4; i++) {
         expect(await events.next, i);
       }
       expect(await events.hasNext, isFalse);
     });
 
-    test("true when enqueued", () async {
+    test('true when enqueued', () async {
       var events = StreamQueue<int>(createStream());
       var values = <int>[];
-      for (int i = 1; i <= 3; i++) {
+      for (var i = 1; i <= 3; i++) {
         events.next.then(values.add);
       }
       expect(values, isEmpty);
@@ -595,10 +595,10 @@ main() {
       expect(values, [1, 2, 3]);
     });
 
-    test("false when enqueued", () async {
+    test('false when enqueued', () async {
       var events = StreamQueue<int>(createStream());
       var values = <int>[];
-      for (int i = 1; i <= 4; i++) {
+      for (var i = 1; i <= 4; i++) {
         events.next.then(values.add);
       }
       expect(values, isEmpty);
@@ -606,7 +606,7 @@ main() {
       expect(values, [1, 2, 3, 4]);
     });
 
-    test("true when data event", () async {
+    test('true when data event', () async {
       var controller = StreamController<int>();
       var events = StreamQueue<int>(controller.stream);
 
@@ -622,7 +622,7 @@ main() {
       expect(hasNext, isTrue);
     });
 
-    test("true when error event", () async {
+    test('true when error event', () async {
       var controller = StreamController<int>();
       var events = StreamQueue<int>(controller.stream);
 
@@ -632,14 +632,14 @@ main() {
       });
       await flushMicrotasks();
       expect(hasNext, isNull);
-      controller.addError("BAD");
+      controller.addError('BAD');
       expect(hasNext, isNull);
       await flushMicrotasks();
       expect(hasNext, isTrue);
-      expect(events.next, throwsA("BAD"));
+      expect(events.next, throwsA('BAD'));
     });
 
-    test("- hasNext after hasNext", () async {
+    test('- hasNext after hasNext', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.hasNext, true);
       expect(await events.hasNext, true);
@@ -657,7 +657,7 @@ main() {
       expect(await events.hasNext, false);
     });
 
-    test("- next after true", () async {
+    test('- next after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -665,7 +665,7 @@ main() {
       expect(await events.next, 3);
     });
 
-    test("- next after true, enqueued", () async {
+    test('- next after true, enqueued', () async {
       var events = StreamQueue<int>(createStream());
       var responses = <Object>[];
       events.next.then(responses.add);
@@ -677,7 +677,7 @@ main() {
       expect(responses, [1, true, 2]);
     });
 
-    test("- skip 0 after true", () async {
+    test('- skip 0 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -685,7 +685,7 @@ main() {
       expect(await events.next, 2);
     });
 
-    test("- skip 1 after true", () async {
+    test('- skip 1 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -693,7 +693,7 @@ main() {
       expect(await events.next, 3);
     });
 
-    test("- skip 2 after true", () async {
+    test('- skip 2 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -701,7 +701,7 @@ main() {
       expect(await events.next, 4);
     });
 
-    test("- take 0 after true", () async {
+    test('- take 0 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -709,7 +709,7 @@ main() {
       expect(await events.next, 2);
     });
 
-    test("- take 1 after true", () async {
+    test('- take 1 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -717,7 +717,7 @@ main() {
       expect(await events.next, 3);
     });
 
-    test("- take 2 after true", () async {
+    test('- take 2 after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -725,7 +725,7 @@ main() {
       expect(await events.next, 4);
     });
 
-    test("- rest after true", () async {
+    test('- rest after true', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.hasNext, true);
@@ -733,7 +733,7 @@ main() {
       expect(await stream.toList(), [2, 3, 4]);
     });
 
-    test("- rest after true, at last", () async {
+    test('- rest after true, at last', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -743,7 +743,7 @@ main() {
       expect(await stream.toList(), [4]);
     });
 
-    test("- rest after false", () async {
+    test('- rest after false', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -754,7 +754,7 @@ main() {
       expect(await stream.toList(), isEmpty);
     });
 
-    test("- cancel after true on data", () async {
+    test('- cancel after true on data', () async {
       var events = StreamQueue<int>(createStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -762,7 +762,7 @@ main() {
       expect(await events.cancel(), null);
     });
 
-    test("- cancel after true on error", () async {
+    test('- cancel after true on error', () async {
       var events = StreamQueue<int>(createErrorStream());
       expect(await events.next, 1);
       expect(await events.next, 2);
@@ -771,7 +771,7 @@ main() {
     });
   });
 
-  group("startTransaction operation produces a transaction that", () {
+  group('startTransaction operation produces a transaction that', () {
     StreamQueue<int> events;
     StreamQueueTransaction<int> transaction;
     StreamQueue<int> queue1;
@@ -784,8 +784,8 @@ main() {
       queue2 = transaction.newQueue();
     });
 
-    group("emits queues that", () {
-      test("independently emit events", () async {
+    group('emits queues that', () {
+      test('independently emit events', () async {
         expect(await queue1.next, 2);
         expect(await queue2.next, 2);
         expect(await queue2.next, 3);
@@ -796,7 +796,7 @@ main() {
         expect(await queue2.hasNext, isFalse);
       });
 
-      test("queue requests for events", () async {
+      test('queue requests for events', () async {
         expect(queue1.next, completion(2));
         expect(queue2.next, completion(2));
         expect(queue2.next, completion(3));
@@ -807,7 +807,7 @@ main() {
         expect(queue2.hasNext, completion(isFalse));
       });
 
-      test("independently emit errors", () async {
+      test('independently emit errors', () async {
         events = StreamQueue(createErrorStream());
         expect(await events.next, 1);
         transaction = events.startTransaction();
@@ -816,8 +816,8 @@ main() {
 
         expect(queue1.next, completion(2));
         expect(queue2.next, completion(2));
-        expect(queue2.next, throwsA("To err is divine!"));
-        expect(queue1.next, throwsA("To err is divine!"));
+        expect(queue2.next, throwsA('To err is divine!'));
+        expect(queue1.next, throwsA('To err is divine!'));
         expect(queue1.next, completion(4));
         expect(queue2.next, completion(4));
         expect(queue1.hasNext, completion(isFalse));
@@ -825,8 +825,8 @@ main() {
       });
     });
 
-    group("when rejected", () {
-      test("further original requests use the previous state", () async {
+    group('when rejected', () {
+      test('further original requests use the previous state', () async {
         expect(await queue1.next, 2);
         expect(await queue2.next, 2);
         expect(await queue2.next, 3);
@@ -840,7 +840,7 @@ main() {
         expect(await events.hasNext, isFalse);
       });
 
-      test("pending original requests use the previous state", () async {
+      test('pending original requests use the previous state', () async {
         expect(await queue1.next, 2);
         expect(await queue2.next, 2);
         expect(await queue2.next, 3);
@@ -853,7 +853,7 @@ main() {
         transaction.reject();
       });
 
-      test("further child requests act as though the stream was closed",
+      test('further child requests act as though the stream was closed',
           () async {
         expect(await queue1.next, 2);
         transaction.reject();
@@ -862,7 +862,7 @@ main() {
         expect(queue1.next, throwsStateError);
       });
 
-      test("pending child requests act as though the stream was closed",
+      test('pending child requests act as though the stream was closed',
           () async {
         expect(await queue1.next, 2);
         expect(queue1.hasNext, completion(isFalse));
@@ -871,7 +871,7 @@ main() {
       });
 
       // Regression test.
-      test("pending child rest requests emit no more events", () async {
+      test('pending child rest requests emit no more events', () async {
         var controller = StreamController();
         var events = StreamQueue(controller.stream);
         var transaction = events.startTransaction();
@@ -899,13 +899,13 @@ main() {
         await queue1.cancel();
       });
 
-      test("calls to commit() or reject() fail", () async {
+      test('calls to commit() or reject() fail', () async {
         transaction.reject();
         expect(transaction.reject, throwsStateError);
         expect(() => transaction.commit(queue1), throwsStateError);
       });
 
-      test("before the transaction emits any events, does nothing", () async {
+      test('before the transaction emits any events, does nothing', () async {
         var controller = StreamController();
         var events = StreamQueue(controller.stream);
 
@@ -924,22 +924,22 @@ main() {
       });
     });
 
-    group("when committed", () {
-      test("further original requests use the committed state", () async {
+    group('when committed', () {
+      test('further original requests use the committed state', () async {
         expect(await queue1.next, 2);
         await flushMicrotasks();
         transaction.commit(queue1);
         expect(await events.next, 3);
       });
 
-      test("pending original requests use the committed state", () async {
+      test('pending original requests use the committed state', () async {
         expect(await queue1.next, 2);
         expect(events.next, completion(3));
         await flushMicrotasks();
         transaction.commit(queue1);
       });
 
-      test("further child requests act as though the stream was closed",
+      test('further child requests act as though the stream was closed',
           () async {
         expect(await queue2.next, 2);
         transaction.commit(queue2);
@@ -948,7 +948,7 @@ main() {
         expect(queue1.next, throwsStateError);
       });
 
-      test("pending child requests act as though the stream was closed",
+      test('pending child requests act as though the stream was closed',
           () async {
         expect(await queue2.next, 2);
         expect(queue1.hasNext, completion(isFalse));
@@ -956,7 +956,7 @@ main() {
         transaction.commit(queue2);
       });
 
-      test("further requests act as though the stream was closed", () async {
+      test('further requests act as though the stream was closed', () async {
         expect(await queue1.next, 2);
         transaction.commit(queue1);
 
@@ -964,25 +964,25 @@ main() {
         expect(queue1.next, throwsStateError);
       });
 
-      test("cancel() may still be called explicitly", () async {
+      test('cancel() may still be called explicitly', () async {
         expect(await queue1.next, 2);
         transaction.commit(queue1);
         await queue1.cancel();
       });
 
-      test("throws if there are pending requests", () async {
+      test('throws if there are pending requests', () async {
         expect(await queue1.next, 2);
         expect(queue1.hasNext, completion(isTrue));
         expect(() => transaction.commit(queue1), throwsStateError);
       });
 
-      test("calls to commit() or reject() fail", () async {
+      test('calls to commit() or reject() fail', () async {
         transaction.commit(queue1);
         expect(transaction.reject, throwsStateError);
         expect(() => transaction.commit(queue1), throwsStateError);
       });
 
-      test("before the transaction emits any events, does nothing", () async {
+      test('before the transaction emits any events, does nothing', () async {
         var controller = StreamController();
         var events = StreamQueue(controller.stream);
 
@@ -1003,14 +1003,14 @@ main() {
     });
   });
 
-  group("withTransaction operation", () {
+  group('withTransaction operation', () {
     StreamQueue<int> events;
     setUp(() async {
       events = StreamQueue(createStream());
       expect(await events.next, 1);
     });
 
-    test("passes a copy of the parent queue", () async {
+    test('passes a copy of the parent queue', () async {
       await events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
         expect(await queue.next, 3);
@@ -1021,8 +1021,8 @@ main() {
     });
 
     test(
-        "the parent queue continues from the child position if it returns "
-        "true", () async {
+        'the parent queue continues from the child position if it returns '
+        'true', () async {
       await events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
         return true;
@@ -1032,8 +1032,8 @@ main() {
     });
 
     test(
-        "the parent queue continues from its original position if it returns "
-        "false", () async {
+        'the parent queue continues from its original position if it returns '
+        'false', () async {
       await events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
         return false;
@@ -1042,29 +1042,29 @@ main() {
       expect(await events.next, 2);
     });
 
-    test("the parent queue continues from the child position if it throws", () {
+    test('the parent queue continues from the child position if it throws', () {
       expect(events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
-        throw "oh no";
-      })), throwsA("oh no"));
+        throw 'oh no';
+      })), throwsA('oh no'));
 
       expect(events.next, completion(3));
     });
 
-    test("returns whether the transaction succeeded", () {
+    test('returns whether the transaction succeeded', () {
       expect(events.withTransaction((_) async => true), completion(isTrue));
       expect(events.withTransaction((_) async => false), completion(isFalse));
     });
   });
 
-  group("cancelable operation", () {
+  group('cancelable operation', () {
     StreamQueue<int> events;
     setUp(() async {
       events = StreamQueue(createStream());
       expect(await events.next, 1);
     });
 
-    test("passes a copy of the parent queue", () async {
+    test('passes a copy of the parent queue', () async {
       await events.cancelable(expectAsync1((queue) async {
         expect(await queue.next, 2);
         expect(await queue.next, 3);
@@ -1073,7 +1073,7 @@ main() {
       })).value;
     });
 
-    test("the parent queue continues from the child position by default",
+    test('the parent queue continues from the child position by default',
         () async {
       await events.cancelable(expectAsync1((queue) async {
         expect(await queue.next, 2);
@@ -1083,19 +1083,19 @@ main() {
     });
 
     test(
-        "the parent queue continues from the child position if an error is "
-        "thrown", () async {
+        'the parent queue continues from the child position if an error is '
+        'thrown', () async {
       expect(
           events.cancelable(expectAsync1((queue) async {
             expect(await queue.next, 2);
-            throw "oh no";
+            throw 'oh no';
           })).value,
-          throwsA("oh no"));
+          throwsA('oh no'));
 
       expect(events.next, completion(3));
     });
 
-    test("the parent queue continues from the original position if canceled",
+    test('the parent queue continues from the original position if canceled',
         () async {
       var operation = events.cancelable(expectAsync1((queue) async {
         expect(await queue.next, 2);
@@ -1105,17 +1105,17 @@ main() {
       expect(await events.next, 2);
     });
 
-    test("forwards the value from the callback", () async {
+    test('forwards the value from the callback', () async {
       expect(
           await events.cancelable(expectAsync1((queue) async {
             expect(await queue.next, 2);
-            return "value";
+            return 'value';
           })).value,
-          "value");
+          'value');
     });
   });
 
-  test("all combinations sequential skip/next/take operations", () async {
+  test('all combinations sequential skip/next/take operations', () async {
     // Takes all combinations of two of next, skip and take, then ends with
     // doing rest. Each of the first rounds do 10 events of each type,
     // the rest does 20 elements.
@@ -1124,30 +1124,30 @@ main() {
 
     // Test expecting [startIndex .. startIndex + 9] as events using
     // `next`.
-    nextTest(startIndex) {
-      for (int i = 0; i < 10; i++) {
+    void nextTest(startIndex) {
+      for (var i = 0; i < 10; i++) {
         expect(events.next, completion(startIndex + i));
       }
     }
 
     // Test expecting 10 events to be skipped.
-    skipTest(startIndex) {
+    void skipTest(startIndex) {
       expect(events.skip(10), completion(0));
     }
 
     // Test expecting [startIndex .. startIndex + 9] as events using
     // `take(10)`.
-    takeTest(startIndex) {
+    void takeTest(startIndex) {
       expect(events.take(10),
           completion(List.generate(10, (i) => startIndex + i)));
     }
 
     var tests = [nextTest, skipTest, takeTest];
 
-    int counter = 0;
+    var counter = 0;
     // Run through all pairs of two tests and run them.
-    for (int i = 0; i < tests.length; i++) {
-      for (int j = 0; j < tests.length; j++) {
+    for (var i = 0; i < tests.length; i++) {
+      for (var j = 0; j < tests.length; j++) {
         tests[i](counter);
         tests[j](counter + 10);
         counter += 20;
@@ -1178,7 +1178,7 @@ Stream<int> createErrorStream() {
     await flushMicrotasks();
     controller.add(2);
     await flushMicrotasks();
-    controller.addError("To err is divine!");
+    controller.addError('To err is divine!');
     await flushMicrotasks();
     controller.add(4);
     await flushMicrotasks();
@@ -1188,5 +1188,7 @@ Stream<int> createErrorStream() {
 }
 
 Stream<int> createLongStream(int eventCount) async* {
-  for (int i = 0; i < eventCount; i++) yield i;
+  for (var i = 0; i < eventCount; i++) {
+    yield i;
+  }
 }

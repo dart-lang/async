@@ -21,16 +21,21 @@ class DelegatingFuture<T> implements Future<T> {
   static Future<T> typed<T>(Future future) =>
       future is Future<T> ? future : future.then((v) => v as T);
 
+  @override
   Stream<T> asStream() => _future.asStream();
 
-  Future<T> catchError(Function onError, {bool test(Object error)}) =>
+  @override
+  Future<T> catchError(Function onError, {bool Function(Object error) test}) =>
       _future.catchError(onError, test: test);
 
-  Future<S> then<S>(FutureOr<S> onValue(T value), {Function onError}) =>
+  @override
+  Future<S> then<S>(FutureOr<S> Function(T) onValue, {Function onError}) =>
       _future.then(onValue, onError: onError);
 
-  Future<T> whenComplete(action()) => _future.whenComplete(action);
+  @override
+  Future<T> whenComplete(FutureOr action) => _future.whenComplete(action);
 
-  Future<T> timeout(Duration timeLimit, {onTimeout()}) =>
+  @override
+  Future<T> timeout(Duration timeLimit, {FutureOr<T> Function() onTimeout}) =>
       _future.timeout(timeLimit, onTimeout: onTimeout);
 }

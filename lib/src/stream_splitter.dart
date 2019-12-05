@@ -32,14 +32,14 @@ class StreamSplitter<T> {
 
   /// The buffer of events or errors that have already been emitted by
   /// [_stream].
-  final _buffer = List<Result<T>>();
+  final _buffer = <Result<T>>[];
 
   /// The controllers for branches that are listening for future events from
   /// [_stream].
   ///
   /// Once a branch is canceled, it's removed from this list. When [_stream] is
   /// done, all branches are removed.
-  final _controllers = Set<StreamController<T>>();
+  final _controllers = <StreamController<T>>{};
 
   /// A group of futures returned by [close].
   ///
@@ -58,7 +58,7 @@ class StreamSplitter<T> {
   /// [count] defaults to 2. This is the same as creating [count] branches and
   /// then closing the [StreamSplitter].
   static List<Stream<T>> splitFrom<T>(Stream<T> stream, [int count]) {
-    if (count == null) count = 2;
+    count ??= 2;
     var splitter = StreamSplitter<T>(stream);
     var streams = List<Stream<T>>.generate(count, (_) => splitter.split());
     splitter.close();

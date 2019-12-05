@@ -2,14 +2,14 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
+import 'dart:async';
 
-import "package:async/async.dart";
-import "package:test/test.dart";
+import 'package:async/async.dart';
+import 'package:test/test.dart';
 
-import "utils.dart";
+import 'utils.dart';
 
-main() {
+void main() {
   test("disallows a null callback", () {
     expect(() => LazyStream(null), throwsArgumentError);
   });
