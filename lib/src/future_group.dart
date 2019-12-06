@@ -41,12 +41,8 @@ class FutureGroup<T> implements Sink<Future<T>> {
   ///
   /// Once this group isn't waiting on any futures *and* [close] has been
   /// called, this stream will close.
-  Stream get onIdle {
-    if (_onIdleController == null) {
-      _onIdleController = StreamController.broadcast(sync: true);
-    }
-    return _onIdleController.stream;
-  }
+  Stream get onIdle =>
+      (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
 
   StreamController _onIdleController;
 
@@ -54,11 +50,12 @@ class FutureGroup<T> implements Sink<Future<T>> {
   /// the order they were added.
   ///
   /// The slots for futures that haven't completed yet are `null`.
-  final _values = List<T>();
+  final _values = <T>[];
 
   /// Wait for [task] to complete.
+  @override
   void add(Future<T> task) {
-    if (_closed) throw StateError("The FutureGroup is closed.");
+    if (_closed) throw StateError('The FutureGroup is closed.');
 
     // Ensure that future values are put into [values] in the same order they're
     // added to the group by pre-allocating a slot for them and recording its
@@ -87,6 +84,7 @@ class FutureGroup<T> implements Sink<Future<T>> {
 
   /// Signals to the group that the caller is done adding futures, and so
   /// [future] should fire once all added futures have completed.
+  @override
   void close() {
     _closed = true;
     if (_pending != 0) return;

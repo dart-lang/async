@@ -56,7 +56,7 @@ class AsyncCache<T> {
   ///
   /// If [fetch] has been called recently enough, returns its previous return
   /// value. Otherwise, runs [callback] and returns its new return value.
-  Future<T> fetch(Future<T> callback()) async {
+  Future<T> fetch(Future<T> Function() callback) async {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
@@ -74,17 +74,15 @@ class AsyncCache<T> {
   /// If [fetchStream] has been called recently enough, returns a copy of its
   /// previous return value. Otherwise, runs [callback] and returns its new
   /// return value.
-  Stream<T> fetchStream(Stream<T> callback()) {
+  Stream<T> fetchStream(Stream<T> Function() callback) {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');
     }
-    if (_cachedStreamSplitter == null) {
-      _cachedStreamSplitter = StreamSplitter(callback()
-          .transform(StreamTransformer.fromHandlers(handleDone: (sink) {
-        _startStaleTimer();
-        sink.close();
-      })));
-    }
+    _cachedStreamSplitter ??= StreamSplitter(
+        callback().transform(StreamTransformer.fromHandlers(handleDone: (sink) {
+      _startStaleTimer();
+      sink.close();
+    })));
     return _cachedStreamSplitter.split();
   }
 

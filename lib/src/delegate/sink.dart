@@ -23,10 +23,12 @@ class DelegatingSink<T> implements Sink<T> {
   static Sink<T> typed<T>(Sink sink) =>
       sink is Sink<T> ? sink : DelegatingSink._(sink);
 
+  @override
   void add(T data) {
     _sink.add(data);
   }
 
+  @override
   void close() {
     _sink.close();
   }

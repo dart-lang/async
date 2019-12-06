@@ -28,29 +28,37 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
           ? subscription
           : TypeSafeStreamSubscription<T>(subscription);
 
-  void onData(void handleData(T data)) {
+  @override
+  void onData(void Function(T) handleData) {
     _source.onData(handleData);
   }
 
+  @override
   void onError(Function handleError) {
     _source.onError(handleError);
   }
 
-  void onDone(void handleDone()) {
+  @override
+  void onDone(void Function() handleDone) {
     _source.onDone(handleDone);
   }
 
+  @override
   void pause([Future resumeFuture]) {
     _source.pause(resumeFuture);
   }
 
+  @override
   void resume() {
     _source.resume();
   }
 
+  @override
   Future cancel() => _source.cancel();
 
+  @override
   Future<E> asFuture<E>([E futureValue]) => _source.asFuture(futureValue);
 
+  @override
   bool get isPaused => _source.isPaused;
 }

@@ -47,7 +47,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// subscriptions will be canceled and set to null again. Single-subscriber
   /// stream subscriptions will be left intact, since they can't be
   /// re-subscribed.
-  final _subscriptions = Map<Stream<T>, StreamSubscription<T>>();
+  final _subscriptions = <Stream<T>, StreamSubscription<T>>{};
 
   /// Merges the events from [streams] into a single single-subscription stream.
   ///
@@ -99,6 +99,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// `null`.
   ///
   /// Throws a [StateError] if this group is closed.
+  @override
   Future add(Stream<T> stream) {
     if (_closed) {
       throw StateError("Can't add a Stream to a closed StreamGroup.");
@@ -214,6 +215,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// Otherwise, [stream] will close once all streams in the group close.
   ///
   /// Returns a [Future] that completes once [stream] has actually been closed.
+  @override
   Future close() {
     if (_closed) return _controller.done;
 
@@ -230,12 +232,12 @@ class _StreamGroupState {
   ///
   /// New streams added to the group will be listened once the group has a
   /// listener.
-  static const dormant = _StreamGroupState("dormant");
+  static const dormant = _StreamGroupState('dormant');
 
   /// The group has one or more listeners and is actively firing events.
   ///
   /// New streams added to the group will be immediately listeners.
-  static const listening = _StreamGroupState("listening");
+  static const listening = _StreamGroupState('listening');
 
   /// The group is paused and no more events will be fired until it resumes.
   ///
@@ -243,7 +245,7 @@ class _StreamGroupState {
   /// will be resumed once the group itself is resumed.
   ///
   /// This state is only used by single-subscriber groups.
-  static const paused = _StreamGroupState("paused");
+  static const paused = _StreamGroupState('paused');
 
   /// The group is canceled and no more events will be fired ever.
   ///
@@ -251,7 +253,7 @@ class _StreamGroupState {
   /// discarded.
   ///
   /// This state is only used by single-subscriber groups.
-  static const canceled = _StreamGroupState("canceled");
+  static const canceled = _StreamGroupState('canceled');
 
   /// The name of the state.
   ///
@@ -260,5 +262,6 @@ class _StreamGroupState {
 
   const _StreamGroupState(this.name);
 
+  @override
   String toString() => name;
 }

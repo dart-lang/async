@@ -2,19 +2,19 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
+import 'dart:async';
 
-import "package:async/async.dart";
-import "package:test/test.dart";
+import 'package:async/async.dart';
+import 'package:test/test.dart';
 
-import "utils.dart";
+import 'utils.dart';
 
-main() {
-  test("disallows a null callback", () {
+void main() {
+  test('disallows a null callback', () {
     expect(() => LazyStream(null), throwsArgumentError);
   });
 
-  test("calls the callback when the stream is listened", () async {
+  test('calls the callback when the stream is listened', () async {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
@@ -28,7 +28,7 @@ main() {
     expect(callbackCalled, isTrue);
   });
 
-  test("calls the callback when the stream is listened", () async {
+  test('calls the callback when the stream is listened', () async {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
@@ -42,7 +42,7 @@ main() {
     expect(callbackCalled, isTrue);
   });
 
-  test("forwards to a synchronously-provided stream", () async {
+  test('forwards to a synchronously-provided stream', () async {
     var controller = StreamController<int>();
     var stream = LazyStream(expectAsync0(() => controller.stream));
 
@@ -64,7 +64,7 @@ main() {
     controller.close();
   });
 
-  test("forwards to an asynchronously-provided stream", () async {
+  test('forwards to an asynchronously-provided stream', () async {
     var controller = StreamController<int>();
     var stream = LazyStream(expectAsync0(() async => controller.stream));
 

@@ -3,10 +3,10 @@
 // BSD-style license that can be found in the LICENSE file.
 
 /// Helper utilities for testing.
-import "dart:async";
+import 'dart:async';
 
-import "package:async/async.dart";
-import "package:test/test.dart";
+import 'package:async/async.dart';
+import 'package:test/test.dart';
 
 /// A zero-millisecond timer should wait until after all microtasks.
 Future flushMicrotasks() => Future.delayed(Duration.zero);
@@ -17,7 +17,7 @@ typedef OptionalArgAction = void Function([dynamic a, dynamic b]);
 ///
 /// Returns a function that fails the test if it is ever called.
 OptionalArgAction unreachable(String name) =>
-    ([a, b]) => fail("Unreachable: $name");
+    ([a, b]) => fail('Unreachable: $name');
 
 // TODO(nweiz): Use the version of this in test when test#418 is fixed.
 /// A matcher that runs a callback in its own zone and asserts that that zone
@@ -46,9 +46,10 @@ final throwsCastError = throwsA(TypeMatcher<CastError>());
 /// A badly behaved stream which throws if it's ever listened to.
 ///
 /// Can be used to test cases where a stream should not be used.
-class UnusableStream extends Stream {
-  listen(onData, {onError, onDone, cancelOnError}) {
-    throw UnimplementedError("Gotcha!");
+class UnusableStream<T> extends Stream<T> {
+  @override
+  StreamSubscription<T> listen(onData, {onError, onDone, cancelOnError}) {
+    throw UnimplementedError('Gotcha!');
   }
 }
 
@@ -60,11 +61,16 @@ class UnusableStream extends Stream {
 class CompleterStreamSink<T> implements StreamSink<T> {
   final completer = Completer();
 
+  @override
   Future get done => completer.future;
 
+  @override
   void add(T event) {}
+  @override
   void addError(error, [StackTrace stackTrace]) {}
+  @override
   Future addStream(Stream<T> stream) async {}
+  @override
   Future close() => completer.future;
 }
 
@@ -79,6 +85,7 @@ class TestSink<T> implements StreamSink<T> {
   bool get isClosed => _isClosed;
   var _isClosed = false;
 
+  @override
   Future get done => _doneCompleter.future;
   final _doneCompleter = Completer();
 
@@ -88,22 +95,26 @@ class TestSink<T> implements StreamSink<T> {
   ///
   /// If [onDone] is passed, it's called when the user calls [close]. Its result
   /// is piped to the [done] future.
-  TestSink({onDone()}) : _onDone = onDone ?? (() {});
+  TestSink({void Function() onDone}) : _onDone = onDone ?? (() {});
 
+  @override
   void add(T event) {
     results.add(Result<T>.value(event));
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     results.add(Result<T>.error(error, stackTrace));
   }
 
+  @override
   Future addStream(Stream<T> stream) {
     var completer = Completer.sync();
     stream.listen(add, onError: addError, onDone: completer.complete);
     return completer.future;
   }
 
+  @override
   Future close() {
     _isClosed = true;
     _doneCompleter.complete(Future.microtask(_onDone));

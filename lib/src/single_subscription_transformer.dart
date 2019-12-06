@@ -16,6 +16,7 @@ import 'dart:async';
 class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
   const SingleSubscriptionTransformer();
 
+  @override
   Stream<T> bind(Stream<S> stream) {
     StreamSubscription<S> subscription;
     var controller =

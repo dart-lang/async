@@ -13,6 +13,7 @@ class StreamTransformerWrapper<S, T> implements StreamSinkTransformer<S, T> {
 
   const StreamTransformerWrapper(this._transformer);
 
+  @override
   StreamSink<S> bind(StreamSink<T> sink) =>
       _StreamTransformerWrapperSink<S, T>(_transformer, sink);
 }
@@ -28,6 +29,7 @@ class _StreamTransformerWrapperSink<S, T> implements StreamSink<S> {
   /// The original sink that's being transformed.
   final StreamSink<T> _inner;
 
+  @override
   Future get done => _inner.done;
 
   _StreamTransformerWrapperSink(
@@ -42,16 +44,20 @@ class _StreamTransformerWrapperSink<S, T> implements StreamSink<S> {
     });
   }
 
+  @override
   void add(S event) {
     _controller.add(event);
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     _controller.addError(error, stackTrace);
   }
 
+  @override
   Future addStream(Stream<S> stream) => _controller.addStream(stream);
 
+  @override
   Future close() {
     _controller.close();
     return _inner.done;

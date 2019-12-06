@@ -14,6 +14,7 @@ import 'capture_sink.dart';
 class CaptureStreamTransformer<T> extends StreamTransformerBase<T, Result<T>> {
   const CaptureStreamTransformer();
 
+  @override
   Stream<Result<T>> bind(Stream<T> source) =>
       Stream<Result<T>>.eventTransformed(
           source, (sink) => CaptureSink<T>(sink));

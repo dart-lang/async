@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   StreamController<int> controller;
   StreamSplitter splitter;
   setUp(() {
@@ -37,12 +37,12 @@ main() {
     controller.close();
   });
 
-  test("a branch replays error events as well as data events", () {
+  test('a branch replays error events as well as data events', () {
     var branch = splitter.split();
     splitter.close();
 
     controller.add(1);
-    controller.addError("error");
+    controller.addError('error');
     controller.add(3);
     controller.close();
 
@@ -54,7 +54,7 @@ main() {
           count++;
         }, count: 2), onError: expectAsync1((error) {
       expect(count, equals(1));
-      expect(error, equals("error"));
+      expect(error, equals('error'));
       count++;
     }), onDone: expectAsync0(() {
       expect(count, equals(3));
@@ -89,7 +89,7 @@ main() {
     splitter.close();
   });
 
-  test("creates single-subscription branches", () async {
+  test('creates single-subscription branches', () async {
     var branch = splitter.split();
     expect(branch.isBroadcast, isFalse);
     branch.listen(null);
@@ -101,7 +101,7 @@ main() {
   // 1.11 is released. In 1.10, the stream exposed by a StreamController didn't
   // have a reified type.
 
-  test("multiple branches each replay the stream", () async {
+  test('multiple branches each replay the stream', () async {
     var branch1 = splitter.split();
     controller.add(1);
     controller.add(2);
@@ -151,7 +151,7 @@ main() {
     expect(controller.hasListener, isTrue);
   });
 
-  test("the source stream is paused when all branches are paused", () async {
+  test('the source stream is paused when all branches are paused', () async {
     var branch1 = splitter.split();
     var branch2 = splitter.split();
     var branch3 = splitter.split();
@@ -178,7 +178,7 @@ main() {
     expect(controller.isPaused, isFalse);
   });
 
-  test("the source stream is paused when all branches are canceled", () async {
+  test('the source stream is paused when all branches are canceled', () async {
     var branch1 = splitter.split();
     var branch2 = splitter.split();
     var branch3 = splitter.split();
@@ -211,7 +211,7 @@ main() {
 
   test(
       "the source stream is canceled when it's closed after all branches have "
-      "been canceled", () async {
+      'been canceled', () async {
     var branch1 = splitter.split();
     var branch2 = splitter.split();
     var branch3 = splitter.split();
@@ -237,8 +237,8 @@ main() {
   });
 
   test(
-      "the source stream is canceled when all branches are canceled after it "
-      "has been closed", () async {
+      'the source stream is canceled when all branches are canceled after it '
+      'has been closed', () async {
     var branch1 = splitter.split();
     var branch2 = splitter.split();
     var branch3 = splitter.split();
@@ -263,7 +263,7 @@ main() {
 
   test(
       "a splitter that's closed before any branches are added never listens "
-      "to the source stream", () {
+      'to the source stream', () {
     splitter.close();
 
     // This would throw an error if the stream had already been listened to.
@@ -271,8 +271,8 @@ main() {
   });
 
   test(
-      "splitFrom splits a source stream into the designated number of "
-      "branches", () {
+      'splitFrom splits a source stream into the designated number of '
+      'branches', () {
     var branches = StreamSplitter.splitFrom(controller.stream, 5);
 
     controller.add(1);

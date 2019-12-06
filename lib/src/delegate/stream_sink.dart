@@ -11,6 +11,7 @@ import 'dart:async';
 class DelegatingStreamSink<T> implements StreamSink<T> {
   final StreamSink _sink;
 
+  @override
   Future get done => _sink.done;
 
   /// Create delegating sink forwarding calls to [sink].
@@ -27,15 +28,19 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   static StreamSink<T> typed<T>(StreamSink sink) =>
       sink is StreamSink<T> ? sink : DelegatingStreamSink._(sink);
 
+  @override
   void add(T data) {
     _sink.add(data);
   }
 
+  @override
   void addError(error, [StackTrace stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 
+  @override
   Future addStream(Stream<T> stream) => _sink.addStream(stream);
 
+  @override
   Future close() => _sink.close();
 }

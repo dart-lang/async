@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
+import 'dart:async';
 
 /// A stream that combines the values of other streams.
 ///
@@ -17,13 +17,14 @@ class StreamZip<T> extends Stream<List<T>> {
 
   StreamZip(Iterable<Stream<T>> streams) : _streams = streams;
 
-  StreamSubscription<List<T>> listen(void onData(List<T> data),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  @override
+  StreamSubscription<List<T>> listen(void Function(List<T>) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
     cancelOnError = identical(true, cancelOnError);
     var subscriptions = <StreamSubscription<T>>[];
     StreamController<List<T>> controller;
     List<T> current;
-    int dataCount = 0;
+    var dataCount = 0;
 
     /// Called for each data from a subscription in [subscriptions].
     void handleData(int index, T data) {
@@ -33,7 +34,7 @@ class StreamZip<T> extends Stream<List<T>> {
         var data = current;
         current = List(subscriptions.length);
         dataCount = 0;
-        for (int i = 0; i < subscriptions.length; i++) {
+        for (var i = 0; i < subscriptions.length; i++) {
           if (i != index) subscriptions[i].resume();
         }
         controller.add(data);
@@ -54,14 +55,14 @@ class StreamZip<T> extends Stream<List<T>> {
     /// Prematurely cancels all subscriptions since we know that we won't
     /// be needing any more values.
     void handleErrorCancel(Object error, StackTrace stackTrace) {
-      for (int i = 0; i < subscriptions.length; i++) {
+      for (var i = 0; i < subscriptions.length; i++) {
         subscriptions[i].cancel();
       }
       controller.addError(error, stackTrace);
     }
 
     void handleDone() {
-      for (int i = 0; i < subscriptions.length; i++) {
+      for (var i = 0; i < subscriptions.length; i++) {
         subscriptions[i].cancel();
       }
       controller.close();
@@ -69,7 +70,7 @@ class StreamZip<T> extends Stream<List<T>> {
 
     try {
       for (var stream in _streams) {
-        int index = subscriptions.length;
+        var index = subscriptions.length;
         subscriptions.add(stream.listen((data) {
           handleData(index, data);
         },
@@ -78,7 +79,7 @@ class StreamZip<T> extends Stream<List<T>> {
             cancelOnError: cancelOnError));
       }
     } catch (e) {
-      for (int i = subscriptions.length - 1; i >= 0; i--) {
+      for (var i = subscriptions.length - 1; i >= 0; i--) {
         subscriptions[i].cancel();
       }
       rethrow;
@@ -87,18 +88,18 @@ class StreamZip<T> extends Stream<List<T>> {
     current = List(subscriptions.length);
 
     controller = StreamController<List<T>>(onPause: () {
-      for (int i = 0; i < subscriptions.length; i++) {
+      for (var i = 0; i < subscriptions.length; i++) {
         // This may pause some subscriptions more than once.
         // These will not be resumed by onResume below, but must wait for the
         // next round.
         subscriptions[i].pause();
       }
     }, onResume: () {
-      for (int i = 0; i < subscriptions.length; i++) {
+      for (var i = 0; i < subscriptions.length; i++) {
         subscriptions[i].resume();
       }
     }, onCancel: () {
-      for (int i = 0; i < subscriptions.length; i++) {
+      for (var i = 0; i < subscriptions.length; i++) {
         // Canceling more than once is safe.
         subscriptions[i].cancel();
       }

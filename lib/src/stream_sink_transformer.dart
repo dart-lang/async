@@ -34,9 +34,9 @@ abstract class StreamSinkTransformer<S, T> {
   /// they're passed are forwarded to the inner sink. If a handler is omitted,
   /// the event is passed through unaltered.
   factory StreamSinkTransformer.fromHandlers(
-      {void handleData(S data, EventSink<T> sink),
-      void handleError(Object error, StackTrace stackTrace, EventSink<T> sink),
-      void handleDone(EventSink<T> sink)}) {
+      {void Function(S, EventSink<T>) handleData,
+      void Function(Object, StackTrace, EventSink<T>) handleError,
+      void Function(EventSink<T>) handleDone}) {
     return HandlerTransformer<S, T>(handleData, handleError, handleDone);
   }
 

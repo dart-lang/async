@@ -27,7 +27,9 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
           ? consumer
           : DelegatingStreamConsumer._(consumer);
 
+  @override
   Future addStream(Stream<T> stream) => _consumer.addStream(stream);
 
+  @override
   Future close() => _consumer.close();
 }

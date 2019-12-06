@@ -2,11 +2,11 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
+import 'dart:async';
 
-import "delegate/stream.dart";
-import "stream_completer.dart";
-import "utils.dart";
+import 'delegate/stream.dart';
+import 'stream_completer.dart';
+import 'utils.dart';
 
 /// A [Stream] wrapper that forwards to another [Stream] that's initialized
 /// lazily.
@@ -20,15 +20,16 @@ class LazyStream<T> extends Stream<T> {
 
   /// Creates a single-subscription `Stream` that calls [callback] when it gets
   /// a listener and forwards to the returned stream.
-  LazyStream(FutureOr<Stream<T>> callback()) : _callback = callback {
+  LazyStream(FutureOr<Stream<T>> Function() callback) : _callback = callback {
     // Explicitly check for null because we null out [_callback] internally.
     if (_callback == null) throw ArgumentError.notNull('callback');
   }
 
-  StreamSubscription<T> listen(void onData(T event),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  @override
+  StreamSubscription<T> listen(void Function(T) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
     if (_callback == null) {
-      throw StateError("Stream has already been listened to.");
+      throw StateError('Stream has already been listened to.');
     }
 
     // Null out the callback before we invoke it to ensure that even while

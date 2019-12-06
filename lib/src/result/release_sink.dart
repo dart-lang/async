@@ -12,16 +12,19 @@ class ReleaseSink<T> implements EventSink<Result<T>> {
 
   ReleaseSink(EventSink<T> sink) : _sink = sink;
 
+  @override
   void add(Result<T> result) {
     result.addTo(_sink);
   }
 
+  @override
   void addError(Object error, [StackTrace stackTrace]) {
     // Errors may be added by intermediate processing, even if it is never
     // added by CaptureSink.
     _sink.addError(error, stackTrace);
   }
 
+  @override
   void close() {
     _sink.close();
   }

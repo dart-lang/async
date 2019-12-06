@@ -30,7 +30,7 @@ class CancelableOperation<T> {
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
   factory CancelableOperation.fromFuture(Future<T> inner,
-      {FutureOr onCancel()}) {
+      {FutureOr Function() onCancel}) {
     var completer = CancelableCompleter<T>(onCancel: onCancel);
     completer.complete(inner);
     return completer.operation;
@@ -145,7 +145,7 @@ class CancelableCompleter<T> {
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  CancelableCompleter({FutureOr onCancel()})
+  CancelableCompleter({FutureOr Function() onCancel})
       : _onCancel = onCancel,
         _inner = Completer<T>() {
     _operation = CancelableOperation<T>._(this);
@@ -171,7 +171,7 @@ class CancelableCompleter<T> {
   /// If [value] is a [Future], this will complete to the result of that
   /// [Future] once it completes.
   void complete([value]) {
-    if (_isCompleted) throw StateError("Operation already completed");
+    if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
 
     if (value is! Future) {
@@ -197,7 +197,7 @@ class CancelableCompleter<T> {
 
   /// Completes [operation] to [error].
   void completeError(Object error, [StackTrace stackTrace]) {
-    if (_isCompleted) throw StateError("Operation already completed");
+    if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
 
     if (_isCanceled) return;

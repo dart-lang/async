@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:async";
+import 'dart:async';
 
 /// A single-subscription [stream] where the contents are provided later.
 ///
@@ -75,7 +75,7 @@ class StreamCompleter<T> {
   /// most once. Trying to call any of them again will fail.
   void setSourceStream(Stream<T> sourceStream) {
     if (_stream._isSourceStreamSet) {
-      throw StateError("Source stream already set");
+      throw StateError('Source stream already set');
     }
     _stream._setSourceStream(sourceStream);
   }
@@ -86,7 +86,7 @@ class StreamCompleter<T> {
   /// most once. Trying to call any of them again will fail.
   void setEmpty() {
     if (_stream._isSourceStreamSet) {
-      throw StateError("Source stream already set");
+      throw StateError('Source stream already set');
     }
     _stream._setEmpty();
   }
@@ -116,8 +116,9 @@ class _CompleterStream<T> extends Stream<T> {
   /// or [_setEmpty].
   Stream<T> _sourceStream;
 
-  StreamSubscription<T> listen(onData(T data),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  @override
+  StreamSubscription<T> listen(void Function(T) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
     if (_controller == null) {
       if (_sourceStream != null && !_sourceStream.isBroadcast) {
         // If the source stream is itself single subscription,

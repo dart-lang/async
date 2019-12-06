@@ -11,6 +11,7 @@ import 'release_sink.dart';
 class ReleaseStreamTransformer<T> extends StreamTransformerBase<Result<T>, T> {
   const ReleaseStreamTransformer();
 
+  @override
   Stream<T> bind(Stream<Result<T>> source) {
     return Stream<T>.eventTransformed(source, _createSink);
   }
