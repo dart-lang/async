@@ -10,11 +10,11 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  test("disallows a null callback", () {
+  test('disallows a null callback', () {
     expect(() => LazyStream(null), throwsArgumentError);
   });
 
-  test("calls the callback when the stream is listened", () async {
+  test('calls the callback when the stream is listened', () async {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
@@ -28,7 +28,7 @@ void main() {
     expect(callbackCalled, isTrue);
   });
 
-  test("calls the callback when the stream is listened", () async {
+  test('calls the callback when the stream is listened', () async {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
@@ -42,7 +42,7 @@ void main() {
     expect(callbackCalled, isTrue);
   });
 
-  test("forwards to a synchronously-provided stream", () async {
+  test('forwards to a synchronously-provided stream', () async {
     var controller = StreamController<int>();
     var stream = LazyStream(expectAsync0(() => controller.stream));
 
@@ -64,7 +64,7 @@ void main() {
     controller.close();
   });
 
-  test("forwards to an asynchronously-provided stream", () async {
+  test('forwards to an asynchronously-provided stream', () async {
     var controller = StreamController<int>();
     var stream = LazyStream(expectAsync0(() async => controller.stream));
 

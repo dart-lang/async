@@ -247,7 +247,7 @@ void main() {
     });
   });
 
-  group("when the outer subscription is canceled but the inner is not", () {
+  group('when the outer subscription is canceled but the inner is not', () {
     StreamSubscription subscription;
     setUp(() {
       var controller = StreamController();
@@ -258,7 +258,7 @@ void main() {
               onDone: expectAsync0(() {}, count: 0));
       subscription.cancel();
       controller.add(1);
-      controller.addError("oh no!");
+      controller.addError('oh no!');
       controller.close();
     });
 
@@ -277,11 +277,11 @@ void main() {
       await flushMicrotasks();
     });
 
-    test("isPaused returns false", () {
+    test('isPaused returns false', () {
       expect(subscription.isPaused, isFalse);
     });
 
-    test("asFuture never completes", () async {
+    test('asFuture never completes', () async {
       subscription.asFuture().then(expectAsync1((_) {}, count: 0));
       await flushMicrotasks();
     });

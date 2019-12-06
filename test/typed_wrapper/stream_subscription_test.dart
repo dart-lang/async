@@ -4,13 +4,13 @@
 
 import 'dart:async';
 
-import "package:async/src/typed/stream_subscription.dart";
-import "package:test/test.dart";
+import 'package:async/src/typed/stream_subscription.dart';
+import 'package:test/test.dart';
 
 import '../utils.dart';
 
 void main() {
-  group("with valid types, forwards", () {
+  group('with valid types, forwards', () {
     StreamController controller;
     StreamSubscription wrapper;
     bool isCanceled;
@@ -21,26 +21,26 @@ void main() {
       wrapper = TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
-    test("onData()", () {
+    test('onData()', () {
       wrapper.onData(expectAsync1((data) {
         expect(data, equals(1));
       }));
       controller.add(1);
     });
 
-    test("onError()", () {
+    test('onError()', () {
       wrapper.onError(expectAsync1((error) {
-        expect(error, equals("oh no"));
+        expect(error, equals('oh no'));
       }));
-      controller.addError("oh no");
+      controller.addError('oh no');
     });
 
-    test("onDone()", () {
+    test('onDone()', () {
       wrapper.onDone(expectAsync0(() {}));
       controller.close();
     });
 
-    test("pause(), resume(), and isPaused", () async {
+    test('pause(), resume(), and isPaused', () async {
       expect(wrapper.isPaused, isFalse);
 
       wrapper.pause();
@@ -54,19 +54,19 @@ void main() {
       expect(wrapper.isPaused, isFalse);
     });
 
-    test("cancel()", () async {
+    test('cancel()', () async {
       wrapper.cancel();
       await flushMicrotasks();
       expect(isCanceled, isTrue);
     });
 
-    test("asFuture()", () {
+    test('asFuture()', () {
       expect(wrapper.asFuture(12), completion(equals(12)));
       controller.close();
     });
   });
 
-  group("with invalid types,", () {
+  group('with invalid types,', () {
     StreamController controller;
     StreamSubscription wrapper;
     bool isCanceled;
@@ -77,8 +77,8 @@ void main() {
       wrapper = TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
-    group("throws a CastError for", () {
-      test("onData()", () {
+    group('throws a CastError for', () {
+      test('onData()', () {
         expect(() {
           // TODO(nweiz): Use the wrapper declared in setUp when sdk#26226 is
           // fixed.
@@ -87,28 +87,28 @@ void main() {
               TypeSafeStreamSubscription<int>(controller.stream.listen(null));
 
           wrapper.onData(expectAsync1((_) {}, count: 0));
-          controller.add("foo");
+          controller.add('foo');
         }, throwsZonedCastError);
       });
     });
 
     group("doesn't throw a CastError for", () {
-      test("onError()", () {
+      test('onError()', () {
         wrapper.onError(expectAsync1((error) {
-          expect(error, equals("oh no"));
+          expect(error, equals('oh no'));
         }));
-        controller.add("foo");
-        controller.addError("oh no");
+        controller.add('foo');
+        controller.addError('oh no');
       });
 
-      test("onDone()", () {
+      test('onDone()', () {
         wrapper.onDone(expectAsync0(() {}));
-        controller.add("foo");
+        controller.add('foo');
         controller.close();
       });
 
-      test("pause(), resume(), and isPaused", () async {
-        controller.add("foo");
+      test('pause(), resume(), and isPaused', () async {
+        controller.add('foo');
 
         expect(wrapper.isPaused, isFalse);
 
@@ -123,17 +123,17 @@ void main() {
         expect(wrapper.isPaused, isFalse);
       });
 
-      test("cancel()", () async {
-        controller.add("foo");
+      test('cancel()', () async {
+        controller.add('foo');
 
         wrapper.cancel();
         await flushMicrotasks();
         expect(isCanceled, isTrue);
       });
 
-      test("asFuture()", () {
+      test('asFuture()', () {
         expect(wrapper.asFuture(12), completion(equals(12)));
-        controller.add("foo");
+        controller.add('foo');
         controller.close();
       });
     });

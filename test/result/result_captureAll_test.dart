@@ -132,7 +132,7 @@ void main() {
     });
 
     var seed = Random().nextInt(0x100000000);
-    int n = 25; // max 32, otherwise rnd.nextInt(1<<n) won't work.
+    var n = 25; // max 32, otherwise rnd.nextInt(1<<n) won't work.
     test('randomized #$n seed:${seed.toRadixString(16)}', () async {
       var cs = List.generate(n, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
@@ -149,7 +149,7 @@ void main() {
             throws(i) ? c.completeError('$i', someStack) : c.complete(i);
       });
       completeFunctions.shuffle(rnd);
-      for (int i = 0; i < n; i++) {
+      for (var i = 0; i < n; i++) {
         await 0;
         completeFunctions[i]();
       }

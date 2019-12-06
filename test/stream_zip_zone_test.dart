@@ -30,9 +30,9 @@ void main() {
 
 void testStream(String name, StreamController controller, Stream stream) {
   test(name, () {
-    Zone outer = Zone.current;
+    var outer = Zone.current;
     runZoned(() {
-      Zone newZone1 = Zone.current;
+      var newZone1 = Zone.current;
       StreamSubscription sub;
       sub = stream.listen(expectAsync1((v) {
         expect(v, 42);

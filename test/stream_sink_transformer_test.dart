@@ -2,12 +2,12 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE filevents.
 
-import "dart:async";
+import 'dart:async';
 
-import "package:async/async.dart";
-import "package:test/test.dart";
+import 'package:async/async.dart';
+import 'package:test/test.dart';
 
-import "utils.dart";
+import 'utils.dart';
 
 void main() {
   StreamController controller;
@@ -15,8 +15,8 @@ void main() {
     controller = StreamController();
   });
 
-  group("fromStreamTransformer", () {
-    test("transforms data events", () {
+  group('fromStreamTransformer', () {
+    test('transforms data events', () {
       var transformer = StreamSinkTransformer.fromStreamTransformer(
           StreamTransformer.fromHandlers(handleData: (i, sink) {
         sink.add(i * 2);
@@ -34,7 +34,7 @@ void main() {
       sink.close();
     });
 
-    test("transforms error events", () {
+    test('transforms error events', () {
       var transformer = StreamSinkTransformer.fromStreamTransformer(
           StreamTransformer.fromHandlers(handleError: (i, stackTrace, sink) {
         sink.addError((i as num) * 2, stackTrace);
@@ -55,7 +55,7 @@ void main() {
       sink.close();
     });
 
-    test("transforms done events", () {
+    test('transforms done events', () {
       var transformer = StreamSinkTransformer.fromStreamTransformer(
           StreamTransformer.fromHandlers(handleDone: (sink) {
         sink.add(1);
@@ -71,7 +71,7 @@ void main() {
       sink.close();
     });
 
-    test("forwards the future from inner.close", () async {
+    test('forwards the future from inner.close', () async {
       var transformer = StreamSinkTransformer.fromStreamTransformer(
           StreamTransformer.fromHandlers());
       var innerSink = CompleterStreamSink();
@@ -104,18 +104,18 @@ void main() {
 
       // This will close the inner sink, but it shouldn't top-level the error.
       sink.add(1);
-      innerSink.completer.completeError("oh no");
+      innerSink.completer.completeError('oh no');
       await flushMicrotasks();
 
       // The error should be piped through done and close even if they're called
       // after the underlying sink is closed.
-      expect(sink.done, throwsA("oh no"));
-      expect(sink.close(), throwsA("oh no"));
+      expect(sink.done, throwsA('oh no'));
+      expect(sink.close(), throwsA('oh no'));
     });
   });
 
-  group("fromHandlers", () {
-    test("transforms data events", () {
+  group('fromHandlers', () {
+    test('transforms data events', () {
       var transformer =
           StreamSinkTransformer.fromHandlers(handleData: (i, sink) {
         sink.add(i * 2);
@@ -133,7 +133,7 @@ void main() {
       sink.close();
     });
 
-    test("transforms error events", () {
+    test('transforms error events', () {
       var transformer = StreamSinkTransformer.fromHandlers(
           handleError: (i, stackTrace, sink) {
         sink.addError((i as num) * 2, stackTrace);
@@ -154,7 +154,7 @@ void main() {
       sink.close();
     });
 
-    test("transforms done events", () {
+    test('transforms done events', () {
       var transformer = StreamSinkTransformer.fromHandlers(handleDone: (sink) {
         sink.add(1);
         sink.close();
@@ -169,7 +169,7 @@ void main() {
       sink.close();
     });
 
-    test("forwards the future from inner.close", () async {
+    test('forwards the future from inner.close', () async {
       var transformer = StreamSinkTransformer.fromHandlers();
       var innerSink = CompleterStreamSink();
       var sink = transformer.bind(innerSink);
@@ -201,13 +201,13 @@ void main() {
 
       // This will close the inner sink, but it shouldn't top-level the error.
       sink.add(1);
-      innerSink.completer.completeError("oh no");
+      innerSink.completer.completeError('oh no');
       await flushMicrotasks();
 
       // The error should be piped through done and close even if they're called
       // after the underlying sink is closed.
-      expect(sink.done, throwsA("oh no"));
-      expect(sink.close(), throwsA("oh no"));
+      expect(sink.done, throwsA('oh no'));
+      expect(sink.close(), throwsA('oh no'));
     });
   });
 }

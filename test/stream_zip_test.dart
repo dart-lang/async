@@ -143,11 +143,11 @@ void main() {
   });
 
   test('Other-streams', () {
-    Stream st1 = mks([1, 2, 3, 4, 5, 6]).where((x) => x < 4);
+    var st1 = mks([1, 2, 3, 4, 5, 6]).where((x) => x < 4);
     Stream st2 =
         Stream.periodic(const Duration(milliseconds: 5), (x) => x + 4).take(3);
-    StreamController c = StreamController.broadcast();
-    Stream st3 = c.stream;
+    var c = StreamController.broadcast();
+    var st3 = c.stream;
     testZip([
       st1,
       st2,
@@ -217,12 +217,11 @@ void main() {
   });
 
   test('Error after first end', () {
-    StreamController controller = StreamController();
+    var controller = StreamController();
     controller..add(7)..add(8)..add(9);
     // Transformer that puts error into controller when one of the first two
     // streams have sent a done event.
-    StreamTransformer trans =
-        StreamTransformer.fromHandlers(handleDone: (EventSink s) {
+    var trans = StreamTransformer.fromHandlers(handleDone: (EventSink s) {
       Timer.run(() {
         controller.addError('BAD-6');
       });
@@ -240,15 +239,15 @@ void main() {
   });
 
   test('Pause/Resume', () {
-    int sc1p = 0;
-    StreamController c1 = StreamController(onPause: () {
+    var sc1p = 0;
+    var c1 = StreamController(onPause: () {
       sc1p++;
     }, onResume: () {
       sc1p--;
     });
 
-    int sc2p = 0;
-    StreamController c2 = StreamController(onPause: () {
+    var sc2p = 0;
+    var c2 = StreamController(onPause: () {
       sc2p++;
     }, onResume: () {
       sc2p--;
@@ -264,7 +263,7 @@ void main() {
     const ms25 = Duration(milliseconds: 25);
 
     // StreamIterator uses pause and resume to control flow.
-    StreamIterator it = StreamIterator(zip);
+    var it = StreamIterator(zip);
 
     it.moveNext().then((hasMore) {
       expect(hasMore, isTrue);
@@ -305,7 +304,7 @@ void main() {
     var s1 = Stream.fromIterable([0, 2, 4, 6, 8]);
     var s2 = Stream.fromIterable([1, 3, 5, 7]);
     var sz = StreamZip([s1, s2]);
-    int ctr = 0;
+    var ctr = 0;
     StreamSubscription sub;
     sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));

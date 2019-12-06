@@ -25,6 +25,7 @@ class _TypeSafeStreamTransformer<S, T> extends StreamTransformerBase<S, T> {
 
   _TypeSafeStreamTransformer(this._inner);
 
+  @override
   Stream<T> bind(Stream<S> stream) =>
       DelegatingStream.typed(_inner.bind(stream));
 }
