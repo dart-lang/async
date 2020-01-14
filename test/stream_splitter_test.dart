@@ -97,10 +97,6 @@ void main() {
     expect(() => branch.listen(null), throwsStateError);
   });
 
-  // TODO(nweiz): Test that branches have the correct reified type once Dart
-  // 1.11 is released. In 1.10, the stream exposed by a StreamController didn't
-  // have a reified type.
-
   test('multiple branches each replay the stream', () async {
     var branch1 = splitter.split();
     controller.add(1);
