@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import '../delegate/stream_sink.dart';
 import '../stream_sink_transformer.dart';
 
 /// A wrapper that coerces the generic type of the sink returned by an inner
@@ -16,6 +15,6 @@ class TypeSafeStreamSinkTransformer<S, T>
   TypeSafeStreamSinkTransformer(this._inner);
 
   @override
-  StreamSink<S> bind(StreamSink<T> sink) =>
-      DelegatingStreamSink.typed(_inner.bind(sink));
+  StreamSink<S> bind(StreamSink<T> sink) => StreamController(sync: true)
+    ..stream.cast<dynamic>().pipe(_inner.bind(sink));
 }

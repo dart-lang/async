@@ -22,6 +22,8 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
   /// instance of `StreamConsumer`, not `StreamConsumer<T>`. This means that
   /// calls to [addStream] may throw a [CastError] if the argument type doesn't
   /// match the reified type of [consumer].
+  @Deprecated(
+      'Use StreamController<T>(sync: true)..stream.cast<S>().pipe(sink)')
   static StreamConsumer<T> typed<T>(StreamConsumer consumer) =>
       consumer is StreamConsumer<T>
           ? consumer

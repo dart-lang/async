@@ -1,5 +1,16 @@
 ## 2.4.1-dev
 
+* Deprecate `DelegatingStream.typed`. Use `Stream.cast` instead.
+* Deprecate `DelegatingStreamSubcription.typed` and
+  `DelegatingStreamConsumer.typed`. For each of these the `Stream` should be
+  cast to the correct type before being used.
+* Deprecate `DelegatingStreamSink.typed`. `DelegatingSink.typed`,
+  `DelegatingEventSink.typed`, `DelegatingStreamConsumer.typed`. For each of
+  these a new `StreamController` can be constructed to forward to the sink.
+  `StreamController<T>()..stream.cast<S>().pipe(sink)`
+* Deprecate `typedStreamTransformer`. Cast after transforming instead.
+* Deprecate `StreamSinkTransformer.typed` since there was no usage.
+
 ## 2.4.0
 
 * Add `StreamGroup.mergeBroadcast()` utility.
