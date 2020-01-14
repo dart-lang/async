@@ -22,10 +22,10 @@ OptionalArgAction unreachable(String name) =>
 // TODO(nweiz): Use the version of this in test when test#418 is fixed.
 /// A matcher that runs a callback in its own zone and asserts that that zone
 /// emits an error that matches [matcher].
-Matcher throwsZoned(matcher) => predicate((callback) {
+Matcher throwsZoned(matcher) => predicate((void Function() callback) {
       var firstError = true;
       runZoned(callback,
-          onError: expectAsync2((error, stackTrace) {
+          onError: expectAsync2((error, StackTrace stackTrace) {
             if (firstError) {
               expect(error, matcher);
               firstError = false;
@@ -89,7 +89,7 @@ class TestSink<T> implements StreamSink<T> {
   Future get done => _doneCompleter.future;
   final _doneCompleter = Completer();
 
-  final Function _onDone;
+  final void Function() _onDone;
 
   /// Creates a new sink.
   ///

@@ -76,7 +76,7 @@ class FutureGroup<T> implements Sink<Future<T>> {
       if (!_closed) return null;
       if (_onIdleController != null) _onIdleController.close();
       _completer.complete(_values);
-    }).catchError((error, stackTrace) {
+    }).catchError((error, StackTrace stackTrace) {
       if (_completer.isCompleted) return null;
       _completer.completeError(error, stackTrace);
     });

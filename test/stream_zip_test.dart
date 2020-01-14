@@ -15,9 +15,9 @@ Stream streamError(Stream base, int errorValue, error) {
 
 /// Make a [Stream] from an [Iterable] by adding events to a stream controller
 /// at periodic intervals.
-Stream mks(Iterable iterable) {
+Stream<T> mks<T>(Iterable<T> iterable) {
   var iterator = iterable.iterator;
-  var controller = StreamController();
+  var controller = StreamController<T>();
   // Some varying time between 3 and 10 ms.
   var ms = ((++ctr) * 5) % 7 + 3;
   Timer.periodic(Duration(milliseconds: ms), (Timer timer) {
@@ -221,7 +221,8 @@ void main() {
     controller..add(7)..add(8)..add(9);
     // Transformer that puts error into controller when one of the first two
     // streams have sent a done event.
-    var trans = StreamTransformer.fromHandlers(handleDone: (EventSink s) {
+    var trans =
+        StreamTransformer<int, int>.fromHandlers(handleDone: (EventSink s) {
       Timer.run(() {
         controller.addError('BAD-6');
       });

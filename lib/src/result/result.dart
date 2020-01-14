@@ -85,7 +85,8 @@ abstract class Result<T> {
   /// Errors have been converted to an [ErrorResult] value.
   static Future<Result<T>> capture<T>(Future<T> future) {
     return future.then((value) => ValueResult(value),
-        onError: (error, stackTrace) => ErrorResult(error, stackTrace));
+        onError: (error, StackTrace stackTrace) =>
+            ErrorResult(error, stackTrace));
   }
 
   /// Captures each future in [elements],
@@ -111,7 +112,7 @@ abstract class Result<T> {
           }
         });
       } else {
-        results.add(Result<T>.value(element));
+        results.add(Result<T>.value(element as T));
       }
     }
     if (pending == 0) {

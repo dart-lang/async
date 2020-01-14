@@ -33,7 +33,8 @@ class DelegatingFuture<T> implements Future<T> {
       _future.then(onValue, onError: onError);
 
   @override
-  Future<T> whenComplete(FutureOr action) => _future.whenComplete(action);
+  Future<T> whenComplete(FutureOr Function() action) =>
+      _future.whenComplete(action);
 
   @override
   Future<T> timeout(Duration timeLimit, {FutureOr<T> Function() onTimeout}) =>

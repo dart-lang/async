@@ -173,7 +173,7 @@ void main() {
   test('capture stream', () {
     var c = StreamController<int>();
     var stream = Result.captureStream(c.stream);
-    var expectedList = Queue.from(
+    var expectedList = Queue.of(
         [Result.value(42), Result.error('BAD', stack), Result.value(37)]);
     void listener(Result actual) {
       expect(expectedList.isEmpty, isFalse);
@@ -197,7 +197,7 @@ void main() {
       Result<int>.value(37)
     ];
     // Expect the data events, and an extra error event.
-    var expectedList = Queue.from(events)..add(Result.error('BAD2', stack));
+    var expectedList = Queue.of(events)..add(Result.error('BAD2', stack));
 
     void dataListener(int v) {
       expect(expectedList.isEmpty, isFalse);
@@ -260,7 +260,7 @@ void main() {
   });
 
   test('handle unary', () {
-    ErrorResult result = Result.error('error', stack);
+    var result = ErrorResult('error', stack);
     var called = false;
     result.handle((error) {
       called = true;
@@ -270,7 +270,7 @@ void main() {
   });
 
   test('handle binary', () {
-    ErrorResult result = Result.error('error', stack);
+    var result = ErrorResult('error', stack);
     var called = false;
     result.handle((error, stackTrace) {
       called = true;
@@ -281,7 +281,7 @@ void main() {
   });
 
   test('handle unary and binary', () {
-    ErrorResult result = Result.error('error', stack);
+    var result = ErrorResult('error', stack);
     var called = false;
     result.handle((error, [stackTrace]) {
       called = true;
@@ -292,7 +292,7 @@ void main() {
   });
 
   test('handle neither unary nor binary', () {
-    ErrorResult result = Result.error('error', stack);
+    var result = ErrorResult('error', stack);
     expect(() => result.handle(() => fail('unreachable')), throwsA(anything));
     expect(() => result.handle((a, b, c) => fail('unreachable')),
         throwsA(anything));

@@ -138,7 +138,7 @@ void main() {
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       var rnd = Random(seed);
       var throwFlags = rnd.nextInt(1 << n); // Bit-flag for throwing.
-      bool throws(index) => (throwFlags & (1 << index)) != 0;
+      bool throws(int index) => (throwFlags & (1 << index)) != 0;
       var expected = List.generate(n, (x) => throws(x) ? err(x) : res(x));
 
       expect(all, completion(expected));
