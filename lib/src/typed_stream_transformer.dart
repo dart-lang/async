@@ -4,14 +4,13 @@
 
 import 'dart:async';
 
-import 'delegate/stream.dart';
-
 /// Creates a wrapper that coerces the type of [transformer].
 ///
 /// This soundly converts a [StreamTransformer] to a `StreamTransformer<S, T>`,
 /// regardless of its original generic type, by asserting that the events
 /// emitted by the transformed stream are instances of `T` whenever they're
 /// provided. If they're not, the stream throws a [CastError].
+@Deprecated('Use Stream.cast after binding a transformer instead')
 StreamTransformer<S, T> typedStreamTransformer<S, T>(
         StreamTransformer transformer) =>
     transformer is StreamTransformer<S, T>
@@ -26,6 +25,5 @@ class _TypeSafeStreamTransformer<S, T> extends StreamTransformerBase<S, T> {
   _TypeSafeStreamTransformer(this._inner);
 
   @override
-  Stream<T> bind(Stream<S> stream) =>
-      DelegatingStream.typed(_inner.bind(stream));
+  Stream<T> bind(Stream<S> stream) => _inner.bind(stream).cast();
 }

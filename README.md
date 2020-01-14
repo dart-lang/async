@@ -22,11 +22,6 @@ computations.
   [`DelegatingEventSink`][DelegatingEventSink], and
   [`DelegatingStreamSink`][DelegatingStreamSink].
 
-  The delegating classes all have `.typed()` constructors which allow users to
-  cast the generic type parameters in a way that's safe for strong mode. For
-  example, if `future` is a `Future<dynamic>` and you know it actually contains an
-  `int`, you can write `DelegatingFuture.typed<int>(future)`.
-
 * The [`FutureGroup`][FutureGroup] class makes it easy to wait until a group of
   features that may change over time completes.
 
