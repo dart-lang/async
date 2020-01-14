@@ -19,7 +19,7 @@ import 'dart:async';
 ///
 /// ```dart
 /// class SomeResource {
-///   final _closeMemo = new AsyncMemoizer();
+///   final _closeMemo = AsyncMemoizer();
 ///
 ///   Future close() => _closeMemo.runOnce(() {
 ///     // ...

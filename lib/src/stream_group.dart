@@ -16,7 +16,7 @@ import 'dart:async';
 /// be single-subscription. In this case, if [stream] is paused or canceled, all
 /// streams in the group will likewise be paused or canceled, respectively.
 ///
-/// If the `StreamGroup` is constructed using [new StreamGroup.broadcast],
+/// If the `StreamGroup` is constructed using [StreamGroup.broadcast],
 /// [stream] will be a broadcast stream. In this case, the streams in the group
 /// will never be paused and single-subscription streams in the group will never
 /// be canceled. **Note that single-subscription streams in a broadcast group
