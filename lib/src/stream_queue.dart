@@ -848,8 +848,7 @@ class _LookAheadRequest<T> extends _ListRequest<T> {
 /// source subscription.
 class _CancelRequest<T> implements _EventRequest<T> {
   /// Completer for the future returned by the `cancel` call.
-  /// TODO(lrn); make this Completer<void> when that is implemented.
-  final _completer = Completer();
+  final _completer = Completer<void>();
 
   /// When the event is completed, it needs to cancel the active subscription
   /// of the `StreamQueue` object, if any.
