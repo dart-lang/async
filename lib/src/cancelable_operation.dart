@@ -50,7 +50,7 @@ class CancelableOperation<T> {
     value.then((value) {
       controller.add(value);
       controller.close();
-    }, onError: (error, stackTrace) {
+    }, onError: (error, StackTrace stackTrace) {
       controller.addError(error, stackTrace);
       controller.close();
     });
@@ -104,7 +104,7 @@ class CancelableOperation<T> {
           completer._cancel();
         }
       }
-    }, onError: (error, stackTrace) {
+    }, onError: (error, StackTrace stackTrace) {
       if (!completer.isCanceled) {
         if (onError != null) {
           completer.complete(Future.sync(() => onError(error, stackTrace)));
@@ -170,7 +170,7 @@ class CancelableCompleter<T> {
   ///
   /// If [value] is a [Future], this will complete to the result of that
   /// [Future] once it completes.
-  void complete([value]) {
+  void complete([FutureOr<T> value]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
 
@@ -180,16 +180,17 @@ class CancelableCompleter<T> {
       return;
     }
 
+    final future = value as Future<T>;
     if (_isCanceled) {
       // Make sure errors from [value] aren't top-leveled.
-      value.catchError((_) {});
+      future.catchError((_) {});
       return;
     }
 
-    value.then((result) {
+    future.then((result) {
       if (_isCanceled) return;
       _inner.complete(result);
-    }, onError: (error, stackTrace) {
+    }, onError: (error, StackTrace stackTrace) {
       if (_isCanceled) return;
       _inner.completeError(error, stackTrace);
     });

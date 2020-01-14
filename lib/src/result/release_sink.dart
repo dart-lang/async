@@ -8,9 +8,9 @@ import 'result.dart';
 
 /// Used by [Result.releaseSink].
 class ReleaseSink<T> implements EventSink<Result<T>> {
-  final EventSink _sink;
+  final EventSink<T> _sink;
 
-  ReleaseSink(EventSink<T> sink) : _sink = sink;
+  ReleaseSink(this._sink);
 
   @override
   void add(Result<T> result) {

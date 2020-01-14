@@ -27,7 +27,7 @@ class StreamSinkCompleter<T> {
   final StreamSink<T> sink = _CompleterSink<T>();
 
   /// Returns [sink] typed as a [_CompleterSink].
-  _CompleterSink<T> get _sink => sink;
+  _CompleterSink<T> get _sink => sink as _CompleterSink<T>;
 
   /// Convert a `Future<StreamSink>` to a `StreamSink`.
   ///

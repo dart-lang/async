@@ -74,9 +74,9 @@ void main() {
   });
 
   test('cancel new stream before source is done', () async {
-    var completer = StreamCompleter();
+    var completer = StreamCompleter<int>();
     var lastEvent = -1;
-    var controller = StreamController();
+    var controller = StreamController<int>();
     StreamSubscription subscription;
     subscription = completer.stream.listen((value) {
       expect(value, lessThan(3));

@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 final someStack = StackTrace.current;
 Result<T> res<T>(T n) => Result<T>.value(n);
-Result err(n) => ErrorResult('$n', someStack);
+Result<T> err<T>(n) => ErrorResult('$n', someStack);
 
 /// Helper function creating an iterable of results.
 Iterable<Result<int>> results(int count,
@@ -22,7 +22,7 @@ Iterable<Result<int>> results(int count,
 }
 
 void main() {
-  void expectAll(result, expectation) {
+  void expectAll<T>(Result<T> result, Result<T> expectation) {
     if (expectation.isError) {
       expect(result, expectation);
     } else {
