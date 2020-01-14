@@ -12,16 +12,16 @@ import 'dart:async';
 /// been closed.
 ///
 /// This can be used when a sink is needed but no events are actually intended
-/// to be added. The [new NullStreamSink.error] constructor can be used to
+/// to be added. The [NullStreamSink.error] constructor can be used to
 /// represent errors when creating a sink, since [StreamSink.done] exposes sink
 /// errors. For example:
 ///
 /// ```dart
 /// StreamSink<List<int>> openForWrite(String filename) {
 ///   try {
-///     return new RandomAccessSink(new File(filename).openSync());
+///     return RandomAccessSink(File(filename).openSync());
 ///   } on IOException catch (error, stackTrace) {
-///     return new NullStreamSink.error(error, stackTrace);
+///     return NullStreamSink.error(error, stackTrace);
 ///   }
 /// }
 /// ```
