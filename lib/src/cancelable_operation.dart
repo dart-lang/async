@@ -29,6 +29,10 @@ class CancelableOperation<T> {
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
+  ///
+  /// This is the same as creating a [CancelableCompleter] and completing it
+  /// with [inner]. The [isCompleted] field will always be true, regardless of
+  /// whether the completer backing [inner] has completed.
   factory CancelableOperation.fromFuture(Future<T> inner,
       {FutureOr Function() onCancel}) {
     var completer = CancelableCompleter<T>(onCancel: onCancel);
@@ -125,7 +129,11 @@ class CancelableOperation<T> {
   /// Whether this operation has been canceled before it completed.
   bool get isCanceled => _completer.isCanceled;
 
-  /// Whether this operation completed before being canceled.
+  /// Whether the [CancelableCompleter] backing this operation has been
+  /// completed.
+  ///
+  /// This does not indicate that the completer backing [value] has been
+  /// completed if the [CancelableCompleter] was completed with a future.
   bool get isCompleted => _completer.isCompleted;
 }
 
