@@ -65,7 +65,7 @@ void main() {
     subscription.resume();
     expect(controller.isPaused, isFalse);
 
-    expect(await subscription.cancel(), 42);
+    expect(await subscription.cancel() as dynamic, 42);
     expect(controller.hasListener, isFalse);
   });
 
