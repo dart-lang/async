@@ -1,4 +1,4 @@
-## 2.4.1-dev
+## 2.4.1
 
 * Deprecate `DelegatingStream.typed`. Use `Stream.cast` instead.
 * Deprecate `DelegatingStreamSubcription.typed` and
@@ -10,6 +10,8 @@
   `StreamController<T>()..stream.cast<S>().pipe(sink)`
 * Deprecate `typedStreamTransformer`. Cast after transforming instead.
 * Deprecate `StreamSinkTransformer.typed` since there was no usage.
+* Improve docs for `CancelablOperation.fromFuture`, indicate that `isCompleted`
+  starts `true`.
 
 ## 2.4.0
 
