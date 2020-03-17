@@ -33,7 +33,7 @@ class DelegatingEventSink<T> implements EventSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace stackTrace]) {
+  void addError(error, [StackTrace? stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 

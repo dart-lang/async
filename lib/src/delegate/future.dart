@@ -25,11 +25,11 @@ class DelegatingFuture<T> implements Future<T> {
   Stream<T> asStream() => _future.asStream();
 
   @override
-  Future<T> catchError(Function onError, {bool Function(Object error) test}) =>
+  Future<T> catchError(Function onError, {bool Function(Object error)? test}) =>
       _future.catchError(onError, test: test);
 
   @override
-  Future<S> then<S>(FutureOr<S> Function(T) onValue, {Function onError}) =>
+  Future<S> then<S>(FutureOr<S> Function(T) onValue, {Function? onError}) =>
       _future.then(onValue, onError: onError);
 
   @override
@@ -37,6 +37,6 @@ class DelegatingFuture<T> implements Future<T> {
       _future.whenComplete(action);
 
   @override
-  Future<T> timeout(Duration timeLimit, {FutureOr<T> Function() onTimeout}) =>
+  Future<T> timeout(Duration timeLimit, {FutureOr<T> Function()? onTimeout}) =>
       _future.timeout(timeLimit, onTimeout: onTimeout);
 }
