@@ -15,7 +15,7 @@ typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
 /// TODO: Update to take a non-nullable StackTrace once that change lands in
 /// the sdk.
 typedef HandleError<T> = void Function(
-    Object error, StackTrace? stackTrace, EventSink<T> sink);
+    Object error, StackTrace stackTrace, EventSink<T> sink);
 
 /// The type of the callback for handling done events.
 typedef HandleDone<T> = void Function(EventSink<T> sink);
@@ -74,7 +74,8 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     } else {
       /// TODO: Update to pass AsyncError.defaultStackTrace(error) once that
       /// lands in the sdk.
-      handleError(error, stackTrace, _safeCloseInner);
+      handleError(
+          error, stackTrace ?? StackTrace.fromString(''), _safeCloseInner);
     }
   }
 
@@ -83,7 +84,12 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     return _inner.addStream(stream.transform(
         StreamTransformer<S, T>.fromHandlers(
             handleData: _transformer._handleData,
-            handleError: _transformer._handleError,
+            // TODO: remove extra wrapping once the sdk changes to make the
+            // stack trace arg non-nullable.
+            handleError: _transformer._handleError == null
+                ? null
+                : (error, stack, sink) => _transformer._handleError!(
+                    error, stack ?? StackTrace.fromString(''), sink),
             handleDone: _closeSink)));
   }
 
