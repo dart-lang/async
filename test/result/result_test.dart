@@ -52,7 +52,8 @@ void main() {
     expect(result.isError, isTrue);
     var error = result.asError!;
     expect(error.error, equals('BAD'));
-    expect(error.stackTrace, isNull);
+    // A default stack trace is created
+    expect(error.stackTrace, isNotNull);
   });
 
   test('complete with value', () {
