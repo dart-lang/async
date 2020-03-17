@@ -90,7 +90,7 @@ void main() {
           subscriptionTransformer(handleCancel: expectAsync1((inner) {
         callbackInvoked = true;
         inner.cancel();
-        return null;
+        return Future.value();
       }))).listen(expectAsync1((_) {}, count: 0));
 
       await flushMicrotasks();
@@ -248,11 +248,12 @@ void main() {
   });
 
   group('when the outer subscription is canceled but the inner is not', () {
-    StreamSubscription subscription;
+    late StreamSubscription subscription;
     setUp(() {
       var controller = StreamController();
       subscription = controller.stream
-          .transform(subscriptionTransformer(handleCancel: (_) => null))
+          .transform(
+              subscriptionTransformer(handleCancel: (_) => Future.value()))
           .listen(expectAsync1((_) {}, count: 0),
               onError: expectAsync2((_, __) {}, count: 0),
               onDone: expectAsync0(() {}, count: 0));

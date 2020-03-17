@@ -250,7 +250,7 @@ void main() {
       var skip4 = events.skip(1);
       var index = 0;
       // Check that futures complete in order.
-      Func1Required<int> sequence(expectedValue, sequenceIndex) => (value) {
+      Func1Required<int?> sequence(expectedValue, sequenceIndex) => (value) {
             expect(value, expectedValue);
             expect(index, sequenceIndex);
             index++;
@@ -610,7 +610,7 @@ void main() {
       var controller = StreamController<int>();
       var events = StreamQueue<int>(controller.stream);
 
-      bool hasNext;
+      bool? hasNext;
       events.hasNext.then((result) {
         hasNext = result;
       });
@@ -626,7 +626,7 @@ void main() {
       var controller = StreamController<int>();
       var events = StreamQueue<int>(controller.stream);
 
-      bool hasNext;
+      bool? hasNext;
       events.hasNext.then((result) {
         hasNext = result;
       });
@@ -772,10 +772,10 @@ void main() {
   });
 
   group('startTransaction operation produces a transaction that', () {
-    StreamQueue<int> events;
-    StreamQueueTransaction<int> transaction;
-    StreamQueue<int> queue1;
-    StreamQueue<int> queue2;
+    late StreamQueue<int> events;
+    late StreamQueueTransaction<int> transaction;
+    late StreamQueue<int> queue1;
+    late StreamQueue<int> queue2;
     setUp(() async {
       events = StreamQueue(createStream());
       expect(await events.next, 1);
@@ -1004,7 +1004,7 @@ void main() {
   });
 
   group('withTransaction operation', () {
-    StreamQueue<int> events;
+    late StreamQueue<int> events;
     setUp(() async {
       events = StreamQueue(createStream());
       expect(await events.next, 1);
@@ -1058,7 +1058,7 @@ void main() {
   });
 
   group('cancelable operation', () {
-    StreamQueue<int> events;
+    late StreamQueue<int> events;
     setUp(() async {
       events = StreamQueue(createStream());
       expect(await events.next, 1);

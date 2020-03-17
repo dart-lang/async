@@ -8,8 +8,8 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 
 void main() {
-  StreamController<int> controller;
-  StreamSplitter splitter;
+  late StreamController<int> controller;
+  late StreamSplitter splitter;
   setUp(() {
     controller = StreamController<int>();
     splitter = StreamSplitter<int>(controller.stream);

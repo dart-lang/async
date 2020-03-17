@@ -77,7 +77,7 @@ void main() {
     var completer = StreamCompleter<int>();
     var lastEvent = -1;
     var controller = StreamController<int>();
-    StreamSubscription subscription;
+    late StreamSubscription subscription;
     subscription = completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
@@ -125,7 +125,7 @@ void main() {
 
   test("source stream isn't listened to until completer stream is", () async {
     var completer = StreamCompleter();
-    StreamController controller;
+    late StreamController controller;
     controller = StreamController(onListen: () {
       scheduleMicrotask(controller.close);
     });
@@ -139,13 +139,13 @@ void main() {
   });
 
   test('cancelOnError true when listening before linking stream', () async {
-    var completer = StreamCompleter();
+    var completer = StreamCompleter<Object>();
     Object lastEvent = -1;
-    var controller = StreamController();
+    var controller = StreamController<Object>();
     completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
-    }, onError: (value) {
+    }, onError: (Object value) {
       expect(value, '3');
       lastEvent = value;
     }, onDone: unreachable('done'), cancelOnError: true);
@@ -172,9 +172,9 @@ void main() {
   });
 
   test('cancelOnError true when listening after linking stream', () async {
-    var completer = StreamCompleter();
+    var completer = StreamCompleter<Object>();
     Object lastEvent = -1;
-    var controller = StreamController();
+    var controller = StreamController<Object>();
     completer.setSourceStream(controller.stream);
     controller.add(1);
     expect(controller.hasListener, isFalse);
@@ -182,7 +182,7 @@ void main() {
     completer.stream.listen((value) {
       expect(value, lessThan(3));
       lastEvent = value;
-    }, onError: (value) {
+    }, onError: (Object value) {
       expect(value, '3');
       lastEvent = value;
     }, onDone: unreachable('done'), cancelOnError: true);
@@ -265,8 +265,8 @@ void main() {
   });
 
   test('setting onData etc. before and after setting stream', () async {
-    var completer = StreamCompleter();
-    var controller = StreamController();
+    var completer = StreamCompleter<int>();
+    var controller = StreamController<int>();
     var subscription = completer.stream.listen(null);
     Object lastEvent = 0;
     subscription.onData((value) => lastEvent = value);

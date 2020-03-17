@@ -6,7 +6,7 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 
 void main() {
-  AsyncMemoizer cache;
+  late AsyncMemoizer cache;
   setUp(() => cache = AsyncMemoizer());
 
   test('runs the function only the first time runOnce() is called', () async {

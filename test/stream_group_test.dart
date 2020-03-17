@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('single-subscription', () {
-    StreamGroup<String> streamGroup;
+    late StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = StreamGroup<String>();
     });
@@ -236,7 +236,7 @@ void main() {
             StreamController<String>(onCancel: () => completer.future);
 
         var fired = false;
-        streamGroup.add(controller.stream).then((_) => fired = true);
+        streamGroup.add(controller.stream)!.then((_) => fired = true);
 
         await flushMicrotasks();
         expect(fired, isFalse);
@@ -249,7 +249,7 @@ void main() {
   });
 
   group('broadcast', () {
-    StreamGroup<String> streamGroup;
+    late StreamGroup<String> streamGroup;
     setUp(() {
       streamGroup = StreamGroup<String>.broadcast();
     });
@@ -455,7 +455,7 @@ void main() {
 }
 
 void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
-  StreamGroup<String> streamGroup;
+  late StreamGroup<String> streamGroup;
   setUp(() {
     streamGroup = newStreamGroup();
   });
@@ -608,7 +608,7 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
         await flushMicrotasks();
 
         var fired = false;
-        streamGroup.remove(controller.stream).then((_) => fired = true);
+        streamGroup.remove(controller.stream)!.then((_) => fired = true);
 
         await flushMicrotasks();
         expect(fired, isFalse);

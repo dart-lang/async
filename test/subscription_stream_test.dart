@@ -22,7 +22,7 @@ void main() {
     var stream = createStream();
     var skips = 0;
     var completer = Completer();
-    StreamSubscription<int> subscription;
+    late StreamSubscription<int> subscription;
     subscription = stream.listen((value) {
       ++skips;
       expect(value, skips);
@@ -72,8 +72,9 @@ void main() {
   group('cancelOnError source:', () {
     for (var sourceCancels in [false, true]) {
       group('${sourceCancels ? "yes" : "no"}:', () {
-        SubscriptionStream subscriptionStream;
-        Future onCancel; // Completes if source stream is canceled before done.
+        late SubscriptionStream subscriptionStream;
+        late Future
+            onCancel; // Completes if source stream is canceled before done.
         setUp(() {
           var cancelCompleter = Completer();
           var source = createErrorStream(cancelCompleter);
@@ -159,7 +160,7 @@ Stream<int> createStream() async* {
   yield 4;
 }
 
-Stream<int> createErrorStream([Completer onCancel]) async* {
+Stream<int> createErrorStream([Completer? onCancel]) async* {
   var canceled = true;
   try {
     yield 1;
