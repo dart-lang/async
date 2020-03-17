@@ -18,12 +18,12 @@ class StreamZip<T> extends Stream<List<T>> {
   StreamZip(Iterable<Stream<T>> streams) : _streams = streams;
 
   @override
-  StreamSubscription<List<T>> listen(void Function(List<T>) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
+  StreamSubscription<List<T>> listen(void Function(List<T>)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     cancelOnError = identical(true, cancelOnError);
     var subscriptions = <StreamSubscription<T>>[];
-    StreamController<List<T>> controller;
-    List<T> current;
+    late StreamController<List<T>> controller;
+    late List<T> current;
     var dataCount = 0;
 
     /// Called for each data from a subscription in [subscriptions].
@@ -32,7 +32,7 @@ class StreamZip<T> extends Stream<List<T>> {
       dataCount++;
       if (dataCount == subscriptions.length) {
         var data = current;
-        current = List(subscriptions.length);
+        current = <T>[];
         dataCount = 0;
         for (var i = 0; i < subscriptions.length; i++) {
           if (i != index) subscriptions[i].resume();
@@ -74,7 +74,7 @@ class StreamZip<T> extends Stream<List<T>> {
         subscriptions.add(stream.listen((data) {
           handleData(index, data);
         },
-            onError: cancelOnError ? handleError : handleErrorCancel,
+            onError: cancelOnError! ? handleError : handleErrorCancel,
             onDone: handleDone,
             cancelOnError: cancelOnError));
       }
@@ -85,7 +85,7 @@ class StreamZip<T> extends Stream<List<T>> {
       rethrow;
     }
 
-    current = List(subscriptions.length);
+    current = <T>[];
 
     controller = StreamController<List<T>>(onPause: () {
       for (var i = 0; i < subscriptions.length; i++) {

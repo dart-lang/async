@@ -28,9 +28,9 @@ typedef _VoidHandler<T> = void Function(StreamSubscription<T> inner);
 /// [StreamSubscription]: [handleCancel] must call `cancel()`, [handlePause]
 /// must call `pause()`, and [handleResume] must call `resume()`.
 StreamTransformer<T, T> subscriptionTransformer<T>(
-    {Future Function(StreamSubscription<T>) handleCancel,
-    void Function(StreamSubscription<T>) handlePause,
-    void Function(StreamSubscription<T>) handleResume}) {
+    {Future Function(StreamSubscription<T>)? handleCancel,
+    void Function(StreamSubscription<T>)? handlePause,
+    void Function(StreamSubscription<T>)? handleResume}) {
   return StreamTransformer((stream, cancelOnError) {
     return _TransformedSubscription(
         stream.listen(null, cancelOnError: cancelOnError),
@@ -50,7 +50,7 @@ StreamTransformer<T, T> subscriptionTransformer<T>(
 /// methods.
 class _TransformedSubscription<T> implements StreamSubscription<T> {
   /// The wrapped subscription.
-  StreamSubscription<T> _inner;
+  StreamSubscription<T>? _inner;
 
   /// The callback to run when [cancel] is called.
   final _AsyncHandler<T> _handleCancel;
@@ -68,47 +68,47 @@ class _TransformedSubscription<T> implements StreamSubscription<T> {
       this._inner, this._handleCancel, this._handlePause, this._handleResume);
 
   @override
-  void onData(void Function(T) handleData) {
+  void onData(void Function(T)? handleData) {
     _inner?.onData(handleData);
   }
 
   @override
-  void onError(Function handleError) {
+  void onError(Function? handleError) {
     _inner?.onError(handleError);
   }
 
   @override
-  void onDone(void Function() handleDone) {
+  void onDone(void Function()? handleDone) {
     _inner?.onDone(handleDone);
   }
 
   @override
   Future cancel() => _cancelMemoizer.runOnce(() {
-        var inner = _inner;
-        _inner.onData(null);
-        _inner.onDone(null);
+        var inner = _inner!;
+        inner.onData(null);
+        inner.onDone(null);
 
         // Setting onError to null will cause errors to be top-leveled.
-        _inner.onError((_, __) {});
+        inner.onError((_, __) {});
         _inner = null;
         return _handleCancel(inner);
       });
   final _cancelMemoizer = AsyncMemoizer();
 
   @override
-  void pause([Future resumeFuture]) {
+  void pause([Future? resumeFuture]) {
     if (_cancelMemoizer.hasRun) return;
     if (resumeFuture != null) resumeFuture.whenComplete(resume);
-    _handlePause(_inner);
+    _handlePause(_inner!);
   }
 
   @override
   void resume() {
     if (_cancelMemoizer.hasRun) return;
-    _handleResume(_inner);
+    _handleResume(_inner!);
   }
 
   @override
-  Future<E> asFuture<E>([E futureValue]) =>
+  Future<E> asFuture<E>([E? futureValue]) =>
       _inner?.asFuture(futureValue) ?? Completer<E>().future;
 }
