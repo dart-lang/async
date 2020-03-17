@@ -28,7 +28,7 @@ dependency_overrides:
   collection:
     git:
       url: git://github.com/dart-lang/collection.git
-      ref: null-safety-migration
+      ref: null_safety
   matcher:
     git:
       url: git://github.com/dart-lang/matcher.git
