@@ -44,13 +44,13 @@ class FutureGroup<T> implements Sink<Future<T>> {
   Stream get onIdle =>
       (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
 
-  StreamController _onIdleController;
+  StreamController? _onIdleController;
 
   /// The values emitted by the futures that have been added to the group, in
   /// the order they were added.
   ///
   /// The slots for futures that haven't completed yet are `null`.
-  final _values = <T>[];
+  final _values = <T?>[];
 
   /// Wait for [task] to complete.
   @override
@@ -71,12 +71,13 @@ class FutureGroup<T> implements Sink<Future<T>> {
       _values[index] = value;
 
       if (_pending != 0) return null;
-      if (_onIdleController != null) _onIdleController.add(null);
+      var onIdleController = _onIdleController;
+      if (onIdleController != null) onIdleController.add(null);
 
       if (!_closed) return null;
-      if (_onIdleController != null) _onIdleController.close();
-      _completer.complete(_values);
-    }).catchError((error, StackTrace stackTrace) {
+      if (onIdleController != null) onIdleController.close();
+      _completer.complete(_values.whereType<T>().toList());
+    }).catchError((Object error, StackTrace stackTrace) {
       if (_completer.isCompleted) return null;
       _completer.completeError(error, stackTrace);
     });
@@ -89,6 +90,6 @@ class FutureGroup<T> implements Sink<Future<T>> {
     _closed = true;
     if (_pending != 0) return;
     if (_completer.isCompleted) return;
-    _completer.complete(_values);
+    _completer.complete(_values.whereType<T>().toList());
   }
 }
