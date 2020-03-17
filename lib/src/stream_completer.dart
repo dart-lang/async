@@ -127,7 +127,7 @@ class _CompleterStream<T> extends Stream<T> {
         return sourceStream.listen(onData,
             onError: onError, onDone: onDone, cancelOnError: cancelOnError);
       }
-      _createController();
+      _ensureController();
       if (_sourceStream != null) {
         _linkStreamToController();
       }
@@ -170,17 +170,13 @@ class _CompleterStream<T> extends Stream<T> {
   /// immediately.
   void _setEmpty() {
     assert(_sourceStream == null);
-    if (_controller == null) {
-      _createController();
-    }
-    var controller = _controller!;
+    var controller = _ensureController();
     _sourceStream = controller.stream; // Mark stream as set.
     controller.close();
   }
 
   // Creates the [_controller].
-  void _createController() {
-    assert(_controller == null);
-    _controller = StreamController<T>(sync: true);
+  StreamController<T> _ensureController() {
+    return _controller ??= StreamController<T>(sync: true);
   }
 }

@@ -13,7 +13,7 @@ class ErrorResult implements Result<Never> {
   final Object error;
 
   /// The stack trace corresponding to where [error] was thrown.
-  final StackTrace? stackTrace;
+  final StackTrace stackTrace;
 
   @override
   bool get isValue => false;
@@ -24,7 +24,9 @@ class ErrorResult implements Result<Never> {
   @override
   ErrorResult get asError => this;
 
-  ErrorResult(this.error, this.stackTrace);
+  ErrorResult(this.error, [StackTrace? stackTrace])
+      // TODO: Use AsyncError.defaultStackTrace(error) once available
+      : stackTrace = stackTrace ?? StackTrace.fromString('');
 
   @override
   void complete(Completer completer) {

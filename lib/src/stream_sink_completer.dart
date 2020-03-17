@@ -113,8 +113,7 @@ class _CompleterSink<T> implements StreamSink<T> {
     if (_canSendDirectly) {
       _destinationSink!.add(event);
     } else {
-      _ensureController();
-      _controller!.add(event);
+      _ensureController().add(event);
     }
   }
 
@@ -123,8 +122,7 @@ class _CompleterSink<T> implements StreamSink<T> {
     if (_canSendDirectly) {
       _destinationSink!.addError(error, stackTrace);
     } else {
-      _ensureController();
-      _controller!.addError(error, stackTrace);
+      _ensureController().addError(error, stackTrace);
     }
   }
 
@@ -132,8 +130,7 @@ class _CompleterSink<T> implements StreamSink<T> {
   Future addStream(Stream<T> stream) {
     if (_canSendDirectly) return _destinationSink!.addStream(stream);
 
-    _ensureController();
-    return _controller!.addStream(stream, cancelOnError: false);
+    return _ensureController().addStream(stream, cancelOnError: false);
   }
 
   @override
@@ -141,15 +138,14 @@ class _CompleterSink<T> implements StreamSink<T> {
     if (_canSendDirectly) {
       _destinationSink!.close();
     } else {
-      _ensureController();
-      _controller!.close();
+      _ensureController().close();
     }
     return done;
   }
 
   /// Create [_controller] if it doesn't yet exist.
-  void _ensureController() {
-    _controller ??= StreamController(sync: true);
+  StreamController<T> _ensureController() {
+    return _controller ??= StreamController(sync: true);
   }
 
   /// Sets the destination sink to which events from this sink will be provided.

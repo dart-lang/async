@@ -11,9 +11,9 @@ import '../delegate/stream_sink.dart';
 typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
 
 /// The type of the callback for handling error events.
-///
-/// TODO: Update to take a non-nullable StackTrace once that change lands in
-/// the sdk.
+//
+// TODO: Update to take a non-nullable StackTrace once that change lands in
+// the sdk.
 typedef HandleError<T> = void Function(
     Object error, StackTrace stackTrace, EventSink<T> sink);
 
@@ -72,8 +72,8 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     if (handleError == null) {
       _inner.addError(error, stackTrace);
     } else {
-      /// TODO: Update to pass AsyncError.defaultStackTrace(error) once that
-      /// lands in the sdk.
+      // TODO: Update to pass AsyncError.defaultStackTrace(error) once that
+      // lands in the sdk.
       handleError(
           error, stackTrace ?? StackTrace.fromString(''), _safeCloseInner);
     }

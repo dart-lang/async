@@ -63,8 +63,8 @@ abstract class Result<T> {
   factory Result(T Function() computation) {
     try {
       return ValueResult<T>(computation());
-    } catch (e, s) {
-      return ErrorResult(e as Object, s);
+    } on Object catch (e, s) {
+      return ErrorResult(e, s);
     }
   }
 
@@ -108,7 +108,7 @@ abstract class Result<T> {
         Result.capture<T>(element).then((result) {
           results[i] = result;
           if (--pending == 0) {
-            completer.complete(results.cast<Result<T>>().toList());
+            completer.complete(List.from(results));
           }
         });
       } else {
@@ -116,7 +116,7 @@ abstract class Result<T> {
       }
     }
     if (pending == 0) {
-      return Future.value(results.cast<Result<T>>().toList());
+      return Future.value(List.from(results));
     }
     completer = Completer<List<Result<T>>>();
     return completer.future;
