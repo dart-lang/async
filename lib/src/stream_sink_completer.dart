@@ -70,7 +70,7 @@ class StreamSinkCompleter<T> {
   ///
   /// Either of [setDestinationSink] or [setError] may be called at most once.
   /// Trying to call either of them again will fail.
-  void setError(error, [StackTrace stackTrace]) {
+  void setError(Object error, [StackTrace? stackTrace]) {
     setDestinationSink(NullStreamSink.error(error, stackTrace));
   }
 }
@@ -81,18 +81,18 @@ class _CompleterSink<T> implements StreamSink<T> {
   ///
   /// Created if the user adds events to this sink before the destination sink
   /// is set.
-  StreamController<T> _controller;
+  StreamController<T>? _controller;
 
   /// Completer for [done].
   ///
   /// Created if the user requests the [done] future before the destination sink
   /// is set.
-  Completer _doneCompleter;
+  Completer? _doneCompleter;
 
   /// Destination sink for the events added to this sink.
   ///
   /// Set when [StreamSinkCompleter.setDestinationSink] is called.
-  StreamSink<T> _destinationSink;
+  StreamSink<T>? _destinationSink;
 
   /// Whether events should be sent directly to [_destinationSink], as opposed
   /// to going through [_controller].
@@ -100,56 +100,52 @@ class _CompleterSink<T> implements StreamSink<T> {
 
   @override
   Future get done {
-    if (_doneCompleter != null) return _doneCompleter.future;
+    if (_doneCompleter != null) return _doneCompleter!.future;
     if (_destinationSink == null) {
       _doneCompleter = Completer.sync();
-      return _doneCompleter.future;
+      return _doneCompleter!.future;
     }
-    return _destinationSink.done;
+    return _destinationSink!.done;
   }
 
   @override
   void add(T event) {
     if (_canSendDirectly) {
-      _destinationSink.add(event);
+      _destinationSink!.add(event);
     } else {
-      _ensureController();
-      _controller.add(event);
+      _ensureController().add(event);
     }
   }
 
   @override
-  void addError(error, [StackTrace stackTrace]) {
+  void addError(error, [StackTrace? stackTrace]) {
     if (_canSendDirectly) {
-      _destinationSink.addError(error, stackTrace);
+      _destinationSink!.addError(error, stackTrace);
     } else {
-      _ensureController();
-      _controller.addError(error, stackTrace);
+      _ensureController().addError(error, stackTrace);
     }
   }
 
   @override
   Future addStream(Stream<T> stream) {
-    if (_canSendDirectly) return _destinationSink.addStream(stream);
+    if (_canSendDirectly) return _destinationSink!.addStream(stream);
 
-    _ensureController();
-    return _controller.addStream(stream, cancelOnError: false);
+    return _ensureController().addStream(stream, cancelOnError: false);
   }
 
   @override
   Future close() {
     if (_canSendDirectly) {
-      _destinationSink.close();
+      _destinationSink!.close();
     } else {
-      _ensureController();
-      _controller.close();
+      _ensureController().close();
     }
     return done;
   }
 
   /// Create [_controller] if it doesn't yet exist.
-  void _ensureController() {
-    _controller ??= StreamController(sync: true);
+  StreamController<T> _ensureController() {
+    return _controller ??= StreamController(sync: true);
   }
 
   /// Sets the destination sink to which events from this sink will be provided.
@@ -168,7 +164,7 @@ class _CompleterSink<T> implements StreamSink<T> {
       // Catch any error that may come from [addStream] or [sink.close]. They'll
       // be reported through [done] anyway.
       sink
-          .addStream(_controller.stream)
+          .addStream(_controller!.stream)
           .whenComplete(sink.close)
           .catchError((_) {});
     }
@@ -176,7 +172,7 @@ class _CompleterSink<T> implements StreamSink<T> {
     // If the user has already asked when the sink is done, connect the sink's
     // done callback to that completer.
     if (_doneCompleter != null) {
-      _doneCompleter.complete(sink.done);
+      _doneCompleter!.complete(sink.done);
     }
   }
 }

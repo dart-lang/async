@@ -29,13 +29,13 @@ class AsyncCache<T> {
   final Duration _duration;
 
   /// Cached results of a previous [fetchStream] call.
-  StreamSplitter<T> _cachedStreamSplitter;
+  StreamSplitter<T>? _cachedStreamSplitter;
 
   /// Cached results of a previous [fetch] call.
-  Future<T> _cachedValueFuture;
+  Future<T>? _cachedValueFuture;
 
   /// Fires when the cache should be considered stale.
-  Timer _stale;
+  Timer? _stale;
 
   /// Creates a cache that invalidates its contents after [duration] has passed.
   ///
@@ -78,12 +78,12 @@ class AsyncCache<T> {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');
     }
-    _cachedStreamSplitter ??= StreamSplitter(
+    var splitter = _cachedStreamSplitter ??= StreamSplitter(
         callback().transform(StreamTransformer.fromHandlers(handleDone: (sink) {
       _startStaleTimer();
       sink.close();
     })));
-    return _cachedStreamSplitter.split();
+    return splitter.split();
   }
 
   /// Removes any cached value.

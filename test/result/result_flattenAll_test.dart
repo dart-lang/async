@@ -11,7 +11,7 @@ Result<T> err<T>(n) => ErrorResult('$n', someStack);
 
 /// Helper function creating an iterable of results.
 Iterable<Result<int>> results(int count,
-    {bool Function(int index) throwWhen}) sync* {
+    {bool Function(int index)? throwWhen}) sync* {
   for (var i = 0; i < count; i++) {
     if (throwWhen != null && throwWhen(i)) {
       yield err(i);
@@ -27,7 +27,7 @@ void main() {
       expect(result, expectation);
     } else {
       expect(result.isValue, true);
-      expect(result.asValue.value, expectation.asValue.value);
+      expect(result.asValue!.value, expectation.asValue!.value);
     }
   }
 

@@ -35,7 +35,7 @@ class CancelableOperation<T> {
   /// moment this [CancelableOperation] is created, regardless of whether
   /// [inner] has completed yet or not.
   factory CancelableOperation.fromFuture(Future<T> inner,
-      {FutureOr Function() onCancel}) {
+      {FutureOr Function()? onCancel}) {
     var completer = CancelableCompleter<T>(onCancel: onCancel);
     completer.complete(inner);
     return completer.operation;
@@ -55,7 +55,7 @@ class CancelableOperation<T> {
     value.then((value) {
       controller.add(value);
       controller.close();
-    }, onError: (error, StackTrace stackTrace) {
+    }, onError: (Object error, StackTrace stackTrace) {
       controller.addError(error, stackTrace);
       controller.close();
     });
@@ -68,7 +68,10 @@ class CancelableOperation<T> {
   /// If this operation completes, this completes to the same result as [value].
   /// If this operation is cancelled, the returned future waits for the future
   /// returned by [cancel], then completes to [cancellationValue].
-  Future<T> valueOrCancellation([T cancellationValue]) {
+  ///
+  /// If [T] is not nullable then [cancellationValue] must provide a valid
+  /// value, otherwise it will throw on cancellation.
+  Future<T> valueOrCancellation([T? cancellationValue]) {
     var completer = Completer<T>.sync();
     value.then((result) => completer.complete(result),
         onError: completer.completeError);
@@ -93,8 +96,8 @@ class CancelableOperation<T> {
   /// If [propagateCancel] is `true` and the returned operation is canceled then
   /// this operation is canceled. The default is `false`.
   CancelableOperation<R> then<R>(FutureOr<R> Function(T) onValue,
-      {FutureOr<R> Function(Object, StackTrace) onError,
-      FutureOr<R> Function() onCancel,
+      {FutureOr<R> Function(Object, StackTrace)? onError,
+      FutureOr<R> Function()? onCancel,
       bool propagateCancel = false}) {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
@@ -109,7 +112,7 @@ class CancelableOperation<T> {
           completer._cancel();
         }
       }
-    }, onError: (error, StackTrace stackTrace) {
+    }, onError: (Object error, StackTrace stackTrace) {
       if (!completer.isCanceled) {
         if (onError != null) {
           completer.complete(Future.sync(() => onError(error, stackTrace)));
@@ -145,7 +148,7 @@ class CancelableCompleter<T> {
   final Completer<T> _inner;
 
   /// The callback to call if the future is canceled.
-  final FutureOrCallback _onCancel;
+  final FutureOrCallback? _onCancel;
 
   /// Creates a new completer for a [CancelableOperation].
   ///
@@ -155,15 +158,14 @@ class CancelableCompleter<T> {
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  CancelableCompleter({FutureOr Function() onCancel})
+  CancelableCompleter({FutureOr Function()? onCancel})
       : _onCancel = onCancel,
         _inner = Completer<T>() {
-    _operation = CancelableOperation<T>._(this);
+    operation = CancelableOperation<T>._(this);
   }
 
   /// The operation controlled by this completer.
-  CancelableOperation<T> get operation => _operation;
-  CancelableOperation<T> _operation;
+  late final CancelableOperation<T> operation;
 
   /// Whether the completer has completed.
   bool get isCompleted => _isCompleted;
@@ -180,7 +182,7 @@ class CancelableCompleter<T> {
   ///
   /// If [value] is a [Future], this will complete to the result of that
   /// [Future] once it completes.
-  void complete([FutureOr<T> value]) {
+  void complete([FutureOr<T>? value]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
 
@@ -200,14 +202,14 @@ class CancelableCompleter<T> {
     future.then((result) {
       if (_isCanceled) return;
       _inner.complete(result);
-    }, onError: (error, StackTrace stackTrace) {
+    }, onError: (Object error, StackTrace stackTrace) {
       if (_isCanceled) return;
       _inner.completeError(error, stackTrace);
     });
   }
 
   /// Completes [operation] to [error].
-  void completeError(Object error, [StackTrace stackTrace]) {
+  void completeError(Object error, [StackTrace? stackTrace]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
 
@@ -221,7 +223,8 @@ class CancelableCompleter<T> {
 
     return _cancelMemo.runOnce(() {
       _isCanceled = true;
-      if (_onCancel != null) return _onCancel();
+      var onCancel = _onCancel;
+      if (onCancel != null) return onCancel();
     });
   }
 }

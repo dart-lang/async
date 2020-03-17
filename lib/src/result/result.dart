@@ -63,7 +63,7 @@ abstract class Result<T> {
   factory Result(T Function() computation) {
     try {
       return ValueResult<T>(computation());
-    } catch (e, s) {
+    } on Object catch (e, s) {
       return ErrorResult(e, s);
     }
   }
@@ -76,7 +76,7 @@ abstract class Result<T> {
   /// Creates a `Result` holding an error.
   ///
   /// Alias for [ErrorResult.ErrorResult].
-  factory Result.error(Object error, [StackTrace stackTrace]) =>
+  factory Result.error(Object error, [StackTrace? stackTrace]) =>
       ErrorResult(error, stackTrace);
 
   /// Captures the result of a future into a `Result` future.
@@ -85,7 +85,7 @@ abstract class Result<T> {
   /// Errors have been converted to an [ErrorResult] value.
   static Future<Result<T>> capture<T>(Future<T> future) {
     return future.then((value) => ValueResult(value),
-        onError: (error, StackTrace stackTrace) =>
+        onError: (Object error, StackTrace stackTrace) =>
             ErrorResult(error, stackTrace));
   }
 
@@ -97,9 +97,9 @@ abstract class Result<T> {
   /// wrapped as a [Result.value].
   /// The returned future will never have an error.
   static Future<List<Result<T>>> captureAll<T>(Iterable<FutureOr<T>> elements) {
-    var results = <Result<T>>[];
+    var results = <Result<T>?>[];
     var pending = 0;
-    Completer<List<Result<T>>> completer;
+    late Completer<List<Result<T>>> completer;
     for (var element in elements) {
       if (element is Future<T>) {
         var i = results.length;
@@ -108,7 +108,7 @@ abstract class Result<T> {
         Result.capture<T>(element).then((result) {
           results[i] = result;
           if (--pending == 0) {
-            completer.complete(results);
+            completer.complete(List.from(results));
           }
         });
       } else {
@@ -116,7 +116,7 @@ abstract class Result<T> {
       }
     }
     if (pending == 0) {
-      return Future<List<Result<T>>>.value(results);
+      return Future.value(List.from(results));
     }
     completer = Completer<List<Result<T>>>();
     return completer.future;
@@ -172,8 +172,8 @@ abstract class Result<T> {
   /// Otherwise both levels of results are value results, and a single
   /// result with the value is returned.
   static Result<T> flatten<T>(Result<Result<T>> result) {
-    if (result.isValue) return result.asValue.value;
-    return result.asError;
+    if (result.isValue) return result.asValue!.value;
+    return result.asError!;
   }
 
   /// Converts a sequence of results to a result of a list.
@@ -184,9 +184,9 @@ abstract class Result<T> {
     var values = <T>[];
     for (var result in results) {
       if (result.isValue) {
-        values.add(result.asValue.value);
+        values.add(result.asValue!.value);
       } else {
-        return result.asError;
+        return result.asError!;
       }
     }
     return Result<List<T>>.value(values);
@@ -205,12 +205,12 @@ abstract class Result<T> {
   /// If this is a value result, returns itself.
   ///
   /// Otherwise returns `null`.
-  ValueResult<T> get asValue;
+  ValueResult<T>? get asValue;
 
   /// If this is an error result, returns itself.
   ///
   /// Otherwise returns `null`.
-  ErrorResult get asError;
+  ErrorResult? get asError;
 
   /// Completes a completer with this result.
   void complete(Completer<T> completer);

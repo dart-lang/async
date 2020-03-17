@@ -36,7 +36,7 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace stackTrace]) {
+  void addError(error, [StackTrace? stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 

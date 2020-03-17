@@ -87,7 +87,7 @@ class StreamQueue<T> {
   ///
   /// Set to subscription when listening, and set to `null` when the
   /// subscription is done (and [_isDone] is set to true).
-  StreamSubscription<T> _subscription;
+  StreamSubscription<T>? _subscription;
 
   /// Whether the event source is done.
   bool _isDone = false;
@@ -393,7 +393,7 @@ class StreamQueue<T> {
   /// After calling `cancel`, no further events can be requested.
   /// None of [lookAhead], [next], [peek], [rest], [skip], [take] or [cancel]
   /// may be called again.
-  Future cancel({bool immediate = false}) {
+  Future? cancel({bool immediate = false}) {
     if (_isClosed) throw _failClosed();
     _isClosed = true;
 
@@ -448,11 +448,10 @@ class StreamQueue<T> {
     }
     _isDone = true;
 
-    if (_subscription == null) {
+    var subscription = _subscription;
+    if (subscription == null) {
       return _source;
     }
-
-    var subscription = _subscription;
     _subscription = null;
 
     var wasPaused = subscription.isPaused;
@@ -469,7 +468,7 @@ class StreamQueue<T> {
   ///
   /// The event source is restarted by the next call to [_ensureListening].
   void _pause() {
-    _subscription.pause();
+    _subscription!.pause();
   }
 
   /// Ensures that we are listening on events from the event source.
@@ -482,22 +481,22 @@ class StreamQueue<T> {
     if (_subscription == null) {
       _subscription = _source.listen((data) {
         _addResult(Result.value(data));
-      }, onError: (error, StackTrace stackTrace) {
+      }, onError: (Object error, StackTrace stackTrace) {
         _addResult(Result.error(error, stackTrace));
       }, onDone: () {
         _subscription = null;
         _close();
       });
     } else {
-      _subscription.resume();
+      _subscription!.resume();
     }
   }
 
   /// Cancels the underlying event source.
-  Future _cancel() {
+  Future? _cancel() {
     if (_isDone) return null;
     _subscription ??= _source.listen(null);
-    var future = _subscription.cancel();
+    var future = _subscription!.cancel();
     _close();
     return future;
   }
@@ -765,7 +764,8 @@ class _SkipRequest<T> implements _EventRequest<T> {
 
       var event = events.removeFirst();
       if (event.isError) {
-        _completer.completeError(event.asError.error, event.asError.stackTrace);
+        _completer.completeError(
+            event.asError!.error, event.asError!.stackTrace);
         return true;
       }
     }
@@ -808,10 +808,10 @@ class _TakeRequest<T> extends _ListRequest<T> {
 
       var event = events.removeFirst();
       if (event.isError) {
-        event.asError.complete(_completer);
+        event.asError!.complete(_completer);
         return true;
       }
-      _list.add(event.asValue.value);
+      _list.add(event.asValue!.value);
     }
     _completer.complete(_list);
     return true;
@@ -831,10 +831,10 @@ class _LookAheadRequest<T> extends _ListRequest<T> {
       }
       var event = events.elementAt(_list.length);
       if (event.isError) {
-        event.asError.complete(_completer);
+        event.asError!.complete(_completer);
         return true;
       }
-      _list.add(event.asValue.value);
+      _list.add(event.asValue!.value);
     }
     _completer.complete(_list);
     return true;
@@ -948,8 +948,7 @@ class _HasNextRequest<T> implements _EventRequest<T> {
 /// [StreamQueue._updateRequests].
 class _TransactionRequest<T> implements _EventRequest<T> {
   /// The transaction created by this request.
-  StreamQueueTransaction<T> get transaction => _transaction;
-  StreamQueueTransaction<T> _transaction;
+  late final StreamQueueTransaction<T> transaction;
 
   /// The controller that passes events to [transaction].
   final _controller = StreamController<T>(sync: true);
@@ -958,7 +957,7 @@ class _TransactionRequest<T> implements _EventRequest<T> {
   var _eventsSent = 0;
 
   _TransactionRequest(StreamQueue<T> parent) {
-    _transaction = StreamQueueTransaction._(parent, _controller.stream);
+    transaction = StreamQueueTransaction._(parent, _controller.stream);
   }
 
   @override
@@ -967,6 +966,6 @@ class _TransactionRequest<T> implements _EventRequest<T> {
       events[_eventsSent++].addTo(_controller);
     }
     if (isDone && !_controller.isClosed) _controller.close();
-    return transaction._committed || _transaction._rejected;
+    return transaction._committed || transaction._rejected;
   }
 }

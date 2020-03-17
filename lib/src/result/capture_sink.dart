@@ -18,7 +18,7 @@ class CaptureSink<T> implements EventSink<T> {
   }
 
   @override
-  void addError(Object error, [StackTrace stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     _sink.add(Result.error(error, stackTrace));
   }
 

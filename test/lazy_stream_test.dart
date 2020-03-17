@@ -10,10 +10,6 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  test('disallows a null callback', () {
-    expect(() => LazyStream(null), throwsArgumentError);
-  });
-
   test('calls the callback when the stream is listened', () async {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
@@ -96,7 +92,7 @@ void main() {
   });
 
   test("a lazy stream can't be listened to from within its callback", () {
-    LazyStream stream;
+    late LazyStream stream;
     stream = LazyStream(expectAsync0(() {
       expect(() => stream.listen(null), throwsStateError);
       return Stream.empty();

@@ -16,8 +16,8 @@ class ResultFuture<T> extends DelegatingFuture<T> {
   /// The result of the wrapped [Future], if it's completed.
   ///
   /// If it hasn't completed yet, this will be `null`.
-  Result<T> get result => _result;
-  Result<T> _result;
+  Result<T>? get result => _result;
+  Result<T>? _result;
 
   ResultFuture(Future<T> future) : super(future) {
     Result.capture(future).then((result) {

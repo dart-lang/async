@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  StreamSinkCompleter completer;
+  late StreamSinkCompleter completer;
   setUp(() {
     completer = StreamSinkCompleter();
   });
@@ -21,10 +21,10 @@ void main() {
       completer.setDestinationSink(sink);
       completer.sink..add(1)..add(2)..add(3)..add(4);
 
-      expect(sink.results[0].asValue.value, equals(1));
-      expect(sink.results[1].asValue.value, equals(2));
-      expect(sink.results[2].asValue.value, equals(3));
-      expect(sink.results[3].asValue.value, equals(4));
+      expect(sink.results[0].asValue!.value, equals(1));
+      expect(sink.results[1].asValue!.value, equals(2));
+      expect(sink.results[2].asValue!.value, equals(3));
+      expect(sink.results[3].asValue!.value, equals(4));
     });
 
     test('error events are forwarded', () {
@@ -32,8 +32,8 @@ void main() {
       completer.setDestinationSink(sink);
       completer.sink..addError('oh no')..addError("that's bad");
 
-      expect(sink.results[0].asError.error, equals('oh no'));
-      expect(sink.results[1].asError.error, equals("that's bad"));
+      expect(sink.results[0].asError!.error, equals('oh no'));
+      expect(sink.results[1].asError!.error, equals("that's bad"));
     });
 
     test('addStream is forwarded', () async {
@@ -49,10 +49,10 @@ void main() {
       controller.addError("that's bad");
       await flushMicrotasks();
 
-      expect(sink.results[0].asValue.value, equals(1));
-      expect(sink.results[1].asError.error, equals('oh no'));
-      expect(sink.results[2].asValue.value, equals(2));
-      expect(sink.results[3].asError.error, equals("that's bad"));
+      expect(sink.results[0].asValue!.value, equals(1));
+      expect(sink.results[1].asError!.error, equals('oh no'));
+      expect(sink.results[2].asValue!.value, equals(2));
+      expect(sink.results[3].asError!.error, equals("that's bad"));
       expect(sink.isClosed, isFalse);
 
       controller.close();
@@ -121,10 +121,10 @@ void main() {
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
-      expect(sink.results[0].asValue.value, equals(1));
-      expect(sink.results[1].asValue.value, equals(2));
-      expect(sink.results[2].asValue.value, equals(3));
-      expect(sink.results[3].asValue.value, equals(4));
+      expect(sink.results[0].asValue!.value, equals(1));
+      expect(sink.results[1].asValue!.value, equals(2));
+      expect(sink.results[2].asValue!.value, equals(3));
+      expect(sink.results[3].asValue!.value, equals(4));
     });
 
     test('error events are forwarded', () async {
@@ -135,8 +135,8 @@ void main() {
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
-      expect(sink.results[0].asError.error, equals('oh no'));
-      expect(sink.results[1].asError.error, equals("that's bad"));
+      expect(sink.results[0].asError!.error, equals('oh no'));
+      expect(sink.results[1].asError!.error, equals("that's bad"));
     });
 
     test('addStream is forwarded', () async {
@@ -154,10 +154,10 @@ void main() {
       completer.setDestinationSink(sink);
       await flushMicrotasks();
 
-      expect(sink.results[0].asValue.value, equals(1));
-      expect(sink.results[1].asError.error, equals('oh no'));
-      expect(sink.results[2].asValue.value, equals(2));
-      expect(sink.results[3].asError.error, equals("that's bad"));
+      expect(sink.results[0].asValue!.value, equals(1));
+      expect(sink.results[1].asError!.error, equals('oh no'));
+      expect(sink.results[2].asValue!.value, equals(2));
+      expect(sink.results[3].asError!.error, equals("that's bad"));
       expect(sink.isClosed, isFalse);
     });
 
@@ -258,9 +258,9 @@ void main() {
       futureCompleter.complete(testSink);
       await testSink.done;
 
-      expect(testSink.results[0].asValue.value, equals(1));
-      expect(testSink.results[1].asValue.value, equals(2));
-      expect(testSink.results[2].asValue.value, equals(3));
+      expect(testSink.results[0].asValue!.value, equals(1));
+      expect(testSink.results[1].asValue!.value, equals(2));
+      expect(testSink.results[2].asValue!.value, equals(3));
     });
 
     test('with an error', () async {

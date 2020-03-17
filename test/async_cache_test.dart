@@ -9,7 +9,7 @@ import 'package:fake_async/fake_async.dart';
 import 'package:test/test.dart';
 
 void main() {
-  AsyncCache<String> cache;
+  late AsyncCache<String> cache;
 
   setUp(() {
     // Create a cache that is fresh for an hour.
@@ -22,7 +22,8 @@ void main() {
 
   test('should not fetch via callback when a cache exists', () async {
     await cache.fetch(() async => 'Expensive');
-    expect(await cache.fetch(expectAsync0(() => null, count: 0)), 'Expensive');
+    expect(await cache.fetch(expectAsync0(() async => 'fake', count: 0)),
+        'Expensive');
   });
 
   test('should not fetch via callback when a future is in-flight', () async {
@@ -31,7 +32,7 @@ void main() {
 
     var completer = Completer<String>();
     expect(cache.fetch(() => completer.future), completion('Expensive'));
-    expect(cache.fetch(expectAsync0(() => null, count: 0)),
+    expect(cache.fetch(expectAsync0(() async => 'fake', count: 0)),
         completion('Expensive'));
     completer.complete('Expensive');
   });
@@ -79,7 +80,10 @@ void main() {
       yield '2';
       yield '3';
     }).toList();
-    expect(await cache.fetchStream(expectAsync0(() => null, count: 0)).toList(),
+    expect(
+        await cache
+            .fetchStream(expectAsync0(() => Stream.empty(), count: 0))
+            .toList(),
         ['1', '2', '3']);
   });
 
@@ -148,7 +152,7 @@ void main() {
   test('should pause a cached stream without affecting others', () async {
     Stream<String> call() => Stream.fromIterable(['1', '2', '3']);
 
-    StreamSubscription sub;
+    late StreamSubscription sub;
     sub = cache.fetchStream(call).listen(expectAsync1((event) {
       if (event == '1') sub.pause();
     }));

@@ -11,6 +11,9 @@ import '../delegate/stream_sink.dart';
 typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
 
 /// The type of the callback for handling error events.
+//
+// TODO: Update to take a non-nullable StackTrace once that change lands in
+// the sdk.
 typedef HandleError<T> = void Function(
     Object error, StackTrace stackTrace, EventSink<T> sink);
 
@@ -20,13 +23,13 @@ typedef HandleDone<T> = void Function(EventSink<T> sink);
 /// A [StreamSinkTransformer] that delegates events to the given handlers.
 class HandlerTransformer<S, T> implements StreamSinkTransformer<S, T> {
   /// The handler for data events.
-  final HandleData<S, T> _handleData;
+  final HandleData<S, T>? _handleData;
 
   /// The handler for error events.
-  final HandleError<T> _handleError;
+  final HandleError<T>? _handleError;
 
   /// The handler for done events.
-  final HandleDone<T> _handleDone;
+  final HandleDone<T>? _handleDone;
 
   HandlerTransformer(this._handleData, this._handleError, this._handleDone);
 
@@ -55,19 +58,24 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 
   @override
   void add(S event) {
-    if (_transformer._handleData == null) {
+    var handleData = _transformer._handleData;
+    if (handleData == null) {
       _inner.add(event as T);
     } else {
-      _transformer._handleData(event, _safeCloseInner);
+      handleData(event, _safeCloseInner);
     }
   }
 
   @override
-  void addError(error, [StackTrace stackTrace]) {
-    if (_transformer._handleError == null) {
+  void addError(error, [StackTrace? stackTrace]) {
+    var handleError = _transformer._handleError;
+    if (handleError == null) {
       _inner.addError(error, stackTrace);
     } else {
-      _transformer._handleError(error, stackTrace, _safeCloseInner);
+      // TODO: Update to pass AsyncError.defaultStackTrace(error) once that
+      // lands in the sdk.
+      handleError(
+          error, stackTrace ?? StackTrace.fromString(''), _safeCloseInner);
     }
   }
 
@@ -76,15 +84,21 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     return _inner.addStream(stream.transform(
         StreamTransformer<S, T>.fromHandlers(
             handleData: _transformer._handleData,
-            handleError: _transformer._handleError,
+            // TODO: remove extra wrapping once the sdk changes to make the
+            // stack trace arg non-nullable.
+            handleError: _transformer._handleError == null
+                ? null
+                : (error, stack, sink) => _transformer._handleError!(
+                    error, stack ?? StackTrace.fromString(''), sink),
             handleDone: _closeSink)));
   }
 
   @override
   Future close() {
-    if (_transformer._handleDone == null) return _inner.close();
+    var handleDone = _transformer._handleDone;
+    if (handleDone == null) return _inner.close();
 
-    _transformer._handleDone(_safeCloseInner);
+    handleDone(_safeCloseInner);
     return _inner.done;
   }
 }
