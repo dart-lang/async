@@ -7,6 +7,8 @@ analyzer:
     todo: ignore
     # Lint provided by pkg:pedantic – should fix this!
     unawaited_futures: ignore
+  enable-experiment:
+    - non-nullable
 
 linter:
   rules:
