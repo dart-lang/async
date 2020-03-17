@@ -33,6 +33,11 @@ dependency_overrides:
     git:
       url: git://github.com/dart-lang/matcher.git
       ref: null_safety
+  meta:
+    git:
+      url: git://github.com/dart-lang/sdk.git
+      ref: null_safety-pkgs
+      path: pkg/meta
   path:
     git:
       url: git://github.com/dart-lang/path.git
@@ -58,4 +63,3 @@ dependency_overrides:
       url: git://github.com/dart-lang/test.git
       ref: null_safety
       path: pkgs/test_api
-  
