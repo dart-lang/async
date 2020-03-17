@@ -18,7 +18,7 @@ class ReleaseSink<T> implements EventSink<Result<T>> {
   }
 
   @override
-  void addError(Object error, [StackTrace stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     // Errors may be added by intermediate processing, even if it is never
     // added by CaptureSink.
     _sink.addError(error, stackTrace);

@@ -8,19 +8,19 @@ import 'result.dart';
 import 'value.dart';
 
 /// A result representing a thrown error.
-class ErrorResult implements Result<Null> {
+class ErrorResult implements Result<Never> {
   /// The error object that was thrown.
   final Object error;
 
   /// The stack trace corresponding to where [error] was thrown.
-  final StackTrace stackTrace;
+  final StackTrace? stackTrace;
 
   @override
   bool get isValue => false;
   @override
   bool get isError => true;
   @override
-  ValueResult<Null> get asValue => null;
+  ValueResult<Never>? get asValue => null;
   @override
   ErrorResult get asError => this;
 
@@ -37,7 +37,7 @@ class ErrorResult implements Result<Null> {
   }
 
   @override
-  Future<Null> get asFuture => Future<Null>.error(error, stackTrace);
+  Future<Never> get asFuture => Future<Never>.error(error, stackTrace);
 
   /// Calls an error handler with the error and stacktrace.
   ///
