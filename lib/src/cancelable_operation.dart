@@ -105,9 +105,9 @@ class CancelableOperation<T> {
     valueOrCancellation().then((T result) {
       if (!completer.isCanceled) {
         if (isCompleted) {
-          completer.complete(Future.sync(() => onValue(result)));
+          completer.complete(Future<R>.sync(() => onValue(result)));
         } else if (onCancel != null) {
-          completer.complete(Future.sync(onCancel));
+          completer.complete(Future<R>.sync(onCancel));
         } else {
           completer._cancel();
         }
@@ -115,7 +115,7 @@ class CancelableOperation<T> {
     }, onError: (Object error, StackTrace stackTrace) {
       if (!completer.isCanceled) {
         if (onError != null) {
-          completer.complete(Future.sync(() => onError(error, stackTrace)));
+          completer.complete(Future<R>.sync(() => onError(error, stackTrace)));
         } else {
           completer.completeError(error, stackTrace);
         }
