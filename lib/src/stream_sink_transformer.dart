@@ -35,7 +35,7 @@ abstract class StreamSinkTransformer<S, T> {
   /// the event is passed through unaltered.
   factory StreamSinkTransformer.fromHandlers(
       {void Function(S, EventSink<T>)? handleData,
-      void Function(Object, StackTrace?, EventSink<T>)? handleError,
+      void Function(Object, StackTrace, EventSink<T>)? handleError,
       void Function(EventSink<T>)? handleDone}) {
     return HandlerTransformer<S, T>(handleData, handleError, handleDone);
   }
