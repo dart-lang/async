@@ -88,8 +88,8 @@ class _HandlerSink<S, T> implements StreamSink<S> {
             // stack trace arg non-nullable.
             handleError: _transformer._handleError == null
                 ? null
-                : (error, stack, sink) => _transformer._handleError!(
-                    error, stack ?? StackTrace.fromString(''), sink),
+                : (error, stack, sink) =>
+                    _transformer._handleError!(error, stack, sink),
             handleDone: _closeSink)));
   }
 
