@@ -72,10 +72,8 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     if (handleError == null) {
       _inner.addError(error, stackTrace);
     } else {
-      // TODO: Update to pass AsyncError.defaultStackTrace(error) once that
-      // lands in the sdk.
-      handleError(
-          error, stackTrace ?? StackTrace.fromString(''), _safeCloseInner);
+      handleError(error, stackTrace ?? AsyncError.defaultStackTrace(error),
+          _safeCloseInner);
     }
   }
 
@@ -84,12 +82,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
     return _inner.addStream(stream.transform(
         StreamTransformer<S, T>.fromHandlers(
             handleData: _transformer._handleData,
-            // TODO: remove extra wrapping once the sdk changes to make the
-            // stack trace arg non-nullable.
-            handleError: _transformer._handleError == null
-                ? null
-                : (error, stack, sink) => _transformer._handleError!(
-                    error, stack ?? StackTrace.fromString(''), sink),
+            handleError: _transformer._handleError,
             handleDone: _closeSink)));
   }
 
