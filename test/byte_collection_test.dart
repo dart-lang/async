@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:test/test.dart';
 import 'package:async/async.dart';
@@ -78,8 +79,9 @@ void main() {
       expect(sc.hasListener, isTrue);
       result.cancel();
       expect(sc.hasListener, isFalse); // Cancelled immediately.
-      var replacement = await result.valueOrCancellation();
-      expect(replacement, isNull);
+      var cancellationVal = Uint8List(0);
+      var replacement = await result.valueOrCancellation(cancellationVal);
+      expect(replacement, same(cancellationVal));
       await nextTimerTick();
       sc.close();
       await nextTimerTick();
