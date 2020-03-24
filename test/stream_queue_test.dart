@@ -1046,6 +1046,9 @@ void main() {
       expect(events.withTransaction(expectAsync1((queue) async {
         expect(await queue.next, 2);
         throw 'oh no';
+        // TODO: Remove after https://github.com/dart-lang/sdk/issues/41156
+        // ignore: dead_code
+        return true;
       })), throwsA('oh no'));
 
       expect(events.next, completion(3));

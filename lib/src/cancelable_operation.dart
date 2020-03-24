@@ -68,11 +68,8 @@ class CancelableOperation<T> {
   /// If this operation completes, this completes to the same result as [value].
   /// If this operation is cancelled, the returned future waits for the future
   /// returned by [cancel], then completes to [cancellationValue].
-  ///
-  /// If [T] is not nullable then [cancellationValue] must provide a valid
-  /// value, otherwise it will throw on cancellation.
-  Future<T> valueOrCancellation([T? cancellationValue]) {
-    var completer = Completer<T>.sync();
+  Future<T?> valueOrCancellation([T? cancellationValue]) {
+    var completer = Completer<T?>.sync();
     value.then((result) => completer.complete(result),
         onError: completer.completeError);
 
@@ -102,10 +99,11 @@ class CancelableOperation<T> {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
 
-    valueOrCancellation().then((T result) {
+    valueOrCancellation().then((T? result) {
       if (!completer.isCanceled) {
         if (isCompleted) {
-          completer.complete(Future<R>.sync(() => onValue(result)));
+          assert(result is T);
+          completer.complete(Future<R>.sync(() => onValue(result!)));
         } else if (onCancel != null) {
           completer.complete(Future<R>.sync(onCancel));
         } else {
