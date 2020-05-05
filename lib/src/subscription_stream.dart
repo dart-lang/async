@@ -49,7 +49,7 @@ class SubscriptionStream<T> extends Stream<T> {
     cancelOnError = (true == cancelOnError);
     _source = null;
 
-    var result = cancelOnError!
+    var result = cancelOnError
         ? _CancelOnErrorSubscriptionWrapper<T>(subscription)
         : subscription;
     result.onData(onData);
