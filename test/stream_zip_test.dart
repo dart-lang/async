@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 /// Create an error with the same values as [base], except that it throwsA
 /// when seeing the value [errorValue].
-Stream streamError(Stream base, int errorValue, error) {
+Stream streamError(Stream base, int errorValue, Object error) {
   return base.map((x) => (x == errorValue) ? throw error : x);
 }
 

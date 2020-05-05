@@ -337,7 +337,7 @@ class StreamQueue<T> {
         transaction.reject();
       }
       return result;
-    }, onError: (error) {
+    }, onError: (Object error) {
       transaction.commit(queue);
       throw error;
     });

@@ -74,7 +74,7 @@ class StreamZip<T> extends Stream<List<T>> {
         subscriptions.add(stream.listen((data) {
           handleData(index, data);
         },
-            onError: cancelOnError! ? handleError : handleErrorCancel,
+            onError: cancelOnError ? handleError : handleErrorCancel,
             onDone: handleDone,
             cancelOnError: cancelOnError));
       }
