@@ -112,7 +112,7 @@ abstract class Result<T> {
           }
         });
       } else {
-        results.add(Result<T>.value(element as T));
+        results.add(Result<T>.value(element));
       }
     }
     if (pending == 0) {

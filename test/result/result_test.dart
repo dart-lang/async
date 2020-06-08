@@ -72,7 +72,7 @@ void main() {
     var c = Completer<bool>();
     c.future.then((bool v) {
       fail('Unexpected value $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -109,7 +109,7 @@ void main() {
     Result<bool> result = ErrorResult('BAD', stack);
     result.asFuture.then((bool v) {
       fail('Unexpected value $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -154,7 +154,7 @@ void main() {
     var future = Future<Result<bool>>.value(Result<bool>.error('BAD', stack));
     Result.release(future).then((v) {
       fail('Unexpected value: $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -165,7 +165,7 @@ void main() {
     var future = Future<Result<bool>>.error('BAD', stack);
     Result.release(future).then((v) {
       fail('Unexpected value: $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
