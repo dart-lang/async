@@ -41,7 +41,7 @@ class LazyStream<T> extends Stream<T> {
     if (result is Future<Stream<T>>) {
       stream = StreamCompleter.fromFuture(result);
     } else {
-      stream = result as Stream<T>;
+      stream = result;
     }
 
     return stream.listen(onData,
