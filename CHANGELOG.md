@@ -1,3 +1,7 @@
+## 2.4.2
+
+* `StreamQueue` starts listening immediately to broadcast strings.
+
 ## 2.4.1
 
 * Deprecate `DelegatingStream.typed`. Use `Stream.cast` instead.
