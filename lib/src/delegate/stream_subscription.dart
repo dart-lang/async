@@ -22,7 +22,7 @@ class DelegatingStreamSubscription<T> implements StreamSubscription<T> {
   /// This soundly converts a [StreamSubscription] to a `StreamSubscription<T>`,
   /// regardless of its original generic type, by asserting that its events are
   /// instances of `T` whenever they're provided. If they're not, the
-  /// subscription throws a [CastError].
+  /// subscription throws a [TypeError].
   @Deprecated('Use Stream.cast instead')
   // TODO - Remove `TypeSafeStreamSubscription` and tests when removing this.
   static StreamSubscription<T> typed<T>(StreamSubscription subscription) =>

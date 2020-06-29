@@ -51,7 +51,7 @@ abstract class StreamSinkTransformer<S, T> {
   /// This soundly converts a [StreamSinkTransformer] to a
   /// `StreamSinkTransformer<S, T>`, regardless of its original generic type.
   /// This means that calls to [StreamSink.add] on the returned sink may throw a
-  /// [CastError] if the argument type doesn't match the reified type of the
+  /// [TypeError] if the argument type doesn't match the reified type of the
   /// sink.
   @deprecated
   // TODO remove TypeSafeStreamSinkTransformer

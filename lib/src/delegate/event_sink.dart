@@ -20,7 +20,7 @@ class DelegatingEventSink<T> implements EventSink<T> {
   ///
   /// Unlike [new DelegatingEventSink], this only requires its argument to be an
   /// instance of `EventSink`, not `EventSink<T>`. This means that calls to
-  /// [add] may throw a [CastError] if the argument type doesn't match the
+  /// [add] may throw a [TypeError] if the argument type doesn't match the
   /// reified type of [sink].
   @Deprecated(
       'Use StreamController<T>(sync: true)..stream.cast<S>().pipe(sink)')

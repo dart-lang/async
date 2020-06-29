@@ -16,7 +16,7 @@ class DelegatingFuture<T> implements Future<T> {
   ///
   /// This soundly converts a [Future] to a `Future<T>`, regardless of its
   /// original generic type, by asserting that its value is an instance of `T`
-  /// whenever it's provided. If it's not, the future throws a [CastError].
+  /// whenever it's provided. If it's not, the future throws a [TypeError].
   @Deprecated('Use future.then((v) => v as T) instead.')
   static Future<T> typed<T>(Future future) =>
       future is Future<T> ? future : future.then((v) => v as T);
