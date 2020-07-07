@@ -1,3 +1,7 @@
+## 2.4.3
+
+* `StreamQueue` handles mock `Stream` for backward compatibility.
+
 ## 2.4.2
 
 * `StreamQueue` starts listening immediately to broadcast strings.

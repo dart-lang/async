@@ -5,9 +5,12 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'utils.dart';
+
+class MockStream extends Mock implements Stream {}
 
 void main() {
   group('source stream', () {
@@ -39,6 +42,28 @@ void main() {
 
       events.cancel();
       expect(controller.hasListener, isFalse);
+    });
+
+    test('supports listening to mock streams', () {
+      final stream = MockStream();
+      when(stream.listen(
+        any,
+        onError: captureAnyNamed('onError'),
+        onDone: captureAnyNamed('onDone'),
+        cancelOnError: captureAnyNamed('cancelOnError'),
+      )).thenAnswer((invocation) {
+        return createStream().listen(
+          invocation.positionalArguments.first as Function(int),
+          onError:
+              invocation.namedArguments[const Symbol('onError')] as Function,
+          onDone: invocation.namedArguments[const Symbol('onDone')] as void
+              Function(),
+          cancelOnError:
+              invocation.namedArguments[const Symbol('cancelOnError')] as bool,
+        );
+      });
+
+      expectLater(stream, emitsInOrder([1, 2, 3, 4, emitsDone]));
     });
   });
 

@@ -120,7 +120,9 @@ class StreamQueue<T> {
   // Private generative constructor to avoid subclasses.
   StreamQueue._(this._source) {
     // Start listening immediately if we could otherwise lose events.
-    if (_source.isBroadcast) {
+    // isBroadcast can be null when using [mockito](https://pub.dev/packages/mockito)
+    // to create a mock stream.
+    if (_source?.isBroadcast == true) {
       _ensureListening();
       _pause();
     }
