@@ -118,7 +118,13 @@ class StreamQueue<T> {
   factory StreamQueue(Stream<T> source) => StreamQueue._(source);
 
   // Private generative constructor to avoid subclasses.
-  StreamQueue._(this._source);
+  StreamQueue._(this._source) {
+    // Start listening immediately if we could otherwise lose events.
+    if (_source.isBroadcast) {
+      _ensureListening();
+      _pause();
+    }
+  }
 
   /// Asks if the stream has any more events.
   ///
