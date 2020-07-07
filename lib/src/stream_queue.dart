@@ -122,7 +122,7 @@ class StreamQueue<T> {
     // Start listening immediately if we could otherwise lose events.
     // isBroadcast can be null when using [mockito](https://pub.dev/packages/mockito)
     // to create a mock stream.
-    if (_source?.isBroadcast == true) {
+    if (_source.isBroadcast ?? false) {
       _ensureListening();
       _pause();
     }
