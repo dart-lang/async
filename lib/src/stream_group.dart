@@ -29,7 +29,7 @@ import 'dart:async';
 class StreamGroup<T> implements Sink<Stream<T>> {
   /// The stream through which all events from streams in the group are emitted.
   Stream<T> get stream => _controller.stream;
-  StreamController<T> _controller;
+  late StreamController<T> _controller;
 
   /// Whether the group is closed, meaning that no more streams may be added.
   var _closed = false;
@@ -47,7 +47,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// subscriptions will be canceled and set to null again. Single-subscriber
   /// stream subscriptions will be left intact, since they can't be
   /// re-subscribed.
-  final _subscriptions = <Stream<T>, StreamSubscription<T>>{};
+  final _subscriptions = <Stream<T>, StreamSubscription<T>?>{};
 
   /// Merges the events from [streams] into a single single-subscription stream.
   ///
@@ -100,7 +100,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// Throws a [StateError] if this group is closed.
   @override
-  Future add(Stream<T> stream) {
+  Future? add(Stream<T> stream) {
     if (_closed) {
       throw StateError("Can't add a Stream to a closed StreamGroup.");
     }
@@ -130,7 +130,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// If [stream]'s subscription is canceled, this returns
   /// [StreamSubscription.cancel]'s return value. Otherwise, it returns `null`.
-  Future remove(Stream<T> stream) {
+  Future? remove(Stream<T> stream) {
     var subscription = _subscriptions.remove(stream);
     var future = subscription == null ? null : subscription.cancel();
     if (_closed && _subscriptions.isEmpty) _controller.close();
@@ -155,7 +155,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   void _onPause() {
     _state = _StreamGroupState.paused;
     for (var subscription in _subscriptions.values) {
-      subscription.pause();
+      subscription!.pause();
     }
   }
 
@@ -163,19 +163,18 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   void _onResume() {
     _state = _StreamGroupState.listening;
     for (var subscription in _subscriptions.values) {
-      subscription.resume();
+      subscription!.resume();
     }
   }
 
   /// A callback called when [stream] is canceled.
   ///
   /// This is only called for single-subscription groups.
-  Future _onCancel() {
+  Future? _onCancel() {
     _state = _StreamGroupState.canceled;
 
     var futures = _subscriptions.values
-        .map((subscription) => subscription.cancel())
-        .where((future) => future != null)
+        .map((subscription) => subscription!.cancel())
         .toList();
 
     _subscriptions.clear();
@@ -194,7 +193,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
       // will still be added to [_controller], but then they'll be dropped since
       // it has no listeners.
       if (!stream.isBroadcast) return;
-      subscription.cancel();
+      subscription!.cancel();
       _subscriptions[stream] = null;
     });
   }

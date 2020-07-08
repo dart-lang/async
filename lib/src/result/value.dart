@@ -19,7 +19,7 @@ class ValueResult<T> implements Result<T> {
   @override
   ValueResult<T> get asValue => this;
   @override
-  ErrorResult get asError => null;
+  ErrorResult? get asError => null;
 
   ValueResult(this.value);
 

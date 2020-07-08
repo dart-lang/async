@@ -13,22 +13,23 @@ class TypeSafeStreamSubscription<T> implements StreamSubscription<T> {
   TypeSafeStreamSubscription(this._subscription);
 
   @override
-  void onData(void Function(T) handleData) {
+  void onData(void Function(T)? handleData) {
+    if (handleData == null) return _subscription.onData(null);
     _subscription.onData((data) => handleData(data as T));
   }
 
   @override
-  void onError(Function handleError) {
+  void onError(Function? handleError) {
     _subscription.onError(handleError);
   }
 
   @override
-  void onDone(void Function() handleDone) {
+  void onDone(void Function()? handleDone) {
     _subscription.onDone(handleDone);
   }
 
   @override
-  void pause([Future resumeFuture]) {
+  void pause([Future? resumeFuture]) {
     _subscription.pause(resumeFuture);
   }
 
@@ -41,5 +42,6 @@ class TypeSafeStreamSubscription<T> implements StreamSubscription<T> {
   Future cancel() => _subscription.cancel();
 
   @override
-  Future<E> asFuture<E>([E futureValue]) => _subscription.asFuture(futureValue);
+  Future<E> asFuture<E>([E? futureValue]) =>
+      _subscription.asFuture(futureValue);
 }

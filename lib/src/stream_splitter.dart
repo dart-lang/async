@@ -28,7 +28,7 @@ class StreamSplitter<T> {
   /// The subscription to [_stream].
   ///
   /// This will be `null` until a branch has a listener.
-  StreamSubscription<T> _subscription;
+  StreamSubscription<T>? _subscription;
 
   /// The buffer of events or errors that have already been emitted by
   /// [_stream].
@@ -57,7 +57,7 @@ class StreamSplitter<T> {
   ///
   /// [count] defaults to 2. This is the same as creating [count] branches and
   /// then closing the [StreamSplitter].
-  static List<Stream<T>> splitFrom<T>(Stream<T> stream, [int count]) {
+  static List<Stream<T>> splitFrom<T>(Stream<T> stream, [int? count]) {
     count ??= 2;
     var splitter = StreamSplitter<T>(stream);
     var streams = List<Stream<T>>.generate(count, (_) => splitter.split());
@@ -125,8 +125,8 @@ class StreamSplitter<T> {
     assert(_controllers.isEmpty);
     assert(_isClosed);
 
-    Future future;
-    if (_subscription != null) future = _subscription.cancel();
+    Future? future;
+    if (_subscription != null) future = _subscription!.cancel();
     if (future != null) _closeGroup.add(future);
     _closeGroup.close();
   }
@@ -142,7 +142,7 @@ class StreamSplitter<T> {
       // Resume the subscription in case it was paused, either because all the
       // controllers were paused or because the last one was canceled. If it
       // wasn't paused, this will be a no-op.
-      _subscription.resume();
+      _subscription!.resume();
     } else {
       _subscription =
           _stream.listen(_onData, onError: _onError, onDone: _onDone);
@@ -152,14 +152,14 @@ class StreamSplitter<T> {
   /// Pauses [_subscription] if every controller is paused.
   void _onPause() {
     if (!_controllers.every((controller) => controller.isPaused)) return;
-    _subscription.pause();
+    _subscription!.pause();
   }
 
   /// Resumes [_subscription].
   ///
   /// If [_subscription] wasn't paused, this is a no-op.
   void _onResume() {
-    _subscription.resume();
+    _subscription!.resume();
   }
 
   /// Removes [controller] from [_controllers] and cancels or pauses
@@ -175,7 +175,7 @@ class StreamSplitter<T> {
     if (_isClosed) {
       _cancelSubscription();
     } else {
-      _subscription.pause();
+      _subscription!.pause();
     }
   }
 

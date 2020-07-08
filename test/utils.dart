@@ -25,7 +25,7 @@ OptionalArgAction unreachable(String name) =>
 Matcher throwsZoned(matcher) => predicate((void Function() callback) {
       var firstError = true;
       runZoned(callback,
-          onError: expectAsync2((error, StackTrace stackTrace) {
+          onError: expectAsync2((Object error, StackTrace stackTrace) {
             if (firstError) {
               expect(error, matcher);
               firstError = false;
@@ -37,11 +37,11 @@ Matcher throwsZoned(matcher) => predicate((void Function() callback) {
     });
 
 /// A matcher that runs a callback in its own zone and asserts that that zone
-/// emits a [CastError].
-final throwsZonedCastError = throwsZoned(TypeMatcher<CastError>());
+/// emits a [TypeError].
+final throwsZonedCastError = throwsZoned(TypeMatcher<TypeError>());
 
-/// A matcher that matches a callback or future that throws a [CastError].
-final throwsCastError = throwsA(TypeMatcher<CastError>());
+/// A matcher that matches a callback or future that throws a [TypeError].
+final throwsCastError = throwsA(TypeMatcher<TypeError>());
 
 /// A badly behaved stream which throws if it's ever listened to.
 ///
@@ -67,7 +67,7 @@ class CompleterStreamSink<T> implements StreamSink<T> {
   @override
   void add(T event) {}
   @override
-  void addError(error, [StackTrace stackTrace]) {}
+  void addError(error, [StackTrace? stackTrace]) {}
   @override
   Future addStream(Stream<T> stream) async {}
   @override
@@ -95,7 +95,7 @@ class TestSink<T> implements StreamSink<T> {
   ///
   /// If [onDone] is passed, it's called when the user calls [close]. Its result
   /// is piped to the [done] future.
-  TestSink({void Function() onDone}) : _onDone = onDone ?? (() {});
+  TestSink({void Function()? onDone}) : _onDone = onDone ?? (() {});
 
   @override
   void add(T event) {
@@ -103,7 +103,7 @@ class TestSink<T> implements StreamSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace stackTrace]) {
+  void addError(error, [StackTrace? stackTrace]) {
     results.add(Result<T>.error(error, stackTrace));
   }
 

@@ -11,7 +11,7 @@ import 'utils.dart';
 
 void main() {
   group('without being canceled', () {
-    CancelableCompleter completer;
+    late CancelableCompleter completer;
     setUp(() {
       completer = CancelableCompleter(onCancel: expectAsync0(() {}, count: 0));
     });
@@ -116,7 +116,7 @@ void main() {
 
     test('fires onCancel', () {
       var canceled = false;
-      CancelableCompleter completer;
+      late CancelableCompleter completer;
       completer = CancelableCompleter(onCancel: expectAsync0(() {
         expect(completer.isCanceled, isTrue);
         canceled = true;
@@ -243,23 +243,23 @@ void main() {
   });
 
   group('then', () {
-    FutureOr<String> Function(int) onValue;
-    FutureOr<String> Function(Object, StackTrace) onError;
-    FutureOr<String> Function() onCancel;
-    bool propagateCancel;
-    CancelableCompleter<int> originalCompleter;
+    FutureOr<String> Function(int)? onValue;
+    FutureOr<String> Function(Object, StackTrace)? onError;
+    FutureOr<String> Function()? onCancel;
+    late bool propagateCancel;
+    late CancelableCompleter<int> originalCompleter;
 
     setUp(() {
       // Initialize all functions to ones that expect to not be called.
-      onValue = expectAsync1((_) => null, count: 0, id: 'onValue');
-      onError = expectAsync2((e, s) => null, count: 0, id: 'onError');
-      onCancel = expectAsync0(() => null, count: 0, id: 'onCancel');
+      onValue = expectAsync1((_) => 'Fake', count: 0, id: 'onValue');
+      onError = expectAsync2((e, s) => 'Fake', count: 0, id: 'onError');
+      onCancel = expectAsync0(() => 'Fake', count: 0, id: 'onCancel');
       propagateCancel = false;
     });
 
     CancelableOperation<String> runThen() {
       originalCompleter = CancelableCompleter();
-      return originalCompleter.operation.then(onValue,
+      return originalCompleter.operation.then(onValue!,
           onError: onError,
           onCancel: onCancel,
           propagateCancel: propagateCancel);

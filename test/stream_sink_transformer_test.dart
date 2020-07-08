@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  StreamController controller;
+  late StreamController controller;
   setUp(() {
     controller = StreamController();
   });
@@ -18,7 +18,7 @@ void main() {
   group('fromStreamTransformer', () {
     test('transforms data events', () {
       var transformer = StreamSinkTransformer.fromStreamTransformer(
-          StreamTransformer.fromHandlers(handleData: (i, sink) {
+          StreamTransformer.fromHandlers(handleData: (int i, sink) {
         sink.add(i * 2);
       }));
       var sink = transformer.bind(controller.sink);
@@ -117,7 +117,7 @@ void main() {
   group('fromHandlers', () {
     test('transforms data events', () {
       var transformer =
-          StreamSinkTransformer.fromHandlers(handleData: (i, sink) {
+          StreamSinkTransformer.fromHandlers(handleData: (int i, sink) {
         sink.add(i * 2);
       });
       var sink = transformer.bind(controller.sink);

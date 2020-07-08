@@ -97,7 +97,7 @@ class StreamCompleter<T> {
   ///
   /// Any one of [setSourceStream], [setEmpty], and [setError] may be called at
   /// most once. Trying to call any of them again will fail.
-  void setError(error, [StackTrace stackTrace]) {
+  void setError(Object error, [StackTrace? stackTrace]) {
     setSourceStream(Stream.fromFuture(Future.error(error, stackTrace)));
   }
 }
@@ -108,30 +108,31 @@ class _CompleterStream<T> extends Stream<T> {
   ///
   /// Created if the user listens on this stream before the source stream
   /// is set, or if using [_setEmpty] so there is no source stream.
-  StreamController<T> _controller;
+  StreamController<T>? _controller;
 
   /// Source stream for the events provided by this stream.
   ///
   /// Set when the completer sets the source stream using [_setSourceStream]
   /// or [_setEmpty].
-  Stream<T> _sourceStream;
+  Stream<T>? _sourceStream;
 
   @override
-  StreamSubscription<T> listen(void Function(T) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
+  StreamSubscription<T> listen(void Function(T)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     if (_controller == null) {
-      if (_sourceStream != null && !_sourceStream.isBroadcast) {
+      var sourceStream = _sourceStream;
+      if (sourceStream != null && !sourceStream.isBroadcast) {
         // If the source stream is itself single subscription,
         // just listen to it directly instead of creating a controller.
-        return _sourceStream.listen(onData,
+        return sourceStream.listen(onData,
             onError: onError, onDone: onDone, cancelOnError: cancelOnError);
       }
-      _createController();
+      _ensureController();
       if (_sourceStream != null) {
         _linkStreamToController();
       }
     }
-    return _controller.stream.listen(onData,
+    return _controller!.stream.listen(onData,
         onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
 
@@ -157,11 +158,10 @@ class _CompleterStream<T> extends Stream<T> {
 
   /// Links source stream to controller when both are available.
   void _linkStreamToController() {
-    assert(_controller != null);
-    assert(_sourceStream != null);
-    _controller
-        .addStream(_sourceStream, cancelOnError: false)
-        .whenComplete(_controller.close);
+    var controller = _controller!;
+    controller
+        .addStream(_sourceStream!, cancelOnError: false)
+        .whenComplete(controller.close);
   }
 
   /// Sets an empty source stream.
@@ -170,16 +170,13 @@ class _CompleterStream<T> extends Stream<T> {
   /// immediately.
   void _setEmpty() {
     assert(_sourceStream == null);
-    if (_controller == null) {
-      _createController();
-    }
-    _sourceStream = _controller.stream; // Mark stream as set.
-    _controller.close();
+    var controller = _ensureController();
+    _sourceStream = controller.stream; // Mark stream as set.
+    controller.close();
   }
 
   // Creates the [_controller].
-  void _createController() {
-    assert(_controller == null);
-    _controller = StreamController<T>(sync: true);
+  StreamController<T> _ensureController() {
+    return _controller ??= StreamController<T>(sync: true);
   }
 }

@@ -18,7 +18,7 @@ import 'delegate/stream_subscription.dart';
 /// If other code is accessing the subscription, results may be unpredictable.
 class SubscriptionStream<T> extends Stream<T> {
   /// The subscription providing the events for this stream.
-  StreamSubscription<T> _source;
+  StreamSubscription<T>? _source;
 
   /// Create a single-subscription `Stream` from [subscription].
   ///
@@ -31,21 +31,22 @@ class SubscriptionStream<T> extends Stream<T> {
   /// an error.
   SubscriptionStream(StreamSubscription<T> subscription)
       : _source = subscription {
-    _source.pause();
+    var source = _source!;
+    source.pause();
     // Clear callbacks to avoid keeping them alive unnecessarily.
-    _source.onData(null);
-    _source.onError(null);
-    _source.onDone(null);
+    source.onData(null);
+    source.onError(null);
+    source.onDone(null);
   }
 
   @override
-  StreamSubscription<T> listen(void Function(T) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
-    if (_source == null) {
+  StreamSubscription<T> listen(void Function(T)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+    var subscription = _source;
+    if (subscription == null) {
       throw StateError('Stream has already been listened to.');
     }
     cancelOnError = (true == cancelOnError);
-    var subscription = _source;
     _source = null;
 
     var result = cancelOnError
@@ -71,26 +72,17 @@ class _CancelOnErrorSubscriptionWrapper<T>
       : super(subscription);
 
   @override
-  void onError(Function handleError) {
+  void onError(Function? handleError) {
     // Cancel when receiving an error.
     super.onError((error, StackTrace stackTrace) {
-      var cancelFuture = super.cancel();
-      if (cancelFuture != null) {
-        // Wait for the cancel to complete before sending the error event.
-        cancelFuture.whenComplete(() {
-          if (handleError is ZoneBinaryCallback) {
-            handleError(error, stackTrace);
-          } else {
-            handleError(error);
-          }
-        });
-      } else {
+      // Wait for the cancel to complete before sending the error event.
+      super.cancel().whenComplete(() {
         if (handleError is ZoneBinaryCallback) {
           handleError(error, stackTrace);
-        } else {
+        } else if (handleError != null) {
           handleError(error);
         }
-      }
+      });
     });
   }
 }

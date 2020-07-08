@@ -16,7 +16,7 @@ void main() {
     var result = Result<int>.value(42);
     expect(result.isValue, isTrue);
     expect(result.isError, isFalse);
-    ValueResult value = result.asValue;
+    ValueResult value = result.asValue!;
     expect(value.value, equals(42));
   });
 
@@ -24,7 +24,7 @@ void main() {
     Result<int> result = ValueResult<int>(42);
     expect(result.isValue, isTrue);
     expect(result.isError, isFalse);
-    var value = result.asValue;
+    var value = result.asValue!;
     expect(value.value, equals(42));
   });
 
@@ -32,7 +32,7 @@ void main() {
     var result = Result<bool>.error('BAD', stack);
     expect(result.isValue, isFalse);
     expect(result.isError, isTrue);
-    var error = result.asError;
+    var error = result.asError!;
     expect(error.error, equals('BAD'));
     expect(error.stackTrace, same(stack));
   });
@@ -50,9 +50,10 @@ void main() {
     var result = Result<bool>.error('BAD');
     expect(result.isValue, isFalse);
     expect(result.isError, isTrue);
-    var error = result.asError;
+    var error = result.asError!;
     expect(error.error, equals('BAD'));
-    expect(error.stackTrace, isNull);
+    // A default stack trace is created
+    expect(error.stackTrace, isNotNull);
   });
 
   test('complete with value', () {
@@ -71,7 +72,7 @@ void main() {
     var c = Completer<bool>();
     c.future.then((bool v) {
       fail('Unexpected value $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -108,7 +109,7 @@ void main() {
     Result<bool> result = ErrorResult('BAD', stack);
     result.asFuture.then((bool v) {
       fail('Unexpected value $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -119,7 +120,7 @@ void main() {
     Result.capture(value).then(expectAsync1((Result result) {
       expect(result.isValue, isTrue);
       expect(result.isError, isFalse);
-      var value = result.asValue;
+      var value = result.asValue!;
       expect(value.value, equals(42));
     }), onError: (e, s) {
       fail('Unexpected error: $e');
@@ -131,7 +132,7 @@ void main() {
     Result.capture(value).then(expectAsync1((Result result) {
       expect(result.isValue, isFalse);
       expect(result.isError, isTrue);
-      var error = result.asError;
+      var error = result.asError!;
       expect(error.error, equals('BAD'));
       expect(error.stackTrace, same(stack));
     }), onError: (e, s) {
@@ -153,7 +154,7 @@ void main() {
     var future = Future<Result<bool>>.value(Result<bool>.error('BAD', stack));
     Result.release(future).then((v) {
       fail('Unexpected value: $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -164,7 +165,7 @@ void main() {
     var future = Future<Result<bool>>.error('BAD', stack);
     Result.release(future).then((v) {
       fail('Unexpected value: $v');
-    }, onError: expectAsync2((e, s) {
+    }).then<void>((_) {}, onError: expectAsync2((e, s) {
       expect(e, equals('BAD'));
       expect(s, same(stack));
     }));
@@ -203,15 +204,15 @@ void main() {
       expect(expectedList.isEmpty, isFalse);
       Result expected = expectedList.removeFirst();
       expect(expected.isValue, isTrue);
-      expect(v, equals(expected.asValue.value));
+      expect(v, equals(expected.asValue!.value));
     }
 
     void errorListener(error, StackTrace stackTrace) {
       expect(expectedList.isEmpty, isFalse);
       Result expected = expectedList.removeFirst();
       expect(expected.isError, isTrue);
-      expect(error, equals(expected.asError.error));
-      expect(stackTrace, same(expected.asError.stackTrace));
+      expect(error, equals(expected.asError!.error));
+      expect(stackTrace, same(expected.asError!.stackTrace));
     }
 
     stream.listen(expectAsync1(dataListener, count: 2),
@@ -311,10 +312,10 @@ void expectResult(Result actual, Result expected) {
   expect(actual.isValue, equals(expected.isValue));
   expect(actual.isError, equals(expected.isError));
   if (actual.isValue) {
-    expect(actual.asValue.value, equals(expected.asValue.value));
+    expect(actual.asValue!.value, equals(expected.asValue!.value));
   } else {
-    expect(actual.asError.error, equals(expected.asError.error));
-    expect(actual.asError.stackTrace, same(expected.asError.stackTrace));
+    expect(actual.asError!.error, equals(expected.asError!.error));
+    expect(actual.asError!.stackTrace, same(expected.asError!.stackTrace));
   }
 }
 
@@ -334,8 +335,8 @@ class TestSink<T> implements EventSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace stack]) {
-    onError(error, stack);
+  void addError(error, [StackTrace? stack]) {
+    onError(error, stack ?? StackTrace.fromString(''));
   }
 
   @override

@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 /// Create an error with the same values as [base], except that it throwsA
 /// when seeing the value [errorValue].
-Stream streamError(Stream base, int errorValue, error) {
+Stream streamError(Stream base, int errorValue, Object error) {
   return base.map((x) => (x == errorValue) ? throw error : x);
 }
 
@@ -306,7 +306,7 @@ void main() {
     var s2 = Stream.fromIterable([1, 3, 5, 7]);
     var sz = StreamZip([s1, s2]);
     var ctr = 0;
-    StreamSubscription sub;
+    late StreamSubscription sub;
     sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));
       if (ctr == 1) {

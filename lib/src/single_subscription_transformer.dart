@@ -11,14 +11,14 @@ import 'dart:async';
 /// listening to a stream as soon as it's bound.
 ///
 /// This also casts the source stream's events to type `T`. If the cast fails,
-/// the result stream will emit a [CastError]. This behavior is deprecated, and
+/// the result stream will emit a [TypeError]. This behavior is deprecated, and
 /// should not be relied upon.
 class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
   const SingleSubscriptionTransformer();
 
   @override
   Stream<T> bind(Stream<S> stream) {
-    StreamSubscription<S> subscription;
+    late StreamSubscription<S> subscription;
     var controller =
         StreamController<T>(sync: true, onCancel: () => subscription.cancel());
     subscription = stream.listen((value) {
@@ -26,7 +26,7 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
       // type parameter and avoid this conversion.
       try {
         controller.add(value as T);
-      } on CastError catch (error, stackTrace) {
+      } on TypeError catch (error, stackTrace) {
         controller.addError(error, stackTrace);
       }
     }, onError: controller.addError, onDone: controller.close);
