@@ -1,3 +1,7 @@
+## 2.5.0-nullsafety
+
+* Migrate this package to null safety.
+
 ## 2.4.2
 
 * `StreamQueue` starts listening immediately to broadcast strings.
