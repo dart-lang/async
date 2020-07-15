@@ -23,6 +23,13 @@ void main() {
       expect(completer.isCompleted, isTrue);
     });
 
+    test('sends null values to the future', () {
+      expect(completer.operation.value, completion(equals(null)));
+      expect(completer.isCompleted, isFalse);
+      completer.complete(null);
+      expect(completer.isCompleted, isTrue);
+    });
+
     test('sends errors to the future', () {
       expect(completer.operation.value, throwsA('error'));
       expect(completer.isCompleted, isFalse);
@@ -54,6 +61,11 @@ void main() {
     test('sends errors to valueOrCancellation', () {
       expect(completer.operation.valueOrCancellation(), throwsA('error'));
       completer.completeError('error');
+    });
+
+    test('chains null values through .then calls', () async {
+      var operation = CancelableOperation.fromFuture(Future.value(null));
+      expect(await operation.then((_) {}).value, null);
     });
 
     group('throws a StateError if completed', () {
