@@ -11,7 +11,23 @@ environment:
 dependencies:
   collection: '>=1.15.0-nullsafety <1.15.0'
 
+dev_dependencies:	
+  fake_async: ^1.0.0	
+  stack_trace: ^1.0.0	
+  test: ^1.0.0	
+  pedantic: ^1.0.0
+
 dependency_overrides:
+  # Dev dep overrides
+  clock:
+    git:
+      url: git://github.com/dart-lang/clock.git
+      ref: null_safety
+  fake_async:
+    git:	
+      url: git://github.com/dart-lang/fake_async.git	
+      ref: null_safety
+  # Normal test dep overrides
   boolean_selector:
     git: git://github.com/dart-lang/boolean_selector.git
   charcode:
