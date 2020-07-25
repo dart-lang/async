@@ -62,8 +62,11 @@ class AsyncCache<T> {
     }
     if (_cachedValueFuture == null) {
       _cachedValueFuture = callback();
-      await _cachedValueFuture;
-      _startStaleTimer();
+      try {
+        await _cachedValueFuture;
+      } finally {
+        _startStaleTimer();
+      }
     }
     return _cachedValueFuture!;
   }
