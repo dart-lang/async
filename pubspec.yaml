@@ -16,7 +16,3 @@ dev_dependencies:
   stack_trace: ^1.10.0-nullsafety
   test: ^1.16.0-nullsafety
   pedantic: ^1.10.0-nullsafety
-
-dependency_overrides:
-  fake_async:
-    git: git://github.com/dart-lang/fake_async.git
