@@ -11,11 +11,7 @@ import '../delegate/stream_sink.dart';
 typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
 
 /// The type of the callback for handling error events.
-//
-// TODO: Update to take a non-nullable StackTrace once that change lands in
-// the sdk.
-typedef HandleError<T> = void Function(
-    Object error, StackTrace stackTrace, EventSink<T> sink);
+typedef HandleError<T> = void Function(Object error, StackTrace, EventSink<T>);
 
 /// The type of the callback for handling done events.
 typedef HandleDone<T> = void Function(EventSink<T> sink);
