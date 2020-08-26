@@ -25,8 +25,7 @@ class ErrorResult implements Result<Never> {
   ErrorResult get asError => this;
 
   ErrorResult(this.error, [StackTrace? stackTrace])
-      // TODO: Use AsyncError.defaultStackTrace(error) once available
-      : stackTrace = stackTrace ?? StackTrace.fromString('');
+      : stackTrace = stackTrace ?? AsyncError.defaultStackTrace(error);
 
   @override
   void complete(Completer completer) {
