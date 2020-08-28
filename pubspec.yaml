@@ -20,13 +20,9 @@ dev_dependencies:
 dependency_overrides:
   # Dev dep overrides
   clock:
-    git:
-      url: git://github.com/dart-lang/clock.git
-      ref: null_safety
+    git: git://github.com/dart-lang/clock.git
   fake_async:
-    git:	
-      url: git://github.com/dart-lang/fake_async.git	
-      ref: null_safety
+    git: git://github.com/dart-lang/fake_async.git
   # Normal test dep overrides
   boolean_selector:
     git: git://github.com/dart-lang/boolean_selector.git
