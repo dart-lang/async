@@ -9,7 +9,7 @@ import 'dart:async';
 /// This soundly converts a [StreamTransformer] to a `StreamTransformer<S, T>`,
 /// regardless of its original generic type, by asserting that the events
 /// emitted by the transformed stream are instances of `T` whenever they're
-/// provided. If they're not, the stream throws a [CastError].
+/// provided. If they're not, the stream throws a [TypeError].
 @Deprecated('Use Stream.cast after binding a transformer instead')
 StreamTransformer<S, T> typedStreamTransformer<S, T>(
         StreamTransformer transformer) =>

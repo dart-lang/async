@@ -23,7 +23,7 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   ///
   /// Unlike [new StreamSink], this only requires its argument to be an instance
   /// of `StreamSink`, not `StreamSink<T>`. This means that calls to [add] may
-  /// throw a [CastError] if the argument type doesn't match the reified type of
+  /// throw a [TypeError] if the argument type doesn't match the reified type of
   /// [sink].
   @Deprecated(
       'Use StreamController<T>(sync: true)..stream.cast<S>().pipe(sink)')

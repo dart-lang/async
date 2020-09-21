@@ -20,7 +20,7 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
   ///
   /// Unlike [new StreamConsumer], this only requires its argument to be an
   /// instance of `StreamConsumer`, not `StreamConsumer<T>`. This means that
-  /// calls to [addStream] may throw a [CastError] if the argument type doesn't
+  /// calls to [addStream] may throw a [TypeError] if the argument type doesn't
   /// match the reified type of [consumer].
   @Deprecated(
       'Use StreamController<T>(sync: true)..stream.cast<S>().pipe(sink)')

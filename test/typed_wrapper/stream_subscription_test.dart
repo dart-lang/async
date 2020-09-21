@@ -79,7 +79,7 @@ void main() {
       wrapper = TypeSafeStreamSubscription<int>(controller.stream.listen(null));
     });
 
-    group('throws a CastError for', () {
+    group('throws a TypeError for', () {
       test('onData()', () {
         expect(() {
           // TODO(nweiz): Use the wrapper declared in setUp when sdk#26226 is
@@ -90,11 +90,11 @@ void main() {
 
           wrapper.onData(expectAsync1((_) {}, count: 0));
           controller.add('foo');
-        }, throwsZonedCastError);
+        }, throwsZonedTypeError);
       });
     });
 
-    group("doesn't throw a CastError for", () {
+    group("doesn't throw a TypeError for", () {
       test('onError()', () {
         wrapper.onError(expectAsync1((error) {
           expect(error, equals('oh no'));
