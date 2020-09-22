@@ -163,13 +163,9 @@ void main() {
     cache = AsyncCache.ephemeral();
 
     Future<String> throwingCall() async => throw Exception();
-    try {
-      await cache.fetch(throwingCall);
-    } catch (exception) {
-      expect(exception, isException);
-    }
+    await expectLater(cache.fetch(throwingCall), throwsA(isException));
     // To let the timer invalidate the cache
-    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration(milliseconds: 5));
 
     Future<String> call() async => 'Completed';
     expect(await cache.fetch(call), 'Completed', reason: 'Cache invalidates');
