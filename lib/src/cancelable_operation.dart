@@ -143,7 +143,7 @@ class CancelableOperation<T> {
 /// A completer for a [CancelableOperation].
 class CancelableCompleter<T> {
   /// The completer for the wrapped future.
-  final Completer<T> _inner;
+  final _inner = Completer<T>();
 
   /// The callback to call if the future is canceled.
   final FutureOrCallback? _onCancel;
@@ -156,14 +156,10 @@ class CancelableCompleter<T> {
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  CancelableCompleter({FutureOr Function()? onCancel})
-      : _onCancel = onCancel,
-        _inner = Completer<T>() {
-    operation = CancelableOperation<T>._(this);
-  }
+  CancelableCompleter({FutureOr Function()? onCancel}) : _onCancel = onCancel;
 
   /// The operation controlled by this completer.
-  late final CancelableOperation<T> operation;
+  late final operation = CancelableOperation<T>._(this);
 
   /// Whether the completer has completed.
   bool get isCompleted => _isCompleted;
