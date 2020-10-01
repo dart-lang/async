@@ -42,7 +42,7 @@ class AsyncCache<T> {
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by [fetchStream] emits a done
   /// event.
-  AsyncCache(this._duration);
+  AsyncCache(Duration duration) : _duration = duration;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
