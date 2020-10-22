@@ -158,4 +158,16 @@ void main() {
     }));
     expect(cache.fetchStream(call).toList(), completion(['1', '2', '3']));
   });
+
+  test('should invalidate even if the future throws an exception', () async {
+    cache = AsyncCache.ephemeral();
+
+    Future<String> throwingCall() async => throw Exception();
+    await expectLater(cache.fetch(throwingCall), throwsA(isException));
+    // To let the timer invalidate the cache
+    await Future.delayed(Duration(milliseconds: 5));
+
+    Future<String> call() async => 'Completed';
+    expect(await cache.fetch(call), 'Completed', reason: 'Cache invalidates');
+  });
 }
