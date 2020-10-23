@@ -1,7 +1,8 @@
-## 2.5.0-nullsafety.2-dev
+## 2.5.0-nullsafety.2
 
 * Remove the unusable setter `CancelableOperation.operation=`. This was
   mistakenly added to the public API but could never be called.
+* Allow 2.12.0 dev SDK versions.
 
 ## 2.5.0-nullsafety.1
 
