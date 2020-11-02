@@ -1,5 +1,5 @@
 name: async
-version: 2.5.0-nullsafety.2
+version: 2.5.0-nullsafety.3-dev
 
 description: Utility functions and classes related to the 'dart:async' library.
 homepage: https://www.github.com/dart-lang/async
