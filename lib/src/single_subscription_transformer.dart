@@ -18,10 +18,8 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
 
   @override
   Stream<T> bind(Stream<S> stream) {
-    late StreamSubscription<S> subscription;
-    var controller =
-        StreamController<T>(sync: true, onCancel: () => subscription.cancel());
-    subscription = stream.listen((value) {
+    var controller = StreamController<T>(sync: true);
+    var subscription = stream.listen((value) {
       // TODO(nweiz): When we release a new major version, get rid of the second
       // type parameter and avoid this conversion.
       try {
@@ -30,6 +28,7 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
         controller.addError(error, stackTrace);
       }
     }, onError: controller.addError, onDone: controller.close);
+    controller.onCancel = subscription.cancel;
     return controller.stream;
   }
 }

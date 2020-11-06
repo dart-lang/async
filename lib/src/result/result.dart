@@ -99,7 +99,7 @@ abstract class Result<T> {
   static Future<List<Result<T>>> captureAll<T>(Iterable<FutureOr<T>> elements) {
     var results = <Result<T>?>[];
     var pending = 0;
-    late Completer<List<Result<T>>> completer;
+    var completer = Completer<List<Result<T>>>();
     for (var element in elements) {
       if (element is Future<T>) {
         var i = results.length;
@@ -116,9 +116,8 @@ abstract class Result<T> {
       }
     }
     if (pending == 0) {
-      return Future.value(List.from(results));
+      completer.complete(List.from(results));
     }
-    completer = Completer<List<Result<T>>>();
     return completer.future;
   }
 

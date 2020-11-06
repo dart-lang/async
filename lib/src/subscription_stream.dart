@@ -31,12 +31,12 @@ class SubscriptionStream<T> extends Stream<T> {
   /// an error.
   SubscriptionStream(StreamSubscription<T> subscription)
       : _source = subscription {
-    var source = _source!;
-    source.pause();
     // Clear callbacks to avoid keeping them alive unnecessarily.
-    source.onData(null);
-    source.onError(null);
-    source.onDone(null);
+    subscription
+      ..pause()
+      ..onData(null)
+      ..onError(null)
+      ..onDone(null);
   }
 
   @override

@@ -29,7 +29,7 @@ import 'dart:async';
 class StreamGroup<T> implements Sink<Stream<T>> {
   /// The stream through which all events from streams in the group are emitted.
   Stream<T> get stream => _controller.stream;
-  late StreamController<T> _controller;
+  final StreamController<T> _controller;
 
   /// Whether the group is closed, meaning that no more streams may be added.
   var _closed = false;
@@ -72,19 +72,20 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   }
 
   /// Creates a new stream group where [stream] is single-subscriber.
-  StreamGroup() {
-    _controller = StreamController<T>(
-        onListen: _onListen,
-        onPause: _onPause,
-        onResume: _onResume,
-        onCancel: _onCancel,
-        sync: true);
+  StreamGroup() : _controller = StreamController<T>(sync: true) {
+    _controller
+      ..onListen = _onListen
+      ..onPause = _onPause
+      ..onResume = _onResume
+      ..onCancel = _onCancel;
   }
 
   /// Creates a new stream group where [stream] is a broadcast stream.
-  StreamGroup.broadcast() {
-    _controller = StreamController<T>.broadcast(
-        onListen: _onListen, onCancel: _onCancelBroadcast, sync: true);
+  StreamGroup.broadcast()
+      : _controller = StreamController<T>.broadcast(sync: true) {
+    _controller
+      ..onListen = _onListen
+      ..onCancel = _onCancelBroadcast;
   }
 
   /// Adds [stream] as a member of this group.

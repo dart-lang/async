@@ -22,7 +22,7 @@ class StreamZip<T> extends Stream<List<T>> {
       {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     cancelOnError = identical(true, cancelOnError);
     var subscriptions = <StreamSubscription<T>>[];
-    late StreamController<List<T>> controller;
+    var controller = StreamController<List<T>>();
     late List<T?> current;
     var dataCount = 0;
 
@@ -32,7 +32,7 @@ class StreamZip<T> extends Stream<List<T>> {
       dataCount++;
       if (dataCount == subscriptions.length) {
         var data = List<T>.from(current);
-        current = List<T?>.filled(subscriptions.length, null);
+        current.fillRange(0, current.length, null);
         dataCount = 0;
         for (var i = 0; i < subscriptions.length; i++) {
           if (i != index) subscriptions[i].resume();
@@ -87,23 +87,26 @@ class StreamZip<T> extends Stream<List<T>> {
 
     current = List<T?>.filled(subscriptions.length, null);
 
-    controller = StreamController<List<T>>(onPause: () {
-      for (var i = 0; i < subscriptions.length; i++) {
-        // This may pause some subscriptions more than once.
-        // These will not be resumed by onResume below, but must wait for the
-        // next round.
-        subscriptions[i].pause();
+    controller
+      ..onPause = () {
+        for (var i = 0; i < subscriptions.length; i++) {
+          // This may pause some subscriptions more than once.
+          // These will not be resumed by onResume below, but must wait for the
+          // next round.
+          subscriptions[i].pause();
+        }
       }
-    }, onResume: () {
-      for (var i = 0; i < subscriptions.length; i++) {
-        subscriptions[i].resume();
+      ..onResume = () {
+        for (var i = 0; i < subscriptions.length; i++) {
+          subscriptions[i].resume();
+        }
       }
-    }, onCancel: () {
-      for (var i = 0; i < subscriptions.length; i++) {
-        // Canceling more than once is safe.
-        subscriptions[i].cancel();
-      }
-    });
+      ..onCancel = () {
+        for (var i = 0; i < subscriptions.length; i++) {
+          // Canceling more than once is safe.
+          subscriptions[i].cancel();
+        }
+      };
 
     if (subscriptions.isEmpty) {
       controller.close();
