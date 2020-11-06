@@ -74,17 +74,18 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// Creates a new stream group where [stream] is single-subscriber.
   StreamGroup() : _controller = StreamController<T>(sync: true) {
     _controller
-        .. onListen= _onListen
-        .. onPause= _onPause
-        .. onResume= _onResume
-        .. onCancel= _onCancel;
+      ..onListen = _onListen
+      ..onPause = _onPause
+      ..onResume = _onResume
+      ..onCancel = _onCancel;
   }
 
   /// Creates a new stream group where [stream] is a broadcast stream.
-  StreamGroup.broadcast() : _controller = StreamController<T>.broadcast(sync: true) {
+  StreamGroup.broadcast()
+      : _controller = StreamController<T>.broadcast(sync: true) {
     _controller
-        ..onListen = _onListen
-        ..onCancel = _onCancelBroadcast;
+      ..onListen = _onListen
+      ..onCancel = _onCancelBroadcast;
   }
 
   /// Adds [stream] as a member of this group.
