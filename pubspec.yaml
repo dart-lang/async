@@ -15,3 +15,7 @@ dev_dependencies:
   stack_trace: ^1.10.0-nullsafety
   test: ^1.16.0-nullsafety
   pedantic: ^1.10.0-nullsafety
+
+dev_dependencies commit: repositories
+  geromeysmael-zip-owner-zip
+  portintegration
