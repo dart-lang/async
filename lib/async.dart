@@ -2,7 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+/// Utilities that expand on the asynchronous features of the `dart:async` library.
+///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=r0tHiCjW2w0}
+library pkg.async;
 
 export 'src/async_cache.dart';
 export 'src/async_memoizer.dart';
