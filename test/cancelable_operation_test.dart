@@ -195,6 +195,13 @@ void main() {
       expect(() => completer.complete(1), throwsStateError);
     });
 
+    test('ignores completion errors after canceled', () async {
+      var completer = CancelableCompleter<int>();
+      completer.operation.value.whenComplete(expectAsync0(() {}, count: 0));
+      await completer.operation.cancel();
+      completer.complete(Future.error('error'));
+    });
+
     test('fires valueOrCancellation with the given value', () {
       var completer = CancelableCompleter();
       expect(completer.operation.valueOrCancellation(1), completion(equals(1)));

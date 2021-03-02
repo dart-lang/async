@@ -101,7 +101,7 @@ class _SafeCloseSink<T> extends DelegatingStreamSink<T> {
   _SafeCloseSink(StreamSink<T> inner) : super(inner);
 
   @override
-  Future close() => super.close().catchError((_) {});
+  Future close() => super.close().onError((_, __) {});
 }
 
 /// A function to pass as a [StreamTransformer]'s `handleDone` callback.

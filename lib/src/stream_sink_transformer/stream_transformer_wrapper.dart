@@ -40,7 +40,7 @@ class _StreamTransformerWrapperSink<S, T> implements StreamSink<S> {
       // Ignore any errors that come from this call to [_inner.close]. The
       // user can access them through [done] or the value returned from
       // [this.close], and we don't want them to get top-leveled.
-      _inner.close().catchError((_) {});
+      _inner.close().onError((_, __) {});
     });
   }
 

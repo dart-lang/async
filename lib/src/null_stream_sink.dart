@@ -53,7 +53,7 @@ class NullStreamSink<T> implements StreamSink<T> {
           // Don't top-level the error. This gives the user a change to call
           // [close] or [done], and matches the behavior of a remote endpoint
           // experiencing an error.
-          ..catchError((_) {});
+          ..onError((_, __) {});
 
   @override
   void add(T data) {

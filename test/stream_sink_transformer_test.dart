@@ -80,9 +80,9 @@ void main() {
       // The futures shouldn't complete until the inner sink's close future
       // completes.
       var doneResult = ResultFuture(sink.done);
-      doneResult.catchError((_) {});
+      doneResult.onError((_, __) {});
       var closeResult = ResultFuture(sink.close());
-      closeResult.catchError((_) {});
+      closeResult.onError((_, __) {});
       await flushMicrotasks();
       expect(doneResult.isComplete, isFalse);
       expect(closeResult.isComplete, isFalse);
@@ -177,9 +177,9 @@ void main() {
       // The futures shouldn't complete until the inner sink's close future
       // completes.
       var doneResult = ResultFuture(sink.done);
-      doneResult.catchError((_) {});
+      doneResult.onError((_, __) {});
       var closeResult = ResultFuture(sink.close());
-      closeResult.catchError((_) {});
+      closeResult.onError((_, __) {});
       await flushMicrotasks();
       expect(doneResult.isComplete, isFalse);
       expect(closeResult.isComplete, isFalse);

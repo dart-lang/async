@@ -35,7 +35,7 @@ void main() {
 
     // The completer calls its listeners asynchronously. We have to wait
     // before we can access the result.
-    return future.catchError((_) {}).then((_) {
+    return future.onError((_, __) {}).then((_) {
       var error = future.result!.asError!;
       expect(error.error, equals('error'));
       expect(error.stackTrace, equals(trace));

@@ -189,7 +189,7 @@ class CancelableCompleter<T> {
     final future = value as Future<T>;
     if (_isCanceled) {
       // Make sure errors from [value] aren't top-leveled.
-      future.catchError((_) {});
+      future..then<void>((_) {}).onError((_, __) {});
       return;
     }
 

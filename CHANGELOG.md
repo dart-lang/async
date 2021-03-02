@@ -1,3 +1,8 @@
+## 2.5.1-dev
+
+* Fix an unhandled async error when completing a `CancelableCompleter` with a
+  `Future.error` after it was already canceled.
+
 ## 2.5.0
 
 * Stable release for null safety.

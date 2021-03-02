@@ -166,7 +166,7 @@ class _CompleterSink<T> implements StreamSink<T> {
       sink
           .addStream(_controller!.stream)
           .whenComplete(sink.close)
-          .catchError((_) {});
+          .onError((_, __) {});
     }
 
     // If the user has already asked when the sink is done, connect the sink's
