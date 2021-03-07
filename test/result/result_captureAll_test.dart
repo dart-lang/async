@@ -9,7 +9,9 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 
 final someStack = StackTrace.current;
+
 Result<int> res(int n) => Result<int>.value(n);
+
 Result err(n) => ErrorResult('$n', someStack);
 
 /// Helper function creating an iterable of futures.
@@ -63,11 +65,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[0].complete(1);
-      await 0;
+      await _microTask();
       cs[1].complete(2);
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
     });
 
@@ -75,11 +77,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[0].complete(1);
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
-      await 0;
+      await _microTask();
       cs[1].complete(2);
     });
 
@@ -87,11 +89,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[1].complete(2);
-      await 0;
+      await _microTask();
       cs[0].complete(1);
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
     });
 
@@ -99,11 +101,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[1].complete(2);
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
-      await 0;
+      await _microTask();
       cs[0].complete(1);
     });
 
@@ -111,11 +113,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
-      await 0;
+      await _microTask();
       cs[0].complete(1);
-      await 0;
+      await _microTask();
       cs[1].complete(2);
     });
 
@@ -123,11 +125,11 @@ void main() {
       var cs = List.generate(3, (_) => Completer<int>());
       var all = Result.captureAll<int>(cs.map((c) => c.future));
       expect(all, completion([res(1), res(2), err(3)]));
-      await 0;
+      await _microTask();
       cs[2].completeError('3', someStack);
-      await 0;
+      await _microTask();
       cs[1].complete(2);
-      await 0;
+      await _microTask();
       cs[0].complete(1);
     });
 
@@ -150,7 +152,7 @@ void main() {
       });
       completeFunctions.shuffle(rnd);
       for (var i = 0; i < n; i++) {
-        await 0;
+        await _microTask();
         completeFunctions[i]();
       }
     });
@@ -187,3 +189,5 @@ void main() {
     });
   });
 }
+
+Future<void> _microTask() => Future.microtask(() {});
