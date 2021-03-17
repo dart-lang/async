@@ -5,7 +5,7 @@
 /// Utilities that expand on the asynchronous features of the `dart:async` library.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=r0tHiCjW2w0}
-library pkg.async;
+library async;
 
 export 'src/async_cache.dart';
 export 'src/async_memoizer.dart';
