@@ -23,7 +23,7 @@ computations.
   [`DelegatingStreamSink`][DelegatingStreamSink].
 
 * The [`FutureGroup`][FutureGroup] class makes it easy to wait until a group of
-  features that may change over time completes.
+  futures that may change over time completes.
 
 * The [`LazyStream`][LazyStream] class allows a stream to be initialized lazily
   when `.listen()` is first called.
