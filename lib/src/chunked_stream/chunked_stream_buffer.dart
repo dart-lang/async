@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-/// Buffer an chunked stream.
+/// Buffer a chunked stream.
 ///
 /// This reads [input] into an internal buffer of size [bufferSize] elements.
 /// When the internal buffer is full the [input] stream is _paused_, as elements
