@@ -7,6 +7,7 @@
 /// {@youtube 560 315 https://www.youtube.com/watch?v=r0tHiCjW2w0}
 library async;
 
+export 'chunked_stream.dart';
 export 'src/async_cache.dart';
 export 'src/async_memoizer.dart';
 export 'src/byte_collector.dart';

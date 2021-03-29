@@ -5,7 +5,7 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:chunked_stream/chunked_stream.dart';
+import 'package:async/chunked_stream.dart';
 
 void main() {
   test('readChunkedStream', () async {

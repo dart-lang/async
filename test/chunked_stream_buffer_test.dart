@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:test/test.dart';
-import 'package:chunked_stream/chunked_stream.dart';
+import 'package:async/chunked_stream.dart';
 
 void main() {
   for (var i = 1; i < 6; i++) {
