@@ -37,7 +37,7 @@ Stream<List<T>> bufferChunkedStream<T>(
         }
       }, onDone: () {
         c.close();
-      }, onError: (e, st) {
+      }, onError: (Object e, StackTrace st) {
         c.addError(e, st);
       });
     },
