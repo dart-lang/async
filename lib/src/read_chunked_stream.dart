@@ -5,8 +5,6 @@
 import 'dart:async' show Stream, Future;
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart' show sealed;
-
 /// Read all chunks from [input] and return a list consisting of items from all
 /// chunks.
 ///
@@ -114,7 +112,6 @@ Stream<List<T>> limitChunkedStream<T>(
 /// Exception thrown if [maxSize] was exceeded while reading a _chunked stream_.
 ///
 /// This is typically thrown by [readChunkedStream] or [readByteStream].
-@sealed
 class MaximumSizeExceeded implements Exception {
   final int maxSize;
   const MaximumSizeExceeded(this.maxSize);

@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart' show sealed;
 import 'read_chunked_stream.dart';
 
 /// Auxiliary class for iterating over the items in a chunked stream.
@@ -16,7 +15,6 @@ import 'read_chunked_stream.dart';
 /// `List<int>` for each event.
 ///
 /// Note. methods on this class may not be called concurrently.
-@sealed
 abstract class ChunkedStreamIterator<T> {
   factory ChunkedStreamIterator(Stream<List<T>> stream) {
     return _ChunkedStreamIterator<T>(stream);
@@ -29,6 +27,9 @@ abstract class ChunkedStreamIterator<T> {
   ///
   /// If an error is encountered before reading [size] elements, the error
   /// will be thrown.
+  ///
+  /// Throws if [read] or [substream] is called before the a previous
+  /// read-operation is completed.
   Future<List<T>> read(int size);
 
   /// Cancels the stream iterator (and the underlying stream subscription)
@@ -43,8 +44,8 @@ abstract class ChunkedStreamIterator<T> {
   /// A sub-[Stream] is a [Stream] consisting of the next [size] elements
   /// in the same order they occur in the stream used to create this iterator.
   ///
-  /// If [read] is called before the sub-[Stream] is fully read, a [StateError]
-  /// will be thrown.
+  /// Throws if [read] or [substream] is called before the a previous
+  /// read-operation is completed.
   ///
   /// ```dart
   /// final s = ChunkedStreamIterator(_chunkedStream([
@@ -75,7 +76,6 @@ abstract class ChunkedStreamIterator<T> {
 }
 
 // TODO(sigurdm) Why do we need this ignore? We are in the same package.
-// ignore: subtype_of_sealed_class
 /// General purpose _chunked stream iterator_.
 class _ChunkedStreamIterator<T> implements ChunkedStreamIterator<T> {
   /// Underlying iterator that iterates through the original stream.

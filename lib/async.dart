@@ -7,11 +7,11 @@
 /// {@youtube 560 315 https://www.youtube.com/watch?v=r0tHiCjW2w0}
 library async;
 
-export 'chunked_stream.dart';
 export 'src/async_cache.dart';
 export 'src/async_memoizer.dart';
 export 'src/byte_collector.dart';
 export 'src/cancelable_operation.dart';
+export 'src/chunked_stream_iterator.dart';
 export 'src/delegate/event_sink.dart';
 export 'src/delegate/future.dart';
 export 'src/delegate/sink.dart';

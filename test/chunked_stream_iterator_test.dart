@@ -5,7 +5,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:test/test.dart';
-import 'package:async/chunked_stream.dart';
+import 'package:async/async.dart';
+import 'package:async/src/read_chunked_stream.dart';
 
 Stream<List<T>> _chunkedStream<T>(List<List<T>> chunks) async* {
   for (final chunk in chunks) {
