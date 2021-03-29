@@ -74,6 +74,8 @@ abstract class ChunkedStreamIterator<T> {
   Stream<List<T>> substream(int size);
 }
 
+// TODO(sigurdm) Why do we need this ignore? We are in the same package.
+// ignore: subtype_of_sealed_class
 /// General purpose _chunked stream iterator_.
 class _ChunkedStreamIterator<T> implements ChunkedStreamIterator<T> {
   /// Underlying iterator that iterates through the original stream.
