@@ -1,4 +1,4 @@
-## 2.5.1-dev
+## 2.6.0
 
 * Added `ChunkedStreamReader` for reading _chunked streams_ without managing
   buffers.
