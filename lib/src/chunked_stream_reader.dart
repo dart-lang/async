@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'byte_collector.dart' show collectBytes;
@@ -35,11 +36,11 @@ import 'byte_collector.dart' show collectBytes;
 /// }
 /// ```
 ///
-/// The read-operations: [readChunk] and [readStream] cannot be invoked
-/// concurrently.
+/// The read-operations [readChunk] and [readStream] must not be invoked until
+/// the future from a previous call has completed.
 class ChunkedStreamReader<T> {
   final StreamIterator<List<T>> _input;
-  final List<T> _emptyList = <T>[];
+  final List<T> _emptyList = UnmodifiableListView([]);
   List<T> _buffer = <T>[];
   bool _reading = false;
 
@@ -55,8 +56,8 @@ class ChunkedStreamReader<T> {
   /// elements have been buffered, or end-of-stream, then it returns the first
   /// [size] buffered elements.
   ///
-  /// If end-of-stream is encountered before [size] bytes is read, this returns
-  /// a list less than [size] (indicating end-of-stream).
+  /// If end-of-stream is encountered before [size] elements is read, this
+  /// returns a list with fewer than [size] elements (indicating end-of-stream).
   ///
   /// If the underlying stream throws, the stream is cancelled, the exception is
   /// propogated and further read operations will fail.
@@ -75,8 +76,8 @@ class ChunkedStreamReader<T> {
   /// This will pass-through _chunks_ from the underlying _chunked stream_ until
   /// [size] elements have been returned, or end-of-stream has been encountered.
   ///
-  /// If end-of-stream is encountered before [size] bytes is read, this returns
-  /// a _chunked stream_ with less than [size] (indicating end-of-stream).
+  /// If end-of-stream is encountered before [size] elements is read, this
+  /// returns a list with fewer than [size] elements (indicating end-of-stream).
   ///
   /// If the underlying stream throws, the stream is cancelled, the exception is
   /// propogated and further read operations will fail.
@@ -87,17 +88,13 @@ class ChunkedStreamReader<T> {
   ///
   /// Throws, if another read-operation is on-going.
   Stream<List<T>> readStream(int size) {
-    if (size < 0) {
-      throw ArgumentError.value(size, 'size', 'must be non-negative');
-    }
+    RangeError.checkNotNegative(size, 'size');
     if (_reading) {
       throw StateError('Concurrent read operations are not allowed!');
     }
     _reading = true;
 
-    final c = StreamController<List<T>>();
-
-    c.addStream(() async* {
+    final substream = () async* {
       // While we have data to read
       while (size > 0) {
         // Read something into the buffer, if it's empty
@@ -111,30 +108,31 @@ class ChunkedStreamReader<T> {
           _buffer = _input.current;
         }
 
-        if (size < _buffer.length) {
-          final output = _buffer.sublist(0, size);
-          _buffer = _buffer.sublist(size);
-          size = 0;
-          yield output;
-          _reading = false;
-          break;
-        }
-
         if (_buffer.isNotEmpty) {
+          if (size < _buffer.length) {
+            final output = _buffer.sublist(0, size);
+            _buffer = _buffer.sublist(size);
+            size = 0;
+            yield output;
+            _reading = false;
+            break;
+          }
+
           final output = _buffer;
           size -= _buffer.length;
           _buffer = _emptyList;
           yield output;
         }
       }
-    }()).whenComplete(c.close);
+    };
 
+    final c = StreamController<List<T>>();
+    c.onListen = () => c.addStream(substream()).whenComplete(c.close);
     c.onCancel = () async {
       while (size > 0) {
         if (_buffer.isEmpty) {
           if (!await _input.moveNext()) {
             size = 0; // no more data
-            _reading = false;
             break;
           }
           _buffer = _input.current;
@@ -143,13 +141,13 @@ class ChunkedStreamReader<T> {
         if (size < _buffer.length) {
           _buffer = _buffer.sublist(size);
           size = 0;
-          _reading = false;
           break;
         }
 
         size -= _buffer.length;
         _buffer = _emptyList;
       }
+      _reading = false;
     };
 
     return c.stream;
@@ -157,7 +155,11 @@ class ChunkedStreamReader<T> {
 
   /// Cancel the underlying _chunked stream_.
   ///
-  /// It is always safe to call [cancel], even if the undelying stream was read
+  /// If a future from [readChunk] or [readStream] is still pending then
+  /// [cancel] behaves as if the underlying stream ended early. That is a future
+  /// from [readChunk] may return a partial chunk smaller than the request size.
+  ///
+  /// It is always safe to call [cancel], even if the underlying stream was read
   /// to completion.
   ///
   /// It can be a good idea to call [cancel] in a `finally`-block when done

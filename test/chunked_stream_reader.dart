@@ -73,6 +73,21 @@ void main() {
     expect(await s.readChunk(1), equals([]));
   });
 
+  test('readChunk() -- until exact end of stream', () async {
+    final stream = Stream.fromIterable(Iterable.generate(
+      10,
+      (_) => Uint8List(512),
+    ));
+
+    final s = ChunkedStreamReader(stream);
+    while (true) {
+      final c = await s.readBytes(1024);
+      if (c.isEmpty) {
+        break;
+      }
+    }
+  });
+
   test('readChunk() -- one big chunk', () async {
     final s = ChunkedStreamReader(_chunkedStream([
       ['a', 'b', 'c'],
@@ -356,5 +371,45 @@ void main() {
     expect(await s.readBytes(1), equals([3]));
     expect(await s.readBytes(1), equals([4]));
     expect(await s.readBytes(1), equals([]));
+  });
+
+  test('cancel while readChunk() is pending', () async {
+    final s = ChunkedStreamReader(() async* {
+      yield [1, 2, 3];
+      // This will hang forever, so we will call cancel()
+      await Completer().future;
+      yield [4]; // this should never be reachable
+      fail('unreachable!');
+    }());
+
+    expect(await s.readBytes(2), equals([1, 2]));
+
+    final future = s.readChunk(2);
+
+    // Wait a tiny bit and cancel
+    await Future.microtask(() => null);
+    s.cancel();
+
+    expect(await future, hasLength(lessThan(2)));
+  });
+
+  test('cancel while readStream() is pending', () async {
+    final s = ChunkedStreamReader(() async* {
+      yield [1, 2, 3];
+      // This will hang forever, so we will call cancel()
+      await Completer().future;
+      yield [4]; // this should never be reachable
+      fail('unreachable!');
+    }());
+
+    expect(await collectBytes(s.readStream(2)), equals([1, 2]));
+
+    final stream = s.readStream(2);
+
+    // Wait a tiny bit and cancel
+    await Future.microtask(() => null);
+    s.cancel();
+
+    expect(await collectBytes(stream), hasLength(lessThan(2)));
   });
 }
