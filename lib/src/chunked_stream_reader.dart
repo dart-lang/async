@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:typed_data';
 
 import 'byte_collector.dart' show collectBytes;
@@ -40,7 +39,7 @@ import 'byte_collector.dart' show collectBytes;
 /// the future from a previous call has completed.
 class ChunkedStreamReader<T> {
   final StreamIterator<List<T>> _input;
-  final List<T> _emptyList = UnmodifiableListView([]);
+  final List<T> _emptyList = const [];
   List<T> _buffer = <T>[];
   bool _reading = false;
 

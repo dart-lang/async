@@ -173,6 +173,62 @@ void main() {
     expect(await r.readChunk(1), equals([]));
   });
 
+  test('readStream() cancel at the exact end', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield [1, 2];
+      yield [3, 4, 5];
+      yield [6, 7, 8, 9];
+      yield [10];
+    }());
+
+    expect(await r.readChunk(1), equals([1]));
+    final i = StreamIterator(r.readStream(7));
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([2]));
+
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([3, 4, 5]));
+
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([6, 7, 8]));
+
+    await i.cancel(); // cancel substream just as it's ending
+
+    expect(await r.readChunk(2), equals([9, 10]));
+
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readStream() cancel at the exact end on chunk boundary', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield [1, 2];
+      yield [3, 4, 5];
+      yield [6, 7, 8, 9];
+      yield [10];
+    }());
+
+    expect(await r.readChunk(1), equals([1]));
+    final i = StreamIterator(r.readStream(8));
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([2]));
+
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([3, 4, 5]));
+
+    expect(await i.moveNext(), isTrue);
+    expect(i.current, equals([6, 7, 8, 9]));
+
+    await i.cancel(); // cancel substream just as it's ending
+
+    expect(await r.readChunk(2), equals([10]));
+
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
   test('readStream() is drained when canceled', () async {
     final r = ChunkedStreamReader(() async* {
       yield [1, 2];
