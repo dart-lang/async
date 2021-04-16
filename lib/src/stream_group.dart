@@ -39,6 +39,25 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// See [_StreamGroupState] for detailed descriptions of each state.
   var _state = _StreamGroupState.dormant;
 
+  /// Whether this group has no active streams.
+  bool get isIdle => _subscriptions.isEmpty;
+
+  /// A broadcast stream that emits a `null` event whenever the last pending
+  /// stream in this group emits a done event (or is removed).
+  ///
+  /// This stream will close when either:
+  ///
+  /// * All streams in this group are done (or removed) *and* [close] has been
+  ///   called, or
+  /// * [stream]'s subscription has been cancelled (if this is a
+  ///   single-subscriber group).
+  ///
+  /// Note that this won't fire until [stream] has been listened to.
+  Stream<Null> get onIdle =>
+      (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
+
+  StreamController<Null>? _onIdleController;
+
   /// Streams that have been added to the group, and their subscriptions if they
   /// have been subscribed to.
   ///
@@ -133,7 +152,16 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   Future? remove(Stream<T> stream) {
     var subscription = _subscriptions.remove(stream);
     var future = subscription == null ? null : subscription.cancel();
-    if (_closed && _subscriptions.isEmpty) _controller.close();
+
+    if (_subscriptions.isEmpty) {
+      var onIdleController = _onIdleController;
+      if (onIdleController != null) onIdleController.add(null);
+      if (_closed) {
+        if (onIdleController != null) onIdleController.close();
+        _controller.close();
+      }
+    }
+
     return future;
   }
 
@@ -178,6 +206,13 @@ class StreamGroup<T> implements Sink<Stream<T>> {
         .toList();
 
     _subscriptions.clear();
+
+    var onIdleController = _onIdleController;
+    if (onIdleController != null && !onIdleController.isClosed) {
+      onIdleController.add(null);
+      onIdleController.close();
+    }
+
     return futures.isEmpty ? null : Future.wait(futures);
   }
 

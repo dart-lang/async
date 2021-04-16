@@ -1,4 +1,6 @@
-## 2.5.1-dev
+## 2.6.0
+
+* Add `StreamGroup.isIdle` and `StreamGroup.onIdle`.
 
 ## 2.5.0
 

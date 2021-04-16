@@ -734,6 +734,107 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
       expect(events, equals(['one', 'two', 'three', 'four', 'five', 'six']));
     });
   });
+
+  group('onIdle', () {
+    test('emits an event when the last pending stream emits done', () async {
+      streamGroup.stream.listen(null);
+
+      var idle = false;
+      streamGroup.onIdle.listen((_) => idle = true);
+
+      var controller1 = StreamController<String>();
+      var controller2 = StreamController<String>();
+      var controller3 = StreamController<String>();
+
+      streamGroup.add(controller1.stream);
+      streamGroup.add(controller2.stream);
+      streamGroup.add(controller3.stream);
+
+      await flushMicrotasks();
+      expect(idle, isFalse);
+      expect(streamGroup.isIdle, isFalse);
+
+      controller1.close();
+      await flushMicrotasks();
+      expect(idle, isFalse);
+      expect(streamGroup.isIdle, isFalse);
+
+      controller2.close();
+      await flushMicrotasks();
+      expect(idle, isFalse);
+      expect(streamGroup.isIdle, isFalse);
+
+      controller3.close();
+      await flushMicrotasks();
+      expect(idle, isTrue);
+      expect(streamGroup.isIdle, isTrue);
+    });
+
+    test('emits an event each time it becomes idle', () async {
+      streamGroup.stream.listen(null);
+
+      var idle = false;
+      streamGroup.onIdle.listen((_) => idle = true);
+
+      var controller = StreamController<String>();
+      streamGroup.add(controller.stream);
+
+      controller.close();
+      await flushMicrotasks();
+      expect(idle, isTrue);
+      expect(streamGroup.isIdle, isTrue);
+
+      idle = false;
+      controller = StreamController<String>();
+      streamGroup.add(controller.stream);
+
+      await flushMicrotasks();
+      expect(idle, isFalse);
+      expect(streamGroup.isIdle, isFalse);
+
+      controller.close();
+      await flushMicrotasks();
+      expect(idle, isTrue);
+      expect(streamGroup.isIdle, isTrue);
+    });
+
+    test('emits an event when the group closes', () async {
+      // It's important that the order of events here stays consistent over
+      // time, since code may rely on it in subtle ways.
+      var idle = false;
+      var onIdleDone = false;
+      var streamClosed = false;
+
+      streamGroup.onIdle.listen(expectAsync1((_) {
+        expect(streamClosed, isFalse);
+        idle = true;
+      }), onDone: expectAsync0(() {
+        expect(idle, isTrue);
+        expect(streamClosed, isFalse);
+        onIdleDone = true;
+      }));
+
+      streamGroup.stream.toList().then(expectAsync1((_) {
+        expect(idle, isTrue);
+        expect(onIdleDone, isTrue);
+        streamClosed = true;
+      }));
+
+      var controller = StreamController<String>();
+      streamGroup.add(controller.stream);
+      streamGroup.close();
+
+      await flushMicrotasks();
+      expect(idle, isFalse);
+      expect(streamGroup.isIdle, isFalse);
+
+      controller.close();
+      await flushMicrotasks();
+      expect(idle, isTrue);
+      expect(streamGroup.isIdle, isTrue);
+      expect(streamClosed, isTrue);
+    });
+  });
 }
 
 /// Wait for all microtasks to complete.
