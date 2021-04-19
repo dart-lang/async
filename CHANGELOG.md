@@ -1,4 +1,6 @@
-## 2.5.1-dev
+## 2.6.0-dev
+
+* Add `StreamGroup.isClosed` and `FutureGroup.isClosed` getters.
 
 ## 2.5.0
 
