@@ -802,7 +802,9 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
 
     test('emits an event when the group closes', () async {
       // It's important that the order of events here stays consistent over
-      // time, since code may rely on it in subtle ways.
+      // time, since code may rely on it in subtle ways. Note that this is *not*
+      // an official guarantee, so the authors of `async` are free to change
+      // this behavior if they need to.
       var idle = false;
       var onIdleDone = false;
       var streamClosed = false;
@@ -812,13 +814,13 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
         idle = true;
       }), onDone: expectAsync0(() {
         expect(idle, isTrue);
-        expect(streamClosed, isFalse);
+        expect(streamClosed, isTrue);
         onIdleDone = true;
       }));
 
       streamGroup.stream.drain().then(expectAsync1((_) {
         expect(idle, isTrue);
-        expect(onIdleDone, isTrue);
+        expect(onIdleDone, isFalse);
         streamClosed = true;
       }));
 

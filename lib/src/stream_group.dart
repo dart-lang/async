@@ -41,22 +41,32 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// See [_StreamGroupState] for detailed descriptions of each state.
   var _state = _StreamGroupState.dormant;
 
-  /// Whether this group has no active streams.
+  /// Whether this group contains no streams.
+  ///
+  /// A [StreamGroup] is idle when it contains no streams, which is the case for
+  /// a newly created group or one where all added streams have been emitted
+  /// done events (or been [remove]d).
+  ///
+  /// If this is a single-subscription group, then cancelling the subscription
+  /// to [stream] will also remove all streams.
   bool get isIdle => _subscriptions.isEmpty;
 
-  /// A broadcast stream that emits an event whenever the last pending stream in
-  /// this group emits a done event (or is removed).
+  /// A broadcast stream that emits an event whenever this group becomes idle.
+  ///
+  /// A [StreamGroup] is idle when it contains no streams, which is the case for
+  /// a newly created group or one where all added streams have been emitted
+  /// done events (or been [remove]d).
   ///
   /// This stream will close when either:
   ///
-  /// * All streams in this group are done (or removed) *and* [close] has been
-  ///   called, or
+  /// * This group is idle *and* [close] has been called, or
   /// * [stream]'s subscription has been cancelled (if this is a
-  ///   single-subscriber group).
+  ///   single-subscription group).
   ///
-  /// Note that this won't fire until [stream] has been listened to.
+  /// Note that events won't be emitted on this stream until [stream] has been
+  /// listened to.
   Stream<void> get onIdle =>
-      (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
+      (_onIdleController ??= StreamController.broadcast()).stream;
 
   StreamController<Null>? _onIdleController;
 
@@ -158,8 +168,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
     if (_subscriptions.isEmpty) {
       _onIdleController?.add(null);
       if (_closed) {
-        onIdleController?.close();
-        _controller.close();
+        _onIdleController?.close();
+        scheduleMicrotask(_controller.close);
       }
     }
 
