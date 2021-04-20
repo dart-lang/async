@@ -3,6 +3,8 @@
 * Added `ChunkedStreamReader` for reading _chunked streams_ without managing
   buffers.
 
+* Add `StreamGroup.isClosed` and `FutureGroup.isClosed` getters.
+
 ## 2.5.0
 
 * Stable release for null safety.

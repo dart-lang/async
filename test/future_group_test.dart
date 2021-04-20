@@ -26,7 +26,9 @@ void main() {
 
     test("completes once it's closed", () {
       expect(futureGroup.future, completion(isEmpty));
+      expect(futureGroup.isClosed, isFalse);
       futureGroup.close();
+      expect(futureGroup.isClosed, isTrue);
     });
   });
 
@@ -47,7 +49,9 @@ void main() {
       await flushMicrotasks();
 
       expect(futureGroup.future, completes);
+      expect(futureGroup.isClosed, isFalse);
       futureGroup.close();
+      expect(futureGroup.isClosed, isTrue);
     });
 
     test("completes to that future's value", () {
