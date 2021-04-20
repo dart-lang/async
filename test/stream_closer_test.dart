@@ -63,6 +63,13 @@ void main() {
       subscription.cancel();
       expect(isCancelled, isTrue);
     });
+
+    test('forwards errors from cancel', () {
+      var controller = StreamController<int>(onCancel: () => throw 'oh no');
+
+      expect(controller.stream.transform(closer).listen(null).cancel(),
+          throwsA('oh no'));
+    });
   });
 
   group('when a stream is added before the closer is closed', () {

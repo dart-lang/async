@@ -7,10 +7,16 @@ import 'dart:async';
 import 'async_memoizer.dart';
 
 /// A [StreamTransformer] that allows the caller to forcibly close the
-/// transformed [Stream].
+/// transformed [Stream](s).
 ///
-/// When [close] is called, the stream (or streams) transformed by [this] will
-/// emit a done event and cancel the underlying subscription.
+/// When [close] is called, any stream (or streams) transformed by this
+/// transformer that haven't already completed or been cancelled will emit a
+/// done event and cancel their underlying subscriptions.
+///
+/// Note that unlike most [StreamTransformer]s, each instance of [StreamCloser]
+/// has its own state (whether or not it's been closed), so it's a good idea to
+/// construct a new one for each use unless you need to close multiple streams
+/// at the same time.
 class StreamCloser<T> extends StreamTransformerBase<T, T> {
   /// Whether [close] has been called.
   bool get isClosed => _closeMemo.hasRun;
@@ -33,15 +39,18 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
   /// canceled. If that cancellation throws an error, it will be silently
   /// ignored.
   Future<void> close() => _closeMemo.runOnce(() {
-        var futures = _subscriptions
-            .map((subscription) => subscription.cancel())
-            .toList();
+        var futures = [
+          for (var subscription in _subscriptions) subscription.cancel()
+        ];
         _subscriptions.clear();
 
-        for (var controller in _controllers) {
-          scheduleMicrotask(controller.close);
-        }
+        var controllers = _controllers.toList();
         _controllers.clear();
+        scheduleMicrotask(() {
+          for (var controller in controllers) {
+            scheduleMicrotask(controller.close);
+          }
+        });
 
         return Future.wait(futures, eagerError: true);
       });
@@ -76,9 +85,13 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
       }
 
       controller.onCancel = () {
-        _subscriptions.remove(subscription);
         _controllers.remove(controller);
-        subscription.cancel();
+
+        // If the subscription has already been removed, that indicates that the
+        // underlying stream has been cancelled by [close] and its cancellation
+        // future has been handled there. In that case, we shouldn't forward it
+        // here as well.
+        if (_subscriptions.remove(subscription)) return subscription.cancel();
       };
     };
 
