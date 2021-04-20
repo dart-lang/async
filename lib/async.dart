@@ -38,3 +38,4 @@ export 'src/stream_subscription_transformer.dart';
 export 'src/stream_zip.dart';
 export 'src/subscription_stream.dart';
 export 'src/typed_stream_transformer.dart';
+export 'src/chunked_stream_reader.dart';
