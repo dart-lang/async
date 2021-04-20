@@ -22,8 +22,12 @@ void main() {
     });
 
     test('forwards error events', () {
-      expect(Stream<int>.error("oh no").transform(closer).toList(),
-          throwsA("oh no"));
+      expect(Stream<int>.error('oh no').transform(closer).toList(),
+          throwsA('oh no'));
+    });
+
+    test('transforms a broadcast stream into a broadcast stream', () {
+      expect(Stream<int>.empty().transform(closer).isBroadcast, isTrue);
     });
 
     test("doesn't eagerly listen", () {
@@ -81,10 +85,10 @@ void main() {
     });
 
     test('closer.close() forwards errors from StreamSubscription.cancel()', () {
-      var controller = StreamController<int>(onCancel: () => throw "oh no");
+      var controller = StreamController<int>(onCancel: () => throw 'oh no');
 
       expect(controller.stream.transform(closer), emitsDone);
-      expect(closer.close(), throwsA("oh no"));
+      expect(closer.close(), throwsA('oh no'));
     });
 
     test('closer.close() works even if a stream has already completed',
@@ -122,7 +126,6 @@ void main() {
       test(
           'the underlying subscription is listened and then canceled once the '
           'stream is listened', () {
-        var listened = false;
         var controller = StreamController<int>(
             onListen: expectAsync0(() {}), onCancel: expectAsync0(() {}));
         var stream = controller.stream.transform(closer);
@@ -134,7 +137,7 @@ void main() {
 
       test('Subscription.cancel() errors are silently ignored', () async {
         var controller =
-            StreamController<int>(onCancel: expectAsync0(() => throw "oh no"));
+            StreamController<int>(onCancel: expectAsync0(() => throw 'oh no'));
         var stream = controller.stream.transform(closer);
 
         expect(closer.close(), completes);
@@ -168,7 +171,6 @@ void main() {
         'stream is listened', () {
       expect(closer.close(), completes);
 
-      var listened = false;
       var controller = StreamController<int>(
           onListen: expectAsync0(() {}), onCancel: expectAsync0(() {}));
 
@@ -179,7 +181,7 @@ void main() {
       expect(closer.close(), completes);
 
       var controller =
-          StreamController<int>(onCancel: expectAsync0(() => throw "oh no"));
+          StreamController<int>(onCancel: expectAsync0(() => throw 'oh no'));
 
       controller.stream.transform(closer).listen(null);
 

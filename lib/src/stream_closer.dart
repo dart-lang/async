@@ -49,34 +49,38 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
 
   @override
   Stream<T> bind(Stream<T> stream) {
-    late StreamSubscription<T> subscription;
-    late StreamController<T> controller;
-    controller = StreamController(
-        onListen: () {
-          if (isClosed) {
-            subscription = stream.listen(null);
+    var controller = stream.isBroadcast
+        ? StreamController<T>.broadcast(sync: true)
+        : StreamController<T>(sync: true);
 
-            // Ignore errors here, because otherwise there would be no way for
-            // the user to handle them gracefully.
-            subscription.cancel().catchError((_) {});
-          } else {
-            subscription = stream.listen(controller.add,
-                onError: controller.addError, onDone: () {
-              _subscriptions.remove(subscription);
-              _controllers.remove(controller);
-              controller.close();
-            });
-            _subscriptions.add(subscription);
-          }
-        },
-        onPause: () => subscription.pause(),
-        onResume: () => subscription.resume(),
-        onCancel: () {
-          _subscriptions.remove(subscription);
-          _controllers.remove(controller);
-          subscription.cancel();
-        },
-        sync: true);
+    controller.onListen = () {
+      if (isClosed) {
+        // Ignore errors here, because otherwise there would be no way for the
+        // user to handle them gracefully.
+        stream.listen(null).cancel().catchError((_) {});
+        return;
+      }
+
+      var subscription =
+          stream.listen(controller.add, onError: controller.addError);
+      subscription.onDone(() {
+        _subscriptions.remove(subscription);
+        _controllers.remove(controller);
+        controller.close();
+      });
+      _subscriptions.add(subscription);
+
+      if (!stream.isBroadcast) {
+        controller.onPause = subscription.pause;
+        controller.onResume = subscription.resume;
+      }
+
+      controller.onCancel = () {
+        _subscriptions.remove(subscription);
+        _controllers.remove(controller);
+        subscription.cancel();
+      };
+    };
 
     if (isClosed) {
       controller.close();
