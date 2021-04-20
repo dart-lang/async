@@ -1,6 +1,11 @@
 ## 2.6.0
 
+* Added `ChunkedStreamReader` for reading _chunked streams_ without managing
+  buffers.
+
 * Add `StreamGroup.isIdle` and `StreamGroup.onIdle`.
+
+* Add `StreamGroup.isClosed` and `FutureGroup.isClosed` getters.
 
 ## 2.5.0
 

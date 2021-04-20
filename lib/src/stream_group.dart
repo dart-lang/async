@@ -32,6 +32,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   late StreamController<T> _controller;
 
   /// Whether the group is closed, meaning that no more streams may be added.
+  bool get isClosed => _closed;
+
   var _closed = false;
 
   /// The current state of the group.

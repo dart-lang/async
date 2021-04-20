@@ -22,7 +22,9 @@ class FutureGroup<T> implements Sink<Future<T>> {
   /// The number of futures that have yet to complete.
   var _pending = 0;
 
-  /// Whether [close] has been called.
+  /// Whether the group is closed, meaning that no more futures may be added.
+  bool get isClosed => _closed;
+
   var _closed = false;
 
   /// The future that fires once [close] has been called and all futures in the

@@ -543,7 +543,9 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
         streamGroup.add(controller2.stream);
         await flushMicrotasks();
 
+        expect(streamGroup.isClosed, isFalse);
         streamGroup.close();
+        expect(streamGroup.isClosed, isTrue);
 
         streamGroup.remove(controller1.stream);
         await flushMicrotasks();
