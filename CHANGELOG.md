@@ -1,4 +1,7 @@
-## 2.5.1-dev
+## 2.6.0-dev
+
+* Add a `StreamCloser` class, which is a `StreamTransformer` that allows the
+  caller to force the stream to emit a done event.
 
 ## 2.5.0
 
