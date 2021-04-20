@@ -42,8 +42,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// Whether this group has no active streams.
   bool get isIdle => _subscriptions.isEmpty;
 
-  /// A broadcast stream that emits a `null` event whenever the last pending
-  /// stream in this group emits a done event (or is removed).
+  /// A broadcast stream that emits an event whenever the last pending stream in
+  /// this group emits a done event (or is removed).
   ///
   /// This stream will close when either:
   ///
@@ -53,7 +53,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///   single-subscriber group).
   ///
   /// Note that this won't fire until [stream] has been listened to.
-  Stream<Null> get onIdle =>
+  Stream<void> get onIdle =>
       (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
 
   StreamController<Null>? _onIdleController;
@@ -154,10 +154,9 @@ class StreamGroup<T> implements Sink<Stream<T>> {
     var future = subscription == null ? null : subscription.cancel();
 
     if (_subscriptions.isEmpty) {
-      var onIdleController = _onIdleController;
-      if (onIdleController != null) onIdleController.add(null);
+      _onIdleController?.add(null);
       if (_closed) {
-        if (onIdleController != null) onIdleController.close();
+        onIdleController?.close();
         _controller.close();
       }
     }

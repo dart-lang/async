@@ -814,7 +814,7 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
         onIdleDone = true;
       }));
 
-      streamGroup.stream.toList().then(expectAsync1((_) {
+      streamGroup.stream.drain().then(expectAsync1((_) {
         expect(idle, isTrue);
         expect(onIdleDone, isTrue);
         streamClosed = true;
