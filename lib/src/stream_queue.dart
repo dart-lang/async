@@ -138,7 +138,7 @@ class StreamQueue<T> {
   /// Another alternative is to use `take(1)` which returns either zero or
   /// one events.
   Future<bool> get hasNext {
-    _checkClosed();
+    _checkNotClosed();
     var hasNextRequest = _HasNextRequest<T>();
     _addRequest(hasNextRequest);
     return hasNextRequest.future;
@@ -151,7 +151,7 @@ class StreamQueue<T> {
   /// completes with this error, and the error is still left in the queue.
   Future<List<T>> lookAhead(int count) {
     RangeError.checkNotNegative(count, 'count');
-    _checkClosed();
+    _checkNotClosed();
     var request = _LookAheadRequest<T>(count);
     _addRequest(request);
     return request.future;
@@ -172,7 +172,7 @@ class StreamQueue<T> {
   /// and they will be completed in the order they were requested, by the
   /// first events that were not consumed by previous requeusts.
   Future<T> get next {
-    _checkClosed();
+    _checkNotClosed();
     var nextRequest = _NextRequest<T>();
     _addRequest(nextRequest);
     return nextRequest.future;
@@ -183,7 +183,7 @@ class StreamQueue<T> {
   /// Like [next] except that the event is not consumed.
   /// If the next event is an error event, it stays in the queue.
   Future<T> get peek {
-    _checkClosed();
+    _checkNotClosed();
     var nextRequest = _PeekRequest<T>();
     _addRequest(nextRequest);
     return nextRequest.future;
@@ -199,7 +199,7 @@ class StreamQueue<T> {
   /// `rest` the caller may no longer request other events, like
   /// after calling [cancel].
   Stream<T> get rest {
-    _checkClosed();
+    _checkNotClosed();
     var request = _RestRequest<T>(this);
     _isClosed = true;
     _addRequest(request);
@@ -223,7 +223,7 @@ class StreamQueue<T> {
   /// is greater than zero then the stream ended early.
   Future<int> skip(int count) {
     RangeError.checkNotNegative(count, 'count');
-    _checkClosed();
+    _checkNotClosed();
     var request = _SkipRequest<T>(count);
     _addRequest(request);
     return request.future;
@@ -246,7 +246,7 @@ class StreamQueue<T> {
   /// list may have fewer than [count] elements.
   Future<List<T>> take(int count) {
     RangeError.checkNotNegative(count, 'count');
-    _checkClosed();
+    _checkNotClosed();
     var request = _TakeRequest<T>(count);
     _addRequest(request);
     return request.future;
@@ -285,7 +285,7 @@ class StreamQueue<T> {
   /// }
   /// ```
   StreamQueueTransaction<T> startTransaction() {
-    _checkClosed();
+    _checkNotClosed();
 
     var request = _TransactionRequest(this);
     _addRequest(request);
@@ -324,7 +324,7 @@ class StreamQueue<T> {
     bool result;
     try {
       result = await callback(queue);
-    } on Object {
+    } catch(_) {
       transaction.commit(queue);
       rethrow;
     }
@@ -387,7 +387,7 @@ class StreamQueue<T> {
   /// None of [lookAhead], [next], [peek], [rest], [skip], [take] or [cancel]
   /// may be called again.
   Future? cancel({bool immediate = false}) {
-    _checkClosed();
+    _checkNotClosed();
     _isClosed = true;
 
     if (!immediate) {
@@ -517,7 +517,7 @@ class StreamQueue<T> {
   // Internal helper methods.
 
   /// Throws an error if [cancel] or [rest] have already been called.
-  void _checkClosed() {
+  void _checkNotClosed() {
     if (_isClosed) throw StateError('Already cancelled');
   }
 
