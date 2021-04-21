@@ -324,7 +324,7 @@ class StreamQueue<T> {
     bool result;
     try {
       result = await callback(queue);
-    } catch(_) {
+    } catch (_) {
       transaction.commit(queue);
       rethrow;
     }
