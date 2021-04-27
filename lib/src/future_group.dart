@@ -35,14 +35,28 @@ class FutureGroup<T> implements Sink<Future<T>> {
   Future<List<T>> get future => _completer.future;
   final _completer = Completer<List<T>>();
 
-  /// Whether this group has no pending futures.
+  /// Whether this group contains no futures.
+  ///
+  /// A [FutureGroup] is idle when it contains no futures, which is the case for
+  /// a newly created group or one where all added futures have been removed or
+  /// completed.
   bool get isIdle => _pending == 0;
 
-  /// A broadcast stream that emits a `null` event whenever the last pending
-  /// future in this group completes.
+  /// A broadcast stream that emits an event whenever this group becomes idle.
   ///
-  /// Once this group isn't waiting on any futures *and* [close] has been
-  /// called, this stream will close.
+  /// A [FutureGroup] is idle when it contains no futures, which is the case for
+  /// a newly created group or one where all added futures have been removed or
+  /// completed.
+  ///
+  /// This stream will close when this group is idle *and* [close] has been
+  /// called.
+  ///
+  /// Note that:
+  ///
+  /// * Events won't be emitted on this stream until [stream] has been listened
+  ///   to.
+  /// * Events are delivered asynchronously, so it's possible for the group to
+  ///   become active again before the event is delivered.
   Stream get onIdle =>
       (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
 
