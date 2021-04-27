@@ -4,25 +4,14 @@
 
 import 'dart:async';
 
-/// A [StreammSink] wrapper that rejects all errors passed into the sink.
+/// A [StreamSink] wrapper that rejects all errors passed into the sink.
 class RejectErrorsSink<T> implements StreamSink<T> {
-  /// The inner sink being wrapped.
+  /// The target sink.
   final StreamSink<T> _inner;
 
   @override
   Future<void> get done => _doneCompleter.future;
-  final _doneCompleter = Completer();
-
-  /// Whether the underlying sink is no longer receiving events.
-  ///
-  /// This can happen if:
-  ///
-  /// * [close] has been called,
-  /// * an error has been passed,
-  /// * or the underlying [StreamSink.done] has completed.
-  ///
-  /// If [_canceled] is true, [_inAddStream] must be false.
-  bool get _canceled => _doneCompleter.isCompleted;
+  final _doneCompleter = Completer<void>();
 
   /// Whether the user has called [close].
   ///
@@ -42,18 +31,25 @@ class RejectErrorsSink<T> implements StreamSink<T> {
   bool get _inAddStream => _addStreamSubscription != null;
 
   RejectErrorsSink(this._inner) {
-    _inner.done.whenComplete(() {
-      if (_inAddStream) {
-        _addStreamCompleter!.complete(_addStreamSubscription!.cancel());
-        _addStreamCompleter = null;
-        _addStreamSubscription = null;
-      }
-    }).then((value) {
+    _inner.done.then((value) {
+      _cancelAddStream();
       if (!_canceled) _doneCompleter.complete(value);
     }).onError<Object>((error, stackTrace) {
+      _cancelAddStream();
       if (!_canceled) _doneCompleter.completeError(error, stackTrace);
     });
   }
+
+  /// Whether the underlying sink is no longer receiving events.
+  ///
+  /// This can happen if:
+  ///
+  /// * [close] has been called,
+  /// * an error has been passed,
+  /// * or the underlying [StreamSink.done] has completed.
+  ///
+  /// If [_canceled] is true, [_inAddStream] must be false.
+  bool get _canceled => _doneCompleter.isCompleted;
 
   @override
   void add(T data) {
@@ -82,13 +78,8 @@ class RejectErrorsSink<T> implements StreamSink<T> {
   /// This is called from [addStream], so it shouldn't fail if a stream is being
   /// added.
   void _addError(Object error, [StackTrace? stackTrace]) {
+    _cancelAddStream();
     _doneCompleter.completeError(error, stackTrace);
-
-    if (_inAddStream) {
-      _addStreamCompleter!.complete(_addStreamSubscription!.cancel());
-      _addStreamCompleter = null;
-      _addStreamSubscription = null;
-    }
 
     // Ignore errors from the inner sink. We're already surfacing one error, and
     // if the user handles it we don't want them to have another top-level.
@@ -123,5 +114,14 @@ class RejectErrorsSink<T> implements StreamSink<T> {
 
     if (!_canceled) _doneCompleter.complete(_inner.close());
     return done;
+  }
+
+  /// If an [addStream] call is active, cancel its subscription and complete its
+  /// completer.
+  void _cancelAddStream() {
+    if (!_inAddStream) return;
+    _addStreamCompleter!.complete(_addStreamSubscription!.cancel());
+    _addStreamCompleter = null;
+    _addStreamSubscription = null;
   }
 }
