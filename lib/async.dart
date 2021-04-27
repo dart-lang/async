@@ -27,6 +27,7 @@ export 'src/result/error.dart';
 export 'src/result/future.dart';
 export 'src/result/value.dart';
 export 'src/single_subscription_transformer.dart';
+export 'src/stream_closer.dart';
 export 'src/stream_completer.dart';
 export 'src/stream_group.dart';
 export 'src/stream_queue.dart';
