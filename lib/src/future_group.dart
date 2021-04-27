@@ -49,8 +49,14 @@ class FutureGroup<T> implements Sink<Future<T>> {
   /// completed.
   ///
   /// This stream will close when this group is idle *and* [close] has been
-  /// called. Note that events won't be emitted on this stream until [stream]
-  /// has been listened to.
+  /// called.
+  ///
+  /// Note that:
+  ///
+  /// * Events won't be emitted on this stream until [stream] has been listened
+  ///   to.
+  /// * Events are delivered asynchronously, so it's possible for the group to
+  ///   become active again before the event is delivered.
   Stream get onIdle =>
       (_onIdleController ??= StreamController.broadcast(sync: true)).stream;
 

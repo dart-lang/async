@@ -63,8 +63,12 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// * [stream]'s subscription has been cancelled (if this is a
   ///   single-subscription group).
   ///
-  /// Note that events won't be emitted on this stream until [stream] has been
-  /// listened to.
+  /// Note that:
+  ///
+  /// * Events won't be emitted on this stream until [stream] has been listened
+  ///   to.
+  /// * Events are delivered asynchronously, so it's possible for the group to
+  ///   become active again before the event is delivered.
   Stream<void> get onIdle =>
       (_onIdleController ??= StreamController.broadcast()).stream;
 
