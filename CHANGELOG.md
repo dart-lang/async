@@ -1,10 +1,15 @@
 ## 2.6.0
 
+* Add a `StreamCloser` class, which is a `StreamTransformer` that allows the
+  caller to force the stream to emit a done event.
+
 * Added `ChunkedStreamReader` for reading _chunked streams_ without managing
   buffers.
 
 * Add extensions on `StreamSink`, including `StreamSink.transform()` for
   applying `StreamSinkTransformer`s and `StreamSink.rejectErrors()`.
+
+* Add `StreamGroup.isIdle` and `StreamGroup.onIdle`.
 
 * Add `StreamGroup.isClosed` and `FutureGroup.isClosed` getters.
 
