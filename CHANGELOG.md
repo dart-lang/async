@@ -1,5 +1,8 @@
 ## 2.6.0
 
+* Add a `StreamCloser` class, which is a `StreamTransformer` that allows the
+  caller to force the stream to emit a done event.
+
 * Added `ChunkedStreamReader` for reading _chunked streams_ without managing
   buffers.
 
