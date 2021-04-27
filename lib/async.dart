@@ -32,6 +32,7 @@ export 'src/stream_completer.dart';
 export 'src/stream_group.dart';
 export 'src/stream_queue.dart';
 export 'src/stream_sink_completer.dart';
+export 'src/stream_sink_extensions.dart';
 export 'src/stream_sink_transformer.dart';
 export 'src/stream_splitter.dart';
 export 'src/stream_subscription_transformer.dart';
