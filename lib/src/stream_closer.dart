@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'async_memoizer.dart';
+import 'package:meta/meta.dart';
 
 /// A [StreamTransformer] that allows the caller to forcibly close the
 /// transformed [Stream](s).
@@ -17,10 +17,8 @@ import 'async_memoizer.dart';
 /// has its own state (whether or not it's been closed), so it's a good idea to
 /// construct a new one for each use unless you need to close multiple streams
 /// at the same time.
+@sealed
 class StreamCloser<T> extends StreamTransformerBase<T, T> {
-  /// Whether [close] has been called.
-  bool get isClosed => _closeMemo.hasRun;
-
   /// The subscriptions to streams passed to [bind].
   final _subscriptions = <StreamSubscription<T>>{};
 
@@ -38,7 +36,7 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
   /// original stream will be listened to and then the subscription immediately
   /// canceled. If that cancellation throws an error, it will be silently
   /// ignored.
-  Future<void> close() => _closeMemo.runOnce(() {
+  Future<void> close() => _closeFuture ??= () {
         var futures = [
           for (var subscription in _subscriptions) subscription.cancel()
         ];
@@ -53,8 +51,11 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
         });
 
         return Future.wait(futures, eagerError: true);
-      });
-  final _closeMemo = AsyncMemoizer();
+      }();
+  Future<void>? _closeFuture;
+
+  /// Whether [close] has been called.
+  bool get isClosed => _closeFuture != null;
 
   @override
   Stream<T> bind(Stream<T> stream) {
@@ -92,6 +93,7 @@ class StreamCloser<T> extends StreamTransformerBase<T, T> {
         // future has been handled there. In that case, we shouldn't forward it
         // here as well.
         if (_subscriptions.remove(subscription)) return subscription.cancel();
+        return null;
       };
     };
 
