@@ -250,7 +250,7 @@ void main() {
     group('when listen() throws an error', () {
       late Stream<String> alreadyListened;
       setUp(() {
-        alreadyListened = Stream.value("foo")..listen(null);
+        alreadyListened = Stream.value('foo')..listen(null);
       });
 
       group('listen()', () {

@@ -188,7 +188,6 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   void _onListen() {
     _state = _StreamGroupState.listening;
 
-    Object? listenError;
     for (var entry in _subscriptions.entries.toList()) {
       // If this is a broadcast group and this isn't the first time it's been
       // listened to, there may still be some subscriptions to
