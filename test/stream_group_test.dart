@@ -246,6 +246,69 @@ void main() {
         expect(fired, isTrue);
       });
     });
+
+    group('when listen() throws an error', () {
+      late Stream<String> alreadyListened;
+      setUp(() {
+        alreadyListened = Stream.value("foo")..listen(null);
+      });
+
+      group('listen()', () {
+        test('rethrows that error', () {
+          streamGroup.add(alreadyListened);
+
+          // We can't use expect(..., throwsStateError) here bceause of
+          // dart-lang/sdk#45815.
+          runZonedGuarded(
+              () => streamGroup.stream.listen(expectAsync1((_) {}, count: 0)),
+              expectAsync2((error, _) => expect(error, isStateError)));
+        });
+
+        test('cancels other subscriptions', () async {
+          var firstCancelled = false;
+          var first =
+              StreamController<String>(onCancel: () => firstCancelled = true);
+          streamGroup.add(first.stream);
+
+          streamGroup.add(alreadyListened);
+
+          var lastCancelled = false;
+          var last =
+              StreamController<String>(onCancel: () => lastCancelled = true);
+          streamGroup.add(last.stream);
+
+          runZonedGuarded(() => streamGroup.stream.listen(null), (_, __) {});
+
+          expect(firstCancelled, isTrue);
+          expect(lastCancelled, isTrue);
+        });
+
+        // There really shouldn't even be a subscription here, but due to
+        // dart-lang/sdk#45815 there is.
+        group('canceling the subscription is a no-op', () {
+          test('synchronously', () {
+            streamGroup.add(alreadyListened);
+
+            var subscription = runZonedGuarded(
+                () => streamGroup.stream.listen(null),
+                expectAsync2((_, __) {}, count: 1));
+
+            expect(subscription!.cancel(), completes);
+          });
+
+          test('asynchronously', () async {
+            streamGroup.add(alreadyListened);
+
+            var subscription = runZonedGuarded(
+                () => streamGroup.stream.listen(null),
+                expectAsync2((_, __) {}, count: 1));
+
+            await pumpEventQueue();
+            expect(subscription!.cancel(), completes);
+          });
+        });
+      });
+    });
   });
 
   group('broadcast', () {
