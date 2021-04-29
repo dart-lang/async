@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
 /// A collection of streams whose events are unified and sent through a central
 /// stream.
 ///
@@ -185,13 +187,24 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// This is called for both single-subscription and broadcast groups.
   void _onListen() {
     _state = _StreamGroupState.listening;
-    _subscriptions.forEach((stream, subscription) {
+
+    for (var entry in _subscriptions.entries.toList()) {
       // If this is a broadcast group and this isn't the first time it's been
       // listened to, there may still be some subscriptions to
       // single-subscription streams.
-      if (subscription != null) return;
-      _subscriptions[stream] = _listenToStream(stream);
-    });
+      if (entry.value != null) return;
+
+      var stream = entry.key;
+      try {
+        _subscriptions[stream] = _listenToStream(stream);
+      } catch (error) {
+        // If [Stream.listen] throws a synchronous error (for example because
+        // the stream has already been listened to), cancel all subscriptions
+        // and rethrow the error.
+        _onCancel()?.catchError((_) {});
+        rethrow;
+      }
+    }
   }
 
   /// A callback called when [stream] is paused.
@@ -216,8 +229,17 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   Future? _onCancel() {
     _state = _StreamGroupState.canceled;
 
-    var futures = _subscriptions.values
-        .map((subscription) => subscription!.cancel())
+    var futures = _subscriptions.entries
+        .map((entry) {
+          var subscription = entry.value;
+          if (subscription != null) return subscription.cancel();
+          try {
+            return entry.key.listen(null).cancel();
+          } catch (_) {
+            return null;
+          }
+        })
+        .whereNotNull()
         .toList();
 
     _subscriptions.clear();

@@ -1,3 +1,8 @@
+## 2.6.1
+
+* When `StreamGroup.stream.listen()` is called, gracefully handle component
+  streams throwing errors when their `Stream.listen()` methods are called.
+
 ## 2.6.0
 
 * Add a `StreamCloser` class, which is a `StreamTransformer` that allows the
