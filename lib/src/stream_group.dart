@@ -188,7 +188,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   void _onListen() {
     _state = _StreamGroupState.listening;
 
-    for (var entry in _subscriptions.entries.toList()) {
+    for (var entry in [..._subscriptions.entries]) {
       // If this is a broadcast group and this isn't the first time it's been
       // listened to, there may still be some subscriptions to
       // single-subscription streams.
@@ -232,8 +232,8 @@ class StreamGroup<T> implements Sink<Stream<T>> {
     var futures = _subscriptions.entries
         .map((entry) {
           var subscription = entry.value;
-          if (subscription != null) return subscription.cancel();
           try {
+            if (subscription != null) return subscription.cancel();
             return entry.key.listen(null).cancel();
           } catch (_) {
             return null;

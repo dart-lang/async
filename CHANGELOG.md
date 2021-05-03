@@ -1,3 +1,7 @@
+## 2.6.2
+
+* Internal changes only.
+
 ## 2.6.1
 
 * When `StreamGroup.stream.listen()` is called, gracefully handle component
