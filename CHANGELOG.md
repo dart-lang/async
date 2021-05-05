@@ -1,3 +1,7 @@
+## 2.7.0
+
+* Add a `Stream.slices()` extension method.
+
 ## 2.6.1
 
 * When `StreamGroup.stream.listen()` is called, gracefully handle component
