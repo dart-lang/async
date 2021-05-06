@@ -101,7 +101,7 @@ class CancelableOperation<T> {
 
     valueOrCancellation().then((T? result) {
       if (!completer.isCanceled) {
-        if (isCompleted) {
+        if (isCompleted && !isCanceled) {
           assert(result is T);
           completer.complete(Future.sync(() => onValue(result as T)));
         } else if (onCancel != null) {
