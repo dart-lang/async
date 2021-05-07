@@ -388,7 +388,8 @@ void main() {
         originalCompleter.operation.cancel();
       });
 
-      test('after completing with a future does not invoke `onValue`', () {
+      test('after completing with a future does not invoke `onValue`',
+          () async {
         onValue = expectAsync1((_) => '', count: 0);
         onCancel = null;
         var operation = runThen();
@@ -397,11 +398,12 @@ void main() {
         originalCompleter.operation.cancel();
         workCompleter.complete(0);
         expect(operation.isCanceled, true);
+        await workCompleter.future;
       });
 
       test('after the value is completed invokes `onValue`', () {
         onValue = expectAsync1((_) => 'foo', count: 1);
-        onCancel = null;
+        onCancel = expectAsync1((_) => '', count: 0);
         originalCompleter.complete(0);
         originalCompleter.operation.cancel();
         var operation = runThen();
