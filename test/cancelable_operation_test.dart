@@ -44,12 +44,13 @@ void main() {
       expect(completer.isCompleted, isTrue);
     });
 
-    test('sends errors in a future to the future', () {
+    test('sends errors in a future to the future', () async {
       expect(completer.operation.value, throwsA('error'));
       expect(completer.isCompleted, isFalse);
       expect(completer.operation.isCompleted, isFalse);
       completer.complete(Future.error('error'));
       expect(completer.isCompleted, isTrue);
+      await flushMicrotasks();
       expect(completer.operation.isCompleted, isTrue);
     });
 
@@ -66,6 +67,15 @@ void main() {
     test('chains null values through .then calls', () async {
       var operation = CancelableOperation.fromFuture(Future.value(null));
       expect(await operation.then((_) {}).value, null);
+    });
+
+    test('is not complete until the result is available', () async {
+      var backingWork = Completer();
+      var operation = CancelableOperation.fromFuture(backingWork.future);
+      expect(operation.isCompleted, isFalse);
+      backingWork.complete();
+      await backingWork.future;
+      expect(operation.isCompleted, isTrue);
     });
 
     group('throws a StateError if completed', () {

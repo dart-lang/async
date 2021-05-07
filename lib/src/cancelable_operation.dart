@@ -31,9 +31,7 @@ class CancelableOperation<T> {
   /// It's guaranteed to only be called once.
   ///
   /// Calling this constructor is equivalent to creating a [CancelableCompleter]
-  /// and completing it with [inner]. As such, [isCompleted] is true from the
-  /// moment this [CancelableOperation] is created, regardless of whether
-  /// [inner] has completed yet or not.
+  /// and completing it with [inner].
   factory CancelableOperation.fromFuture(Future<T> inner,
       {FutureOr Function()? onCancel}) {
     var completer = CancelableCompleter<T>(onCancel: onCancel);
@@ -124,20 +122,19 @@ class CancelableOperation<T> {
 
   /// Cancels this operation.
   ///
-  /// This returns the [Future] returned by the [CancelableCompleter]'s
-  /// `onCancel` callback. Unlike [Stream.cancel], it never returns `null`.
+  /// If this operation [isComplete] or [isCanceled] this call is ignored.
+  /// Returns the result of the `onCancel` callback, if one exists.
   Future cancel() => _completer._cancel();
 
   /// Whether this operation has been canceled before it completed.
   bool get isCanceled => _completer.isCanceled;
 
-  /// Whether the [CancelableCompleter] backing this operation has been
-  /// completed.
+  /// Whether the result of this operation is ready.
   ///
-  /// This value being true does not imply that the [value] future has
-  /// completed, but merely that it is no longer possible to [cancel] the
-  /// operation.
-  bool get isCompleted => _completer.isCompleted;
+  /// When ready, the [value] future is completed with the result value
+  /// or error, and this operation can no longer be cancelled.
+  /// An operation may be complete before the listeners on [value] are invoked.
+  bool get isCompleted => _completer._inner.isCompleted;
 }
 
 /// A completer for a [CancelableOperation].
@@ -161,11 +158,18 @@ class CancelableCompleter<T> {
   /// The operation controlled by this completer.
   late final operation = CancelableOperation<T>._(this);
 
-  /// Whether the completer has completed.
+  /// Whether the [complete] or [completeError] have been called.
+  ///
+  /// Once this completer has been completed with either a result or error,
+  /// neither method may be called again.
+  ///
+  /// If [complete] was called with a Future argument, this completer may be
+  /// completed before it's [operation] is completed. In that case the
+  /// [operation] may still be canceled before the result is available.
   bool get isCompleted => _isCompleted;
   bool _isCompleted = false;
 
-  /// Whether the completer was canceled before being completed.
+  /// Whether the completer was canceled before the result was ready.
   bool get isCanceled => _isCanceled;
   bool _isCanceled = false;
 
@@ -174,8 +178,11 @@ class CancelableCompleter<T> {
 
   /// Completes [operation] to [value].
   ///
-  /// If [value] is a [Future], this will complete to the result of that
-  /// [Future] once it completes.
+  /// If [value] is a Future the [operation] will complete with the result of
+  /// that Future once it is available.
+  /// In that case [isComplete] will be true before the [operation] is complete.
+  ///
+  /// This method may not be called if [isComplete] is true.
   void complete([FutureOr<T>? value]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
@@ -202,7 +209,9 @@ class CancelableCompleter<T> {
     });
   }
 
-  /// Completes [operation] to [error].
+  /// Completes [operation] with [error].
+  ///
+  /// This method may not be called if [isComplete] is true.
   void completeError(Object error, [StackTrace? stackTrace]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
@@ -212,6 +221,15 @@ class CancelableCompleter<T> {
   }
 
   /// Cancel the completer.
+  ///
+  /// This call will be ignored if the result of the operation is already
+  /// available.
+  /// This condition may happen some time after [isComplete] is true if
+  /// [complete] was called with a Future argument.
+  /// When the result is already available then the [operation] will be marked
+  /// complete.
+  ///
+  /// This call will be ignored if this completer has already been canceled.
   Future _cancel() {
     if (_inner.isCompleted) return Future.value();
 
