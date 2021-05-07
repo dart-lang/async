@@ -1,6 +1,7 @@
-## 2.6.2
+## 2.6.2-dev
 
-* Internal changes only.
+* Fix a bug where `CancelableOperation.then` may invoke the `onValue` callback,
+  even if it had been canceled before `CancelableOperation.value` completes.
 
 ## 2.6.1
 
