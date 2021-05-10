@@ -267,10 +267,10 @@ void main() {
       onError = expectAsync2((e, s) => 'Fake', count: 0, id: 'onError');
       onCancel = expectAsync0(() => 'Fake', count: 0, id: 'onCancel');
       propagateCancel = false;
+      originalCompleter = CancelableCompleter();
     });
 
     CancelableOperation<String> runThen() {
-      originalCompleter = CancelableCompleter();
       return originalCompleter.operation.then(onValue!,
           onError: onError,
           onCancel: onCancel,
@@ -386,6 +386,29 @@ void main() {
 
         expect(runThen().value, throwsA('error'));
         originalCompleter.operation.cancel();
+      });
+
+      test('after completing with a future does not invoke `onValue`',
+          () async {
+        onValue = expectAsync1((_) => '', count: 0);
+        onCancel = null;
+        var operation = runThen();
+        var workCompleter = Completer<int>();
+        originalCompleter.complete(workCompleter.future);
+        originalCompleter.operation.cancel();
+        workCompleter.complete(0);
+        expect(operation.isCanceled, true);
+        await workCompleter.future;
+      });
+
+      test('after the value is completed invokes `onValue`', () {
+        onValue = expectAsync1((_) => 'foo', count: 1);
+        onCancel = expectAsync1((_) => '', count: 0);
+        originalCompleter.complete(0);
+        originalCompleter.operation.cancel();
+        var operation = runThen();
+        expect(operation.value, completion('foo'));
+        expect(operation.isCanceled, false);
       });
     });
 
