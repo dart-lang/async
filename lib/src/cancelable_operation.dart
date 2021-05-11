@@ -163,7 +163,7 @@ class CancelableCompleter<T> {
   /// Once this completer has been completed with either a result or error,
   /// neither method may be called again.
   ///
-  /// If [complete] was called with a Future argument, this completer may be
+  /// If [complete] was called with a [Future] argument, this completer may be
   /// completed before it's [operation] is completed. In that case the
   /// [operation] may still be canceled before the result is available.
   bool get isCompleted => _isCompleted;
@@ -178,11 +178,15 @@ class CancelableCompleter<T> {
 
   /// Completes [operation] to [value].
   ///
-  /// If [value] is a Future the [operation] will complete with the result of
-  /// that Future once it is available.
+  /// If [value] is a [Future] the [operation] will complete with the result of
+  /// that `Future` once it is available.
   /// In that case [isComplete] will be true before the [operation] is complete.
   ///
-  /// This method may not be called if [isComplete] is true.
+  /// If the type [T] is not nullable [value] may be not be omitted or `null`.
+  ///
+  /// This method may not be called after either [complete] or [completeError]
+  /// has been called once.
+  /// The [isCompleted] is true when either of these methods have been called.
   void complete([FutureOr<T>? value]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
@@ -209,9 +213,11 @@ class CancelableCompleter<T> {
     });
   }
 
-  /// Completes [operation] with [error].
+  /// Completes [operation] with [error] and [stackTrace].
   ///
-  /// This method may not be called if [isComplete] is true.
+  /// This method may not be called after either [complete] or [completeError]
+  /// has been called once.
+  /// The [isCompleted] is true when either of these methods have been called.
   void completeError(Object error, [StackTrace? stackTrace]) {
     if (_isCompleted) throw StateError('Operation already completed');
     _isCompleted = true;
@@ -220,16 +226,17 @@ class CancelableCompleter<T> {
     _inner.completeError(error, stackTrace);
   }
 
-  /// Cancel the completer.
+  /// Cancel the operation.
   ///
-  /// This call will be ignored if the result of the operation is already
+  /// This call is be ignored if the result of the operation is already
   /// available.
-  /// This condition may happen some time after [isComplete] is true if
-  /// [complete] was called with a Future argument.
-  /// When the result is already available then the [operation] will be marked
-  /// complete.
+  /// The result of the operation may only be available some time after
+  /// the completer has been completed (using [complete] or [completeError],
+  /// which sets [isCompleted] to true) if completed with a [Future].
+  /// The completer can be cancelled until the result becomes available,
+  /// even if [isCompleted] is true.
   ///
-  /// This call will be ignored if this completer has already been canceled.
+  /// This call is ignored if this completer has already been canceled.
   Future _cancel() {
     if (_inner.isCompleted) return Future.value();
 
