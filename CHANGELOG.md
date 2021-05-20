@@ -1,7 +1,6 @@
 ## 2.7.0
 
 * Add a `Stream.slices()` extension method.
-
 * Fix a bug where `CancelableOperation.then` may invoke the `onValue` callback,
   even if it had been canceled before `CancelableOperation.value` completes.
 * Fix a bug in `CancelableOperation.isComplete` where it may appear to be
