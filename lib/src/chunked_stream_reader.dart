@@ -38,10 +38,26 @@ import 'byte_collector.dart' show collectBytes;
 /// The read-operations [readChunk] and [readStream] must not be invoked until
 /// the future from a previous call has completed.
 class ChunkedStreamReader<T> {
+  /// Iterator over underlying stream.
   final StreamIterator<List<T>> _input;
+
+  /// Sentinal value used for [_buffer] when we have no value.
   final List<T> _emptyList = const [];
+
+  /// Last partially consumed chunk received from [_input].
+  ///
+  /// Elements uptil [_offset] have already been consumed and should not be
+  /// consumed again.
   List<T> _buffer = <T>[];
+
+  /// Offset into [_buffer] after data which have already been emitted.
+  ///
+  /// The offset is between `0` and `_buffer.length`, both inclusive.
+  /// The data in [_buffer] from [_offset] and forward have not yet been
+  /// emitted by the chunked stream reader, the data before [_offset] has.
   int _offset = 0;
+
+  /// `true`, if currently reading, thus, attempts to read to should throw.
   bool _reading = false;
 
   factory ChunkedStreamReader(Stream<List<T>> stream) =>
@@ -97,8 +113,9 @@ class ChunkedStreamReader<T> {
     final substream = () async* {
       // While we have data to read
       while (size > 0) {
-        // Read something into the buffer, if it's empty
-        if (_buffer.length - _offset <= 0) {
+        // Read something into the buffer, if buffer has not been consumed.
+        assert(_offset <= _buffer.length);
+        if (_offset == _buffer.length) {
           if (!(await _input.moveNext())) {
             // Don't attempt to read more data, as there is no more data.
             size = 0;
@@ -109,17 +126,17 @@ class ChunkedStreamReader<T> {
           _offset = 0;
         }
 
-        if (_buffer.length - _offset > 0) {
-          if (size < _buffer.length - _offset) {
-            late List<T> output;
+        final remainingBuffer = _buffer.length - _offset;
+        if (remainingBuffer > 0) {
+          if (remainingBuffer >= size) {
+            List<T> output;
             if (_buffer is Uint8List) {
               output = Uint8List.sublistView(
                   _buffer as Uint8List, _offset, _offset + size) as List<T>;
-              _offset += size;
             } else {
               output = _buffer.sublist(_offset, _offset + size);
-              _offset += size;
             }
+            _offset += size;
             size = 0;
             yield output;
             _reading = false;
@@ -127,7 +144,7 @@ class ChunkedStreamReader<T> {
           }
 
           final output = _offset == 0 ? _buffer : _buffer.sublist(_offset);
-          size -= _buffer.length - _offset;
+          size -= remainingBuffer;
           _buffer = _emptyList;
           _offset = 0;
           yield output;
@@ -139,7 +156,8 @@ class ChunkedStreamReader<T> {
     c.onListen = () => c.addStream(substream()).whenComplete(c.close);
     c.onCancel = () async {
       while (size > 0) {
-        if (_buffer.length - _offset <= 0) {
+        assert(_offset <= _buffer.length);
+        if (_buffer.length == _offset) {
           if (!await _input.moveNext()) {
             size = 0; // no more data
             break;
@@ -148,13 +166,14 @@ class ChunkedStreamReader<T> {
           _offset = 0;
         }
 
-        if (size < _buffer.length - _offset) {
+        final remainingBuffer = _buffer.length - _offset;
+        if (remainingBuffer >= size) {
           _offset += size;
           size = 0;
           break;
         }
 
-        size -= _buffer.length - _offset;
+        size -= remainingBuffer;
         _buffer = _emptyList;
         _offset = 0;
       }
