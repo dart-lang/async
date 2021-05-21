@@ -41,6 +41,7 @@ class ChunkedStreamReader<T> {
   final StreamIterator<List<T>> _input;
   final List<T> _emptyList = const [];
   List<T> _buffer = <T>[];
+  int _offset = 0;
   bool _reading = false;
 
   factory ChunkedStreamReader(Stream<List<T>> stream) =>
@@ -97,7 +98,7 @@ class ChunkedStreamReader<T> {
       // While we have data to read
       while (size > 0) {
         // Read something into the buffer, if it's empty
-        if (_buffer.isEmpty) {
+        if (_buffer.length - _offset <= 0) {
           if (!(await _input.moveNext())) {
             // Don't attempt to read more data, as there is no more data.
             size = 0;
@@ -105,21 +106,30 @@ class ChunkedStreamReader<T> {
             break;
           }
           _buffer = _input.current;
+          _offset = 0;
         }
 
-        if (_buffer.isNotEmpty) {
-          if (size < _buffer.length) {
-            final output = _buffer.sublist(0, size);
-            _buffer = _buffer.sublist(size);
+        if (_buffer.length - _offset > 0) {
+          if (size < _buffer.length - _offset) {
+            late List<T> output;
+            if (_buffer is Uint8List) {
+              output = Uint8List.sublistView(
+                  _buffer as Uint8List, _offset, _offset + size) as List<T>;
+              _offset += size;
+            } else {
+              output = _buffer.sublist(_offset, _offset + size);
+              _offset += size;
+            }
             size = 0;
             yield output;
             _reading = false;
             break;
           }
 
-          final output = _buffer;
-          size -= _buffer.length;
+          final output = _offset == 0 ? _buffer : _buffer.sublist(_offset);
+          size -= _buffer.length - _offset;
           _buffer = _emptyList;
+          _offset = 0;
           yield output;
         }
       }
@@ -129,22 +139,24 @@ class ChunkedStreamReader<T> {
     c.onListen = () => c.addStream(substream()).whenComplete(c.close);
     c.onCancel = () async {
       while (size > 0) {
-        if (_buffer.isEmpty) {
+        if (_buffer.length - _offset <= 0) {
           if (!await _input.moveNext()) {
             size = 0; // no more data
             break;
           }
           _buffer = _input.current;
+          _offset = 0;
         }
 
-        if (size < _buffer.length) {
-          _buffer = _buffer.sublist(size);
+        if (size < _buffer.length - _offset) {
+          _offset += size;
           size = 0;
           break;
         }
 
-        size -= _buffer.length;
+        size -= _buffer.length - _offset;
         _buffer = _emptyList;
+        _offset = 0;
       }
       _reading = false;
     };
