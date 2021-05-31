@@ -39,14 +39,17 @@ import 'byte_collector.dart' show collectBytes;
 /// the future from a previous call has completed.
 class ChunkedStreamReader<T> {
   /// Iterator over underlying stream.
+  ///
+  /// The reader requests data from this input whenever requests on the
+  /// reader cannot be fulfilled with the already fetched data.
   final StreamIterator<List<T>> _input;
 
-  /// Sentinal value used for [_buffer] when we have no value.
+  /// Sentinel value used for [_buffer] when we have no value.
   final List<T> _emptyList = const [];
 
   /// Last partially consumed chunk received from [_input].
   ///
-  /// Elements uptil [_offset] have already been consumed and should not be
+  /// Elements up to [_offset] have already been consumed and should not be
   /// consumed again.
   List<T> _buffer = <T>[];
 
@@ -57,7 +60,12 @@ class ChunkedStreamReader<T> {
   /// emitted by the chunked stream reader, the data before [_offset] has.
   int _offset = 0;
 
-  /// `true`, if currently reading, thus, attempts to read to should throw.
+  /// Whether a read request is currently being processed.
+  ///
+  /// Is `true` while a request is in progress.
+  /// While a read request, like [readChunk] or [readStream], is being processed,
+  /// no new requests can be made.
+  /// New read attempts will throw instead.
   bool _reading = false;
 
   factory ChunkedStreamReader(Stream<List<T>> stream) =>
@@ -113,7 +121,7 @@ class ChunkedStreamReader<T> {
     final substream = () async* {
       // While we have data to read
       while (size > 0) {
-        // Read something into the buffer, if buffer has not been consumed.
+        // Read something into the buffer, if buffer has been consumed.
         assert(_offset <= _buffer.length);
         if (_offset == _buffer.length) {
           if (!(await _input.moveNext())) {
