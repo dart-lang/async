@@ -1,3 +1,5 @@
+## 2.7.1-dev
+
 ## 2.7.0
 
 * Add a `Stream.slices()` extension method.
