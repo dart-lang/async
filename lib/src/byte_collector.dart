@@ -44,11 +44,9 @@ T _collectBytes<T>(Stream<List<int>> source,
     T Function(StreamSubscription<List<int>>, Future<Uint8List>) result) {
   var bytes = BytesBuilder();
   var completer = Completer<Uint8List>.sync();
-  var subscription = source.listen(bytes.add,
-      onError: completer.completeError,
-      onDone: () {
-        completer.complete(bytes.takeBytes());
-      },
-      cancelOnError: true);
+  var subscription =
+      source.listen(bytes.add, onError: completer.completeError, onDone: () {
+    completer.complete(bytes.takeBytes());
+  }, cancelOnError: true);
   return result(subscription, completer.future);
 }
