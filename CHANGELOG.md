@@ -1,4 +1,4 @@
-## 2.7.0-dev
+## 2.7.1-dev
 
 * Improve performance for `ChunkedStreamReader` by creating fewer internal
   sublists and specializing to create views for `Uint8List` chunks.
