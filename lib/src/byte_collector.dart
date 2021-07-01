@@ -42,7 +42,7 @@ CancelableOperation<Uint8List> collectBytesCancelable(
 /// so it can cancel the operation.
 T _collectBytes<T>(Stream<List<int>> source,
     T Function(StreamSubscription<List<int>>, Future<Uint8List>) result) {
-  var bytes = BytesBuilder();
+  var bytes = BytesBuilder(copy: false);
   var completer = Completer<Uint8List>.sync();
   var subscription =
       source.listen(bytes.add, onError: completer.completeError, onDone: () {
