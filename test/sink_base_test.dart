@@ -191,9 +191,11 @@ void main() {
       });
 
       test('respects the encoding', () async {
-        var sink = _IOSink(onAdd: expectAsync1((data) {
-          expect(data, equals(latin1.encode('Æ')));
-        }), encoding: latin1);
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
+              expect(data, equals(latin1.encode('Æ')));
+            }),
+            encoding: latin1);
         sink.write('Æ');
       });
 
@@ -212,7 +214,8 @@ void main() {
 
       test('writes each object in the iterable', () async {
         var chunks = <List<int>>[];
-        var sink = _IOSink(onAdd: expectAsync1((data) {
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
           chunks.add(data);
         }, count: 3));
 
@@ -222,12 +225,14 @@ void main() {
 
       test('writes separators between each object', () async {
         var chunks = <List<int>>[];
-        var sink = _IOSink(onAdd: expectAsync1((data) {
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
           chunks.add(data);
         }, count: 5));
 
         sink.writeAll(['hello', null, 123], '/');
-        expect(chunks, equals(['hello', '/', 'null', '/', '123'].map(utf8.encode)));
+        expect(chunks,
+            equals(['hello', '/', 'null', '/', '123'].map(utf8.encode)));
       });
 
       test('throws if the sink is closed', () async {
@@ -239,15 +244,17 @@ void main() {
 
     group('writeln()', () {
       test('only writes a newline by default', () async {
-        var sink = _IOSink(onAdd: expectAsync1((data) {
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
           expect(data, equals(utf8.encode('\n')));
         }, count: 1));
         sink.writeln();
       });
 
       test('writes the object followed by a newline', () async {
-          var chunks = <List<int>>[];
-        var sink = _IOSink(onAdd: expectAsync1((data) {
+        var chunks = <List<int>>[];
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
           chunks.add(data);
         }, count: 2));
         sink.writeln(123);
@@ -271,9 +278,11 @@ void main() {
       });
 
       test('respects the encoding', () async {
-        var sink = _IOSink(onAdd: expectAsync1((data) {
-          expect(data, equals(latin1.encode('Æ')));
-        }), encoding: latin1);
+        var sink = _IOSink(
+            onAdd: expectAsync1((data) {
+              expect(data, equals(latin1.encode('Æ')));
+            }),
+            encoding: latin1);
         sink.writeCharCode('Æ'.runes.first);
       });
 
@@ -301,13 +310,15 @@ void main() {
       });
 
       test('does nothing after close() is called', () {
-        var sink = _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
+        var sink =
+            _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
         expect(sink.close(), completes);
         expect(sink.flush(), completes);
       });
 
       test("can't be called during addStream()", () {
-        var sink = _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
+        var sink =
+            _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
         sink.addStream(StreamController<List<int>>().stream);
         expect(() => sink.flush(), throwsStateError);
       });
