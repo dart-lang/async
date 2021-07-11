@@ -210,15 +210,26 @@ void main() {
     expect(
         StreamZip([
           streamError(mks([1, 2, 3, 4]), 4, 'BAD-5'),
-          (StreamController()..add(4)..add(5)..add(6)).stream,
-          (StreamController()..add(7)..add(8)..add(9)).stream
+          (StreamController()
+                ..add(4)
+                ..add(5)
+                ..add(6))
+              .stream,
+          (StreamController()
+                ..add(7)
+                ..add(8)
+                ..add(9))
+              .stream
         ]).toList(),
         throwsA(equals('BAD-5')));
   });
 
   test('Error after first end', () {
     var controller = StreamController();
-    controller..add(7)..add(8)..add(9);
+    controller
+      ..add(7)
+      ..add(8)
+      ..add(9);
     // Transformer that puts error into controller when one of the first two
     // streams have sent a done event.
     var trans =
@@ -298,7 +309,9 @@ void main() {
       ..add(5)
       ..add(7)
       ..close();
-    c2..add(2)..add(4);
+    c2
+      ..add(2)
+      ..add(4);
   });
 
   test('pause-resume2', () {

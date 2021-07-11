@@ -19,7 +19,11 @@ void main() {
     test('data events are forwarded', () {
       var sink = TestSink();
       completer.setDestinationSink(sink);
-      completer.sink..add(1)..add(2)..add(3)..add(4);
+      completer.sink
+        ..add(1)
+        ..add(2)
+        ..add(3)
+        ..add(4);
 
       expect(sink.results[0].asValue!.value, equals(1));
       expect(sink.results[1].asValue!.value, equals(2));
@@ -30,7 +34,9 @@ void main() {
     test('error events are forwarded', () {
       var sink = TestSink();
       completer.setDestinationSink(sink);
-      completer.sink..addError('oh no')..addError("that's bad");
+      completer.sink
+        ..addError('oh no')
+        ..addError("that's bad");
 
       expect(sink.results[0].asError!.error, equals('oh no'));
       expect(sink.results[1].asError!.error, equals("that's bad"));
@@ -114,7 +120,11 @@ void main() {
 
   group('when a stream is linked after events are added', () {
     test('data events are forwarded', () async {
-      completer.sink..add(1)..add(2)..add(3)..add(4);
+      completer.sink
+        ..add(1)
+        ..add(2)
+        ..add(3)
+        ..add(4);
       await flushMicrotasks();
 
       var sink = TestSink();
@@ -128,7 +138,9 @@ void main() {
     });
 
     test('error events are forwarded', () async {
-      completer.sink..addError('oh no')..addError("that's bad");
+      completer.sink
+        ..addError('oh no')
+        ..addError("that's bad");
       await flushMicrotasks();
 
       var sink = TestSink();
