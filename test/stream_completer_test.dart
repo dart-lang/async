@@ -39,7 +39,11 @@ void main() {
     var done = subscription.asFuture();
     subscription.pause();
     var sourceController = StreamController();
-    sourceController..add(1)..add(2)..add(3)..add(4);
+    sourceController
+      ..add(1)
+      ..add(2)
+      ..add(3)
+      ..add(4);
     controller.setSourceStream(sourceController.stream);
     await flushMicrotasks();
     expect(sourceController.hasListener, isTrue);
