@@ -1,5 +1,5 @@
 name: async
-version: 2.7.1-dev
+version: 2.8.0
 
 description: Utility functions and classes related to the 'dart:async' library.
 repository: https://github.com/dart-lang/async
@@ -12,6 +12,7 @@ dependencies:
   meta: ^1.1.7
 
 dev_dependencies:
+  charcode: ^1.3.0
   fake_async: ^1.2.0
   pedantic: ^1.10.0
   stack_trace: ^1.10.0
