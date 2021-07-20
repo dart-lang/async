@@ -1,3 +1,10 @@
+## 2.8.0
+
+* Add `EventSinkBase`, `StreamSinkBase`, and `IOSinkBase` classes to make it
+  easier to implement custom sinks.
+* Improve performance for `ChunkedStreamReader` by creating fewer internal
+  sublists and specializing to create views for `Uint8List` chunks.
+
 ## 2.7.0
 
 * Add a `Stream.slices()` extension method.

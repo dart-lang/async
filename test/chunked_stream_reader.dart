@@ -377,4 +377,106 @@ void main() {
 
     expect(await collectBytes(stream), hasLength(lessThan(2)));
   });
+
+  test('readChunk() chunk by chunk (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    expect(await r.readChunk(2), equals([1, 2]));
+    expect(await r.readChunk(3), equals([3, 4, 5]));
+    expect(await r.readChunk(4), equals([6, 7, 8, 9]));
+    expect(await r.readChunk(1), equals([10]));
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readChunk() element by element (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    for (var i = 0; i < 10; i++) {
+      expect(await r.readChunk(1), equals([i + 1]));
+    }
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readChunk() exact elements (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    expect(await r.readChunk(10), equals([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readChunk() past end (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    expect(await r.readChunk(20), equals([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readChunk() chunks of 2 elements (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    expect(await r.readChunk(2), equals([1, 2]));
+    expect(await r.readChunk(2), equals([3, 4]));
+    expect(await r.readChunk(2), equals([5, 6]));
+    expect(await r.readChunk(2), equals([7, 8]));
+    expect(await r.readChunk(2), equals([9, 10]));
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
+
+  test('readChunk() chunks of 3 elements (Uint8List)', () async {
+    final r = ChunkedStreamReader(() async* {
+      yield Uint8List.fromList([1, 2]);
+      yield Uint8List.fromList([3, 4, 5]);
+      yield Uint8List.fromList([6, 7, 8, 9]);
+      yield Uint8List.fromList([10]);
+    }());
+
+    expect(await r.readChunk(3), equals([1, 2, 3]));
+    expect(await r.readChunk(3), equals([4, 5, 6]));
+    expect(await r.readChunk(3), equals([7, 8, 9]));
+    expect(await r.readChunk(3), equals([10]));
+    expect(await r.readChunk(1), equals([]));
+    expect(await r.readChunk(1), equals([]));
+    await r.cancel(); // check this is okay!
+    expect(await r.readChunk(1), equals([]));
+  });
 }

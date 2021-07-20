@@ -14,7 +14,10 @@ void main() {
   });
 
   test('passes through data events', () {
-    controller.sink.rejectErrors()..add(1)..add(2)..add(3);
+    controller.sink.rejectErrors()
+      ..add(1)
+      ..add(2)
+      ..add(3);
     expect(controller.stream, emitsInOrder([1, 2, 3]));
   });
 
