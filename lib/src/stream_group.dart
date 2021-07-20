@@ -192,7 +192,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
       // If this is a broadcast group and this isn't the first time it's been
       // listened to, there may still be some subscriptions to
       // single-subscription streams.
-      if (entry.value != null) return;
+      if (entry.value != null) continue;
 
       var stream = entry.key;
       try {

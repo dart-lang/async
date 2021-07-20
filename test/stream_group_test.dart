@@ -417,6 +417,24 @@ void main() {
       expect(controller.hasListener, isTrue);
     });
 
+    test(
+        'listens on streams that follow single-subscription streams when '
+        'relistening after a cancel', () async {
+      var controller1 = StreamController<String>();
+      streamGroup.add(controller1.stream);
+      streamGroup.stream.listen(null).cancel();
+
+      var controller2 = StreamController<String>();
+      streamGroup.add(controller2.stream);
+
+      var emitted = <String>[];
+      streamGroup.stream.listen(emitted.add);
+      controller1.add('one');
+      controller2.add('two');
+      await flushMicrotasks();
+      expect(emitted, ['one', 'two']);
+    });
+
     test('never cancels single-subscription streams', () async {
       var subscription = streamGroup.stream.listen(null);
 
