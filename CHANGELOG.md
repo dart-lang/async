@@ -1,12 +1,15 @@
+## 2.8.1
+
+* Don't ignore broadcast streams added to a `StreamGroup` that doesn't have an
+  active listener but previously had listeners and contains a single
+  subscription inner stream.
+
 ## 2.8.0
 
 * Add `EventSinkBase`, `StreamSinkBase`, and `IOSinkBase` classes to make it
   easier to implement custom sinks.
 * Improve performance for `ChunkedStreamReader` by creating fewer internal
   sublists and specializing to create views for `Uint8List` chunks.
-* Don't ignore broadcast streams added to a `StreamGroup` that doesn't have an
-  active listener but previously had listeners and contains a single
-  subscription inner stream.
 
 ## 2.7.0
 
