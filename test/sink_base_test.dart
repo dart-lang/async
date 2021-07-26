@@ -8,10 +8,11 @@ library sink_base_test;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:charcode/charcode.dart';
 import 'package:test/test.dart';
 
 import 'package:async/async.dart';
+
+const int letterA = 0x41;
 
 void main() {
   // We don't explicitly test [EventSinkBase] because it shares all the relevant
@@ -54,7 +55,6 @@ void main() {
       var controller = StreamController<int>();
       var addStreamCompleted = false;
       sink.addStream(controller.stream).then((_) => addStreamCompleted = true);
-      ;
 
       await pumpEventQueue();
       expect(addStreamCompleted, isFalse);
@@ -277,7 +277,7 @@ void main() {
         var sink = _IOSink(onAdd: expectAsync1((data) {
           expect(data, equals(utf8.encode('A')));
         }));
-        sink.writeCharCode($A);
+        sink.writeCharCode(letterA);
       });
 
       test('respects the encoding', () async {
@@ -292,7 +292,7 @@ void main() {
       test('throws if the sink is closed', () async {
         var sink = _IOSink(onAdd: expectAsync1((_) {}, count: 0));
         expect(sink.close(), completes);
-        expect(() => sink.writeCharCode($A), throwsStateError);
+        expect(() => sink.writeCharCode(letterA), throwsStateError);
       });
     });
 

@@ -74,7 +74,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   Stream<void> get onIdle =>
       (_onIdleController ??= StreamController.broadcast()).stream;
 
-  StreamController<Null>? _onIdleController;
+  StreamController<void>? _onIdleController;
 
   /// Streams that have been added to the group, and their subscriptions if they
   /// have been subscribed to.
@@ -169,7 +169,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// [StreamSubscription.cancel]'s return value. Otherwise, it returns `null`.
   Future? remove(Stream<T> stream) {
     var subscription = _subscriptions.remove(stream);
-    var future = subscription == null ? null : subscription.cancel();
+    var future = subscription?.cancel();
 
     if (_subscriptions.isEmpty) {
       _onIdleController?.add(null);

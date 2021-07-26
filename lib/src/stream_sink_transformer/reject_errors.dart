@@ -112,7 +112,10 @@ class RejectErrorsSink<T> implements StreamSink<T> {
     if (_closed) return done;
     _closed = true;
 
-    if (!_canceled) _doneCompleter.complete(_inner.close());
+    if (!_canceled) {
+      _inner.close();
+      _doneCompleter.complete();
+    }
     return done;
   }
 

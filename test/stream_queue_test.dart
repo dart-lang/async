@@ -543,7 +543,7 @@ void main() {
       test('returns the result of closing the underlying subscription',
           () async {
         var controller =
-            StreamController<int>(onCancel: () => Future.value(42));
+            StreamController<int>(onCancel: () => Future<int>.value(42));
         var events = StreamQueue<int>(controller.stream);
         expect(await events.cancel(immediate: true), 42);
       });
