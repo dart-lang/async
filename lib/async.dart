@@ -27,6 +27,7 @@ export 'src/result/error.dart';
 export 'src/result/future.dart';
 export 'src/result/value.dart';
 export 'src/single_subscription_transformer.dart';
+export 'src/sink_adapter.dart';
 export 'src/sink_base.dart';
 export 'src/stream_closer.dart';
 export 'src/stream_completer.dart';

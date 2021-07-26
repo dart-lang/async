@@ -14,6 +14,7 @@ import 'async_memoizer.dart';
 ///
 /// This takes care of ensuring that events can't be added after [close] is
 /// called.
+@Deprecated('Use EventSinkAdapter instead')
 abstract class EventSinkBase<T> implements EventSink<T> {
   /// Whether [close] has been called and no more events may be written.
   bool get _closed => _closeMemo.hasRun;
@@ -61,6 +62,7 @@ abstract class EventSinkBase<T> implements EventSink<T> {
 ///
 /// This takes care of ensuring that events can't be added after [close] is
 /// called or during a call to [onStream].
+@Deprecated('Use StreamSinkAdapter instead')
 abstract class StreamSinkBase<T> extends EventSinkBase<T>
     implements StreamSink<T> {
   /// Whether a call to [addStream] is ongoing.
@@ -104,6 +106,7 @@ abstract class StreamSinkBase<T> extends EventSinkBase<T>
 ///
 /// This takes care of ensuring that events can't be added after [close] is
 /// called or during a call to [onStream].
+@Deprecated('Will be removed in version 2.9.0')
 abstract class IOSinkBase extends StreamSinkBase<List<int>> {
   /// See [IOSink.encoding] from `dart:io`.
   Encoding encoding;
