@@ -1,3 +1,7 @@
+## 2.8.2
+
+* Deprecate `EventSinkBase`, `StreamSinkBase`, `IOSinkBase`.
+
 ## 2.8.1
 
 * Don't ignore broadcast streams added to a `StreamGroup` that doesn't have an
