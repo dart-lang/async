@@ -20,7 +20,7 @@ Result err(n) => ErrorResult('$n', someStack);
 Iterable<Future<int>> futures(int count,
     {bool Function(int index)? throwWhen}) sync* {
   for (var i = 0; i < count; i++) {
-    if (throwWhen != null && throwWhen(i)) {
+  if (throwWhen != null && throwWhen(i)) {
       yield Future<int>.error('$i', someStack);
     } else {
       yield Future<int>.value(i);
