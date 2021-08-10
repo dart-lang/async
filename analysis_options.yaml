@@ -1,15 +1,7 @@
-include: package:pedantic/analysis_options.yaml
+include: package:lints/recommended.yaml
 
 analyzer:
   strong-mode:
     implicit-casts: false
   errors:
     todo: ignore
-    # Lint provided by pkg:pedantic – should fix this!
-    unawaited_futures: ignore
-  enable-experiment:
-    - non-nullable
-
-linter:
-  rules:
-    - prefer_typing_uninitialized_variables

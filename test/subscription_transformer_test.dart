@@ -13,8 +13,9 @@ void main() {
   group('with no callbacks', () {
     test('forwards cancellation', () async {
       var isCanceled = false;
-      var cancelCompleter = Completer();
-      var controller = StreamController(onCancel: expectAsync0(() {
+      var cancelCompleter = Completer<void>();
+      var controller =
+          StreamController(onCancel: expectAsync0<Future<void>>(() {
         isCanceled = true;
         return cancelCompleter.future;
       }));

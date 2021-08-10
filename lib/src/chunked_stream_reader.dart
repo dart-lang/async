@@ -118,7 +118,7 @@ class ChunkedStreamReader<T> {
     }
     _reading = true;
 
-    final substream = () async* {
+    Stream<List<T>> substream() async* {
       // While we have data to read
       while (size > 0) {
         // Read something into the buffer, if buffer has been consumed.
@@ -158,7 +158,7 @@ class ChunkedStreamReader<T> {
           yield output;
         }
       }
-    };
+    }
 
     final c = StreamController<List<T>>();
     c.onListen = () => c.addStream(substream()).whenComplete(c.close);
