@@ -122,6 +122,30 @@ void main() {
         expect(operation.value, throwsA('error'));
       });
     });
+
+    group('CancelableOperation.fromSubscription', () {
+      test('forwards a done event once it completes', () async {
+        var controller = StreamController<void>();
+        var operationCompleted = false;
+        CancelableOperation.fromSubscription(controller.stream.listen(null))
+            .then((_) {
+          operationCompleted = true;
+        });
+
+        await flushMicrotasks();
+        expect(operationCompleted, isFalse);
+
+        controller.close();
+        await flushMicrotasks();
+        expect(operationCompleted, isTrue);
+      });
+
+      test('forwards errors', () {
+        var operation = CancelableOperation.fromSubscription(
+            Stream.error('error').listen(null));
+        expect(operation.value, throwsA('error'));
+      });
+    });
   });
 
   group('when canceled', () {
@@ -236,6 +260,22 @@ void main() {
       innerCompleter.complete();
       await flushMicrotasks();
       expect(fired, isTrue);
+    });
+
+    test('Stream.fromSubscription() cancels the subscription', () async {
+      var canceled = false;
+      var controller = StreamController<void>(onCancel: () {
+        canceled = true;
+      });
+      var operation =
+          CancelableOperation.fromSubscription(controller.stream.listen(null));
+
+      await flushMicrotasks();
+      expect(canceled, isFalse);
+
+      expect(operation.cancel(), completes);
+      await flushMicrotasks();
+      expect(canceled, isTrue);
     });
   });
 

@@ -1,3 +1,7 @@
+## 2.9.0
+
+* Add a `CancelableOperation.fromSubscription()` static factory.
+
 ## 2.8.2
 
 * Deprecate `EventSinkBase`, `StreamSinkBase`, `IOSinkBase`.

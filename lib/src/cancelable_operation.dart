@@ -39,6 +39,23 @@ class CancelableOperation<T> {
     return completer.operation;
   }
 
+  /// Creates a [CancelableOperation] wrapping [subscription].
+  ///
+  /// This overrides [subscription.onDone] and [subscription.onError] so that
+  /// the returned operation will complete when the subscription completes or
+  /// emits an error. When this operation is canceled or when it emits an error,
+  /// the subscription will be canceled.
+  static CancelableOperation<void> fromSubscription(
+      StreamSubscription<void> subscription) {
+    var completer = CancelableCompleter<void>(onCancel: subscription.cancel);
+    subscription.onDone(completer.complete);
+    subscription.onError((Object error, StackTrace stackTrace) {
+      subscription.cancel();
+      completer.completeError(error, stackTrace);
+    });
+    return completer.operation;
+  }
+
   /// The value returned by the operation.
   Future<T> get value => _completer._inner.future;
 
