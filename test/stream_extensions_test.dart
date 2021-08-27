@@ -55,4 +55,30 @@ void main() {
       expect(() => Stream.fromIterable([1]).slices(0), throwsRangeError);
     });
   });
+
+  group('.firstOrNull', () {
+    test('returns the first data event', () {
+      expect(
+          Stream.fromIterable([1, 2, 3, 4]).firstOrNull, completion(equals(1)));
+    });
+
+    test('returns the first error event', () {
+      expect(Stream.error('oh no').firstOrNull, throwsA('oh no'));
+    });
+
+    test('returns null for an empty stream', () {
+      expect(Stream.empty().firstOrNull, completion(isNull));
+    });
+
+    test('cancels the subscription after an event', () async {
+      var isCancelled = false;
+      var controller = StreamController<int>(onCancel: () {
+        isCancelled = true;
+      });
+      controller.add(1);
+
+      await expectLater(controller.stream.firstOrNull, completion(equals(1)));
+      expect(isCancelled, isTrue);
+    });
+  });
 }
