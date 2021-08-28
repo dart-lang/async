@@ -38,16 +38,19 @@ extension StreamExtensions<T> on Stream<T> {
   /// or `null` if it emits a done event first.
   Future<T?> get firstOrNull {
     var completer = Completer<T?>.sync();
-    late StreamSubscription<T> subscription;
-    subscription = listen((event) {
-      subscription.cancel();
-      completer.complete(event);
-    }, onError: (Object error, StackTrace stackTrace) {
-      subscription.cancel();
-      completer.completeError(error, stackTrace);
-    }, onDone: () {
-      completer.complete(null);
-    });
+    final subscription = listen(null);
+    subscription
+      ..onData((event) {
+        subscription.cancel();
+        completer.complete(event);
+      })
+      ..onError((Object error, StackTrace stackTrace) {
+        subscription.cancel();
+        completer.completeError(error, stackTrace);
+      })
+      ..onDone(() {
+        completer.complete(null);
+      });
     return completer.future;
   }
 }
