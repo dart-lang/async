@@ -67,9 +67,7 @@ class CancelableOperation<T> {
   static CancelableOperation<T> race<T>(
       Iterable<CancelableOperation<T>> operations) {
     operations = operations.toList();
-    if (operations.isEmpty) {
-      return CancelableOperation.fromFuture(Future.value(const []));
-    }
+    if (operations.isEmpty) throw ArgumentError("operations can't be empty");
 
     var done = false;
     // Note: if one of the completers has already completed, it's not actually
