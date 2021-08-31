@@ -80,5 +80,16 @@ void main() {
       await expectLater(controller.stream.firstOrNull, completion(equals(1)));
       expect(isCancelled, isTrue);
     });
+
+    test('cancels the subscription after an error', () async {
+      var isCancelled = false;
+      var controller = StreamController<int>(onCancel: () {
+        isCancelled = true;
+      });
+      controller.addError('oh no');
+
+      await expectLater(controller.stream.firstOrNull, throwsA('oh no'));
+      expect(isCancelled, isTrue);
+    });
   });
 }

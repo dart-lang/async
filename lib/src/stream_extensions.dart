@@ -34,8 +34,13 @@ extension StreamExtensions<T> on Stream<T> {
     }));
   }
 
-  /// Returns the first data or error event emitted by [this] if it emits any,
-  /// or `null` if it emits a done event first.
+  /// A future which completes with the first event of this stream, or with
+  /// `null`.
+  ///
+  /// This stream is listened to, and if it emits any event, whether a data
+  /// event or an error event, the future completes with the same data value or
+  /// error. If the stream ends without emitting any events, the future is
+  /// completed with `null`.
   Future<T?> get firstOrNull {
     var completer = Completer<T?>.sync();
     final subscription = listen(null);
