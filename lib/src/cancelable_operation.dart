@@ -44,7 +44,8 @@ class CancelableOperation<T> {
   /// This overrides [subscription.onDone] and [subscription.onError] so that
   /// the returned operation will complete when the subscription completes or
   /// emits an error. When this operation is canceled or when it emits an error,
-  /// the subscription will be canceled.
+  /// the subscription will be canceled (unlike
+  /// `CancelableOperation.fromFuture(subscription.asFuture())`).
   static CancelableOperation<void> fromSubscription(
       StreamSubscription<void> subscription) {
     var completer = CancelableCompleter<void>(onCancel: subscription.cancel);
@@ -66,6 +67,9 @@ class CancelableOperation<T> {
   static CancelableOperation<T> race<T>(
       Iterable<CancelableOperation<T>> operations) {
     operations = operations.toList();
+    if (operations.isEmpty) {
+      return CancelableOperation.fromFuture(Future.value(const []));
+    }
 
     var done = false;
     // Note: if one of the completers has already completed, it's not actually
