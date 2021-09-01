@@ -43,19 +43,15 @@ extension StreamExtensions<T> on Stream<T> {
   /// completed with `null`.
   Future<T?> get firstOrNull {
     var completer = Completer<T?>.sync();
-    final subscription = listen(null);
-    subscription
-      ..onData((event) {
-        subscription.cancel();
+    final subscription = listen(null,
+        onError: completer.completeError,
+        onDone: completer.complete,
+        cancelOnError: true);
+    subscription.onData((event) {
+      subscription.cancel().whenComplete(() {
         completer.complete(event);
-      })
-      ..onError((Object error, StackTrace stackTrace) {
-        subscription.cancel();
-        completer.completeError(error, stackTrace);
-      })
-      ..onDone(() {
-        completer.complete(null);
       });
+    });
     return completer.future;
   }
 }
