@@ -122,6 +122,30 @@ void main() {
         expect(operation.value, throwsA('error'));
       });
     });
+
+    group('CancelableOperation.fromSubscription', () {
+      test('forwards a done event once it completes', () async {
+        var controller = StreamController<void>();
+        var operationCompleted = false;
+        CancelableOperation.fromSubscription(controller.stream.listen(null))
+            .then((_) {
+          operationCompleted = true;
+        });
+
+        await flushMicrotasks();
+        expect(operationCompleted, isFalse);
+
+        controller.close();
+        await flushMicrotasks();
+        expect(operationCompleted, isTrue);
+      });
+
+      test('forwards errors', () {
+        var operation = CancelableOperation.fromSubscription(
+            Stream.error('error').listen(null));
+        expect(operation.value, throwsA('error'));
+      });
+    });
   });
 
   group('when canceled', () {
@@ -236,6 +260,37 @@ void main() {
       innerCompleter.complete();
       await flushMicrotasks();
       expect(fired, isTrue);
+    });
+
+    test('CancelableOperation.fromSubscription() cancels the subscription',
+        () async {
+      var cancelCompleter = Completer<void>();
+      var canceled = false;
+      var controller = StreamController<void>(onCancel: () {
+        canceled = true;
+        return cancelCompleter.future;
+      });
+      var operation =
+          CancelableOperation.fromSubscription(controller.stream.listen(null));
+
+      await flushMicrotasks();
+      expect(canceled, isFalse);
+
+      // The `cancel()` call shouldn't complete until
+      // `StreamSubscription.cancel` completes.
+      var cancelCompleted = false;
+      expect(
+          operation.cancel().then((_) {
+            cancelCompleted = true;
+          }),
+          completes);
+      await flushMicrotasks();
+      expect(canceled, isTrue);
+      expect(cancelCompleted, isFalse);
+
+      cancelCompleter.complete();
+      await flushMicrotasks();
+      expect(cancelCompleted, isTrue);
     });
   });
 
@@ -438,6 +493,67 @@ void main() {
 
         expect(originalCompleter.isCanceled, false);
       });
+    });
+  });
+
+  group('race()', () {
+    late bool canceled1;
+    late CancelableCompleter<int> completer1;
+    late bool canceled2;
+    late CancelableCompleter<int> completer2;
+    late bool canceled3;
+    late CancelableCompleter<int> completer3;
+    late CancelableOperation<int> operation;
+    setUp(() {
+      canceled1 = false;
+      completer1 = CancelableCompleter<int>(onCancel: () {
+        canceled1 = true;
+      });
+
+      canceled2 = false;
+      completer2 = CancelableCompleter<int>(onCancel: () {
+        canceled2 = true;
+      });
+
+      canceled3 = false;
+      completer3 = CancelableCompleter<int>(onCancel: () {
+        canceled3 = true;
+      });
+
+      operation = CancelableOperation.race(
+          [completer1.operation, completer2.operation, completer3.operation]);
+    });
+
+    test('returns the first value to complete', () {
+      completer1.complete(1);
+      completer2.complete(2);
+      completer3.complete(3);
+
+      expect(operation.value, completion(equals(1)));
+    });
+
+    test('throws the first error to complete', () {
+      completer1.completeError("error 1");
+      completer2.completeError("error 2");
+      completer3.completeError("error 3");
+
+      expect(operation.value, throwsA("error 1"));
+    });
+
+    test('cancels any completers that haven\'t completed', () async {
+      completer1.complete(1);
+      await expectLater(operation.value, completion(equals(1)));
+      expect(canceled1, isFalse);
+      expect(canceled2, isTrue);
+      expect(canceled3, isTrue);
+    });
+
+    test('cancels all completers when the operation is completed', () async {
+      await operation.cancel();
+
+      expect(canceled1, isTrue);
+      expect(canceled2, isTrue);
+      expect(canceled3, isTrue);
     });
   });
 }

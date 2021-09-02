@@ -39,6 +39,62 @@ class CancelableOperation<T> {
     return completer.operation;
   }
 
+  /// Creates a [CancelableOperation] wrapping [subscription].
+  ///
+  /// This overrides [subscription.onDone] and [subscription.onError] so that
+  /// the returned operation will complete when the subscription completes or
+  /// emits an error. When this operation is canceled or when it emits an error,
+  /// the subscription will be canceled (unlike
+  /// `CancelableOperation.fromFuture(subscription.asFuture())`).
+  static CancelableOperation<void> fromSubscription(
+      StreamSubscription<void> subscription) {
+    var completer = CancelableCompleter<void>(onCancel: subscription.cancel);
+    subscription.onDone(completer.complete);
+    subscription.onError((Object error, StackTrace stackTrace) {
+      subscription.cancel().whenComplete(() {
+        completer.completeError(error, stackTrace);
+      });
+    });
+    return completer.operation;
+  }
+
+  /// Returns a [CancelableOperation] that completes with the value of the first
+  /// of [operations] to complete.
+  ///
+  /// Once any of [operations] completes, its result is forwarded to the
+  /// returned [CancelableOperation] and the rest are cancelled. When the
+  /// returned operation is cancelled, all the [operations] are cancelled as
+  /// well.
+  static CancelableOperation<T> race<T>(
+      Iterable<CancelableOperation<T>> operations) {
+    operations = operations.toList();
+    if (operations.isEmpty) {
+      throw ArgumentError.value("May not be empty", "operations");
+    }
+
+    var done = false;
+    // Note: if one of the completers has already completed, it's not actually
+    // cancelled by this.
+    Future<void> _cancelAll() {
+      done = true;
+      return Future.wait(operations.map((operation) => operation.cancel()));
+    }
+
+    var completer = CancelableCompleter<T>(onCancel: _cancelAll);
+    for (var operation in operations) {
+      operation.then((value) {
+        if (!done) completer.complete(_cancelAll().then((_) => value));
+      }, onError: (error, stackTrace) {
+        if (!done) {
+          completer.complete(
+              _cancelAll().then((_) => Future.error(error, stackTrace)));
+        }
+      });
+    }
+
+    return completer.operation;
+  }
+
   /// The value returned by the operation.
   Future<T> get value => _completer._inner.future;
 
