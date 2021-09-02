@@ -33,4 +33,29 @@ extension StreamExtensions<T> on Stream<T> {
       sink.close();
     }));
   }
+
+  /// A future which completes with the first event of this stream, or with
+  /// `null`.
+  ///
+  /// This stream is listened to, and if it emits any event, whether a data
+  /// event or an error event, the future completes with the same data value or
+  /// error. If the stream ends without emitting any events, the future is
+  /// completed with `null`.
+  Future<T?> get firstOrNull {
+    var completer = Completer<T?>.sync();
+    final subscription = listen(null);
+    subscription
+      ..onData((event) {
+        subscription.cancel();
+        completer.complete(event);
+      })
+      ..onError((Object error, StackTrace stackTrace) {
+        subscription.cancel();
+        completer.completeError(error, stackTrace);
+      })
+      ..onDone(() {
+        completer.complete(null);
+      });
+    return completer.future;
+  }
 }

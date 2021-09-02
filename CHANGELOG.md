@@ -1,5 +1,7 @@
 ## 2.9.0
 
+* Add `StreamExtensions.firstOrNull`.
+
 * Add a `CancelableOperation.fromSubscription()` static factory.
 
 * Add a `CancelableOperation.race()` static method.
