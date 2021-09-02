@@ -51,8 +51,9 @@ class CancelableOperation<T> {
     var completer = CancelableCompleter<void>(onCancel: subscription.cancel);
     subscription.onDone(completer.complete);
     subscription.onError((Object error, StackTrace stackTrace) {
-      subscription.cancel();
-      completer.completeError(error, stackTrace);
+      subscription.cancel().whenComplete(() {
+        completer.completeError(error, stackTrace);
+      });
     });
     return completer.operation;
   }
@@ -67,7 +68,9 @@ class CancelableOperation<T> {
   static CancelableOperation<T> race<T>(
       Iterable<CancelableOperation<T>> operations) {
     operations = operations.toList();
-    if (operations.isEmpty) throw ArgumentError("operations can't be empty");
+    if (operations.isEmpty) {
+      throw ArgumentError.value("May not be empty", "operations");
+    }
 
     var done = false;
     // Note: if one of the completers has already completed, it's not actually

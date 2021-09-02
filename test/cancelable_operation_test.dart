@@ -262,10 +262,13 @@ void main() {
       expect(fired, isTrue);
     });
 
-    test('Stream.fromSubscription() cancels the subscription', () async {
+    test('CancelableOperation.fromSubscription() cancels the subscription',
+        () async {
+      var cancelCompleter = Completer<void>();
       var canceled = false;
       var controller = StreamController<void>(onCancel: () {
         canceled = true;
+        return cancelCompleter.future;
       });
       var operation =
           CancelableOperation.fromSubscription(controller.stream.listen(null));
@@ -273,9 +276,21 @@ void main() {
       await flushMicrotasks();
       expect(canceled, isFalse);
 
-      expect(operation.cancel(), completes);
+      // The `cancel()` call shouldn't complete until
+      // `StreamSubscription.cancel` completes.
+      var cancelCompleted = false;
+      expect(
+          operation.cancel().then((_) {
+            cancelCompleted = true;
+          }),
+          completes);
       await flushMicrotasks();
       expect(canceled, isTrue);
+      expect(cancelCompleted, isFalse);
+
+      cancelCompleter.complete();
+      await flushMicrotasks();
+      expect(cancelCompleted, isTrue);
     });
   });
 
