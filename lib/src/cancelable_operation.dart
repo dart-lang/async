@@ -69,7 +69,7 @@ class CancelableOperation<T> {
       Iterable<CancelableOperation<T>> operations) {
     operations = operations.toList();
     if (operations.isEmpty) {
-      throw ArgumentError.value("May not be empty", "operations");
+      throw ArgumentError("May not be empty", "operations");
     }
 
     var done = false;
