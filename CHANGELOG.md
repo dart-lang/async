@@ -1,10 +1,13 @@
-## 2.9.0
+## 2.9.0-dev
 
 * Add `StreamExtensions.firstOrNull`.
 
 * Add a `CancelableOperation.fromSubscription()` static factory.
 
 * Add a `CancelableOperation.race()` static method.
+
+* Update `StreamGroup` methods that return a `Future<dynamic>` today to return
+  a `Future<void>` instead.
 
 ## 2.8.2
 

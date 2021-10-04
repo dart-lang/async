@@ -137,7 +137,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// Throws a [StateError] if this group is closed.
   @override
-  Future? add(Stream<T> stream) {
+  Future<void>? add(Stream<T> stream) {
     if (_closed) {
       throw StateError("Can't add a Stream to a closed StreamGroup.");
     }
@@ -167,7 +167,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// If [stream]'s subscription is canceled, this returns
   /// [StreamSubscription.cancel]'s return value. Otherwise, it returns `null`.
-  Future? remove(Stream<T> stream) {
+  Future<void>? remove(Stream<T> stream) {
     var subscription = _subscriptions.remove(stream);
     var future = subscription?.cancel();
 
@@ -226,7 +226,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   /// A callback called when [stream] is canceled.
   ///
   /// This is only called for single-subscription groups.
-  Future? _onCancel() {
+  Future<void>? _onCancel() {
     _state = _StreamGroupState.canceled;
 
     var futures = _subscriptions.entries
@@ -287,7 +287,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
   ///
   /// Returns a [Future] that completes once [stream] has actually been closed.
   @override
-  Future close() {
+  Future<void> close() {
     if (_closed) return _controller.done;
 
     _closed = true;
