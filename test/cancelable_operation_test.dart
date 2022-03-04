@@ -421,12 +421,12 @@ void main() {
     });
 
     group('original operation canceled', () {
-      test('onCancel not set', () {
+      test('onCancel not set', () async {
         onCancel = null;
 
         final operation = runThen();
 
-        expect(originalCompleter.operation.cancel(), completes);
+        await expectLater(originalCompleter.operation.cancel(), completes);
         expect(operation.isCanceled, true);
       });
 
@@ -460,8 +460,10 @@ void main() {
         var operation = runThen();
         var workCompleter = Completer<int>();
         originalCompleter.complete(workCompleter.future);
-        originalCompleter.operation.cancel();
+        var cancelation = originalCompleter.operation.cancel();
+        expect(originalCompleter.isCanceled, true);
         workCompleter.complete(0);
+        await cancelation;
         expect(operation.isCanceled, true);
         await workCompleter.future;
       });
