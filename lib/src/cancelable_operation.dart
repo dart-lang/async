@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:async/async.dart';
-
 /// An asynchronous operation that can be cancelled.
 ///
 /// The value of this operation is exposed as [value]. When this operation is
@@ -31,7 +29,7 @@ class CancelableOperation<T> {
   /// Calling this constructor is equivalent to creating a
   /// [CancelableCompleter] and completing it with [result].
   factory CancelableOperation.fromFuture(Future<T> result,
-      {FutureOr<void> Function()? onCancel}) {
+      {FutureOr Function()? onCancel}) {
     var completer = CancelableCompleter<T>(onCancel: onCancel);
     completer.complete(result);
     return completer.operation;
@@ -174,7 +172,7 @@ class CancelableOperation<T> {
   ///
   /// If this operation [isComplete] or [isCanceled] this call is ignored.
   /// Returns the result of the `onCancel` callback, if one exists.
-  Future<void> cancel() => _completer._cancel();
+  Future cancel() => _completer._cancel();
 
   /// Whether this operation has been canceled before it completed.
   bool get isCanceled => _completer.isCanceled;
@@ -229,8 +227,7 @@ class CancelableCompleter<T> {
   ///
   /// [onCancel] will be called synchronously when the operation is canceled.
   /// It's guaranteed to only be called once.
-  CancelableCompleter({FutureOr<void> Function()? onCancel})
-      : _onCancel = onCancel;
+  CancelableCompleter({FutureOr Function()? onCancel}) : _onCancel = onCancel;
 
   /// Whether the [complete] or [completeError] have been called.
   ///
