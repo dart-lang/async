@@ -12,28 +12,25 @@ import 'dart:async';
 class CancelableOperation<T> {
   /// The completer that produced this operation.
   ///
-  /// This is canceled when [cancel] is called.
+  /// That completer is canceled when [cancel] is called.
   final CancelableCompleter<T> _completer;
 
   CancelableOperation._(this._completer);
 
-  /// Creates a [CancelableOperation] wrapping [inner].
+  /// Creates a [CancelableOperation] with the same result as the [result] future.
   ///
   /// When this operation is canceled, [onCancel] will be called and any value
   /// or error later produced by [result] will be discarded.
   /// If [onCancel] returns a [Future], it will be returned by [cancel].
   ///
-  /// [onCancel] will be called synchronously when the operation is canceled.
-  /// It's guaranteed to only be called once.
+  /// The [onCancel] funcion will be called synchronously
+  /// when the new operation is canceled, and will be called at most once.\
   ///
   /// Calling this constructor is equivalent to creating a
   /// [CancelableCompleter] and completing it with [result].
   factory CancelableOperation.fromFuture(Future<T> result,
-      {FutureOr Function()? onCancel}) {
-    var completer = CancelableCompleter<T>(onCancel: onCancel);
-    completer.complete(result);
-    return completer.operation;
-  }
+          {FutureOr Function()? onCancel}) =>
+      (CancelableCompleter<T>(onCancel: onCancel)..complete(result)).operation;
 
   /// Creates a [CancelableOperation] wrapping [subscription].
   ///
@@ -54,12 +51,12 @@ class CancelableOperation<T> {
     return completer.operation;
   }
 
-  /// Returns a [CancelableOperation] that completes with the value of the first
+  /// Creates a [CancelableOperation] that completes with the value of the first
   /// of [operations] to complete.
   ///
   /// Once any of [operations] completes, its result is forwarded to the
-  /// returned [CancelableOperation] and the rest are cancelled. When the
-  /// returned operation is cancelled, all the [operations] are cancelled as
+  /// new [CancelableOperation] and the rest are cancelled. If the
+  /// bew operation is cancelled, all the [operations] are cancelled as
   /// well.
   static CancelableOperation<T> race<T>(
       Iterable<CancelableOperation<T>> operations) {
@@ -79,10 +76,11 @@ class CancelableOperation<T> {
     var completer = CancelableCompleter<T>(onCancel: _cancelAll);
     for (var operation in operations) {
       operation.then((value) {
-        if (!done) _cancelAll().then((_) => completer.complete(value));
+        if (!done) _cancelAll().whenComplete(() => completer.complete(value));
       }, onError: (error, stackTrace) {
         if (!done) {
-          _cancelAll().then((_) => completer.completeError(error, stackTrace));
+          _cancelAll()
+              .whenComplete(() => completer.completeError(error, stackTrace));
         }
       });
     }
@@ -132,13 +130,16 @@ class CancelableOperation<T> {
     return completer.future;
   }
 
-  /// Registers callbacks to be called when this operation completes.
+  /// Creates a new cancelable operation to be completed
+  /// when this operation completes or is cancelled.
   ///
-  /// [onValue] and [onError] behave in the same way as [Future.then].
+  /// The [onValue] and [onError] callbacks behave in the same way as
+  /// for [Future.then], and the result of those callbacks is used to complete
+  /// the returned cancelable operation.
   ///
-  /// If [onCancel] is provided, and this operation is canceled, the [onCancel]
-  /// callback is called and the returned operation completes
-  /// with the same result.
+  /// If [onCancel] is provided, and the this operation is canceled,
+  /// the [onCancel] callback is called and the returned operation completes
+  /// with the result returned by that call.
   ///
   /// If [onCancel] is not provided, and this operation is canceled, then the
   /// returned operation is also canceled.
@@ -221,12 +222,16 @@ class CancelableCompleter<T> {
 
   /// Creates a new completer for a [CancelableOperation].
   ///
-  /// When the future operation canceled, as long as the completer hasn't yet
-  /// completed, [onCancel] is called. If [onCancel] returns a [Future], it's
-  /// forwarded to [CancelableOperation.cancel].
+  /// The cancelable [operation] can be completed using
+  /// [complete] or [completeError].
   ///
-  /// [onCancel] will be called synchronously when the operation is canceled.
-  /// It's guaranteed to only be called once.
+  /// The [onCancel] function is called if the [operation] is canceled,
+  /// by calling [CancelableOperation.cancel]
+  /// before the operation has completed.
+  /// If [onCancel] returns a [Future],
+  /// that future is also returned by [CancelableOperation.cancel].
+  ///
+  /// The [onCancel] function will be called at most once.
   CancelableCompleter({FutureOr Function()? onCancel}) : _onCancel = onCancel;
 
   /// Whether the [complete] or [completeError] have been called.
