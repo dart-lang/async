@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'stream_completer.dart';
-import 'utils.dart';
 
 /// A [Stream] wrapper that forwards to another [Stream] that's initialized
 /// lazily.
@@ -15,7 +14,7 @@ import 'utils.dart';
 /// produce a `Stream`.
 class LazyStream<T> extends Stream<T> {
   /// The callback that's called to create the inner stream.
-  FutureOrCallback<Stream<T>>? _callback;
+  FutureOr<Stream<T>> Function()? _callback;
 
   /// Creates a single-subscription `Stream` that calls [callback] when it gets
   /// a listener and forwards to the returned stream.
