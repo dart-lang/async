@@ -237,25 +237,21 @@ class CancelableCompleter<T> {
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
 
-  /// Whether `complete` or `completeError` may still be called.
+  /// Whether [complete] or [completeError] may still be called.
   ///
   /// Set to false when calling either.
+  ///
+  /// When completing by calling [complete] with a future,
+  /// it's still possible to cancel until the result is actually
+  /// available.
+  /// You are also allowed to call [complete] or [completeError]
+  /// after the operation has been canceled, as long as you only call it once.
+  /// It just won't do anything after the operation is cancelled.
+  /// This value only guards the calls to [complete] and [completeError].
   bool _mayComplete = true;
 
   /// The operation controlled by this completer.
   late final operation = CancelableOperation<T>._(this);
-
-  /// Becomes true when [complete] or [completeError] is called.
-  ///
-  /// Completing twice is not allowed.
-  ///
-  /// If [complete] is called with a future, it's still possible to
-  /// cancel the operation until that future completes,
-  /// so this value and [_isCanceled] are not mutually exclusive.
-  bool get _isCompleted => _cancelCompleter == null;
-
-  /// Whether the completer was canceled before the result was ready.
-  bool get _isCanceled => _inner == null;
 
   /// Creates a new completer for a [CancelableOperation].
   ///
@@ -270,6 +266,16 @@ class CancelableCompleter<T> {
   ///
   /// The [onCancel] function will be called at most once.
   CancelableCompleter({FutureOr Function()? onCancel}) : _onCancel = onCancel;
+
+  /// Whether the [_inner] completer has been completed.
+  ///
+  /// At this point it's no longer possible to cancel the operation.
+  bool get _isCompleted => _cancelCompleter == null;
+
+  /// Whether the completer was canceled before the result was ready.
+  ///
+  /// At this point, it's no longer possible to complete the operation.
+  bool get _isCanceled => _inner == null;
 
   /// Whether the [complete] or [completeError] have been called.
   ///
