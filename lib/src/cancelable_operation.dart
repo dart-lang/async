@@ -103,16 +103,13 @@ class CancelableOperation<T> {
     var controller =
         StreamController<T>(sync: true, onCancel: _completer._cancel);
 
-    var inner = _completer._inner;
-    if (inner != null) {
-      inner.future.then((value) {
-        controller.add(value);
-        controller.close();
-      }, onError: (Object error, StackTrace stackTrace) {
-        controller.addError(error, stackTrace);
-        controller.close();
-      });
-    }
+    _completer._inner?.future.then((value) {
+      controller.add(value);
+      controller.close();
+    }, onError: (Object error, StackTrace stackTrace) {
+      controller.addError(error, stackTrace);
+      controller.close();
+    });
     return controller.stream;
   }
 
