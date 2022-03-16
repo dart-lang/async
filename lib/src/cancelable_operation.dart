@@ -153,16 +153,50 @@ class CancelableOperation<T> {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
 
-    _completer._inner?.future
-        .then(onValue, onError: onError)
-        .then(completer.complete, onError: completer.completeError);
-    _completer._cancelCompleter?.future.then((_) {
-      if (onCancel != null) {
-        completer.complete(Future.sync(onCancel));
-      } else {
-        completer._cancel();
+    // if `_completer._inner` completes before `completer` is cancelled
+    // call `onValue` or `onError` with the result, and complete `completer`
+    // with the result of that call (unless cancelled in the meantime).
+    //
+    // If `_completer._cancelCompleter` completes (always with a value)
+    // before `completer` is cancelled, then call `onCancel` (if supplied)
+    // with that that value and complete `completer` with the result of that
+    // call (unless cancelled in the meantime).
+    //
+    // If any of the callbacks throw synchronously, the `completer` is
+    // completed with that error.
+    //
+    // If no `onCancel` is provided, and `_completer._cancelCompleter`
+    // completes before `completer` is cancelled,
+    // then cancel `cancelCompleter`. (Cancelling twice is safe.)
+
+    _completer._inner?.future.then<void>((value) {
+      if (completer.isCanceled) return;
+      try {
+        completer.complete(onValue(value));
+      } catch (error, stack) {
+        completer.completeError(error, stack);
       }
-    });
+    },
+        onError: onError == null
+            ? completer.completeError // Is ignored if already cancelled.
+            : (Object error, StackTrace stack) {
+                if (completer.isCanceled) return;
+                try {
+                  completer.complete(onError(error, stack));
+                } catch (error2, stack2) {
+                  completer.completeError(error2, stack2);
+                }
+              });
+    _completer._cancelCompleter?.future.whenComplete(onCancel == null
+        ? completer._cancel
+        : () {
+            if (completer.isCanceled) return;
+            try {
+              completer.complete(onCancel());
+            } catch (error, stack) {
+              completer.completeError(error, stack);
+            }
+          });
 
     return completer.operation;
   }
