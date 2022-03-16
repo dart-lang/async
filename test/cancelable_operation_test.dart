@@ -495,6 +495,48 @@ void main() {
 
         expect(originalCompleter.isCanceled, false);
       });
+
+      test('onValue callback not called after cancel', () async {
+        var called = false;
+        onValue = expectAsync1((_) {
+          called = true;
+          fail("onValue unreachable");
+          return "";
+        }, count: 0);
+
+        await runThen().cancel();
+        originalCompleter.complete(0);
+        await flushMicrotasks();
+        expect(called, false);
+      });
+
+      test('onError callback not called after cancel', () async {
+        var called = false;
+        onError = expectAsync2((_, __) {
+          called = true;
+          fail("onError unreachable");
+          return "";
+        }, count: 0);
+
+        await runThen().cancel();
+        originalCompleter.completeError("Error", StackTrace.empty);
+        await flushMicrotasks();
+        expect(called, false);
+      });
+
+      test('onCancel callback not called after cancel', () async {
+        var called = false;
+        onCancel = expectAsync0(() {
+          called = true;
+          fail("onCancel unreachable");
+          return "";
+        }, count: 0);
+
+        await runThen().cancel();
+        await originalCompleter.operation.cancel();
+        await flushMicrotasks();
+        expect(called, false);
+      });
     });
   });
 
