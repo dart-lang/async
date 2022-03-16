@@ -74,6 +74,7 @@ class AsyncCache<T> {
   /// If [fetchStream] has been called recently enough, returns a copy of its
   /// previous return value. Otherwise, runs [callback] and returns its new
   /// return value.
+  @Deprecated("Feature will be removed")
   Stream<T> fetchStream(Stream<T> Function() callback) {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');

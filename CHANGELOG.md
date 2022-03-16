@@ -9,6 +9,8 @@
 * Update `StreamGroup` methods that return a `Future<dynamic>` today to return
   a `Future<void>` instead.
 
+* Deprecated `AsyncCache.fetchStream`.
+
 ## 2.8.2
 
 * Deprecate `EventSinkBase`, `StreamSinkBase`, `IOSinkBase`.
