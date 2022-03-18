@@ -555,8 +555,10 @@ void main() {
     });
 
     CancelableOperation<String> runThenOperation() {
-      return originalCompleter.operation
-          .thenOperation(onValue, onError: onError, onCancel: onCancel, propagateCancel:  propagateCancel);
+      return originalCompleter.operation.thenOperation(onValue,
+          onError: onError,
+          onCancel: onCancel,
+          propagateCancel: propagateCancel);
     }
 
     group('original operation completes successfully', () {
@@ -576,11 +578,19 @@ void main() {
         originalCompleter.complete(1);
       });
 
-      test('onValue completes as error', () {
+      test('onValue completes operation as error', () {
         onValue = expectAsync2(
             (_, completer) => completer.completeError('error'),
             count: 1,
             id: 'onValue');
+
+        expect(runThenOperation().value, throwsA('error'));
+        originalCompleter.complete(1);
+      });
+
+      test('onValue returns a Future that throws error', () {
+        onValue = expectAsync2((_, completer) => Future.error('error'),
+            count: 1, id: 'onValue');
 
         expect(runThenOperation().value, throwsA('error'));
         originalCompleter.complete(1);
@@ -613,6 +623,14 @@ void main() {
       test('onError throws', () {
         // expectAsync3 does not work with functions that throw.
         onError = (e, s, c) => throw 'onError caught $e';
+
+        expect(runThenOperation().value, throwsA('onError caught error'));
+        originalCompleter.completeError('error');
+      });
+
+      test('onError returns Future that throws error', () {
+        onError = expectAsync3((e, s, c) => Future.error('onError caught $e'),
+            count: 1, id: 'onError');
 
         expect(runThenOperation().value, throwsA('onError caught error'));
         originalCompleter.completeError('error');
@@ -667,6 +685,14 @@ void main() {
 
       test('onCancel completes operation as error', () {
         onCancel = expectAsync1((c) => c.completeError('error'),
+            count: 1, id: 'onCancel');
+
+        expect(runThenOperation().value, throwsA('error'));
+        originalCompleter.operation.cancel();
+      });
+
+      test('onCancel returns Future that throws error', () {
+        onCancel = expectAsync1((c) => Future.error('error'),
             count: 1, id: 'onCancel');
 
         expect(runThenOperation().value, throwsA('error'));

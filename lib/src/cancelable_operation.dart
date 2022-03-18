@@ -205,12 +205,24 @@ class CancelableOperation<T> {
   /// If [propagateCancel] is `true` and the returned operation is canceled
   /// then this operation is canceled. The default is `false`.
   CancelableOperation<R> thenOperation<R>(
-      void Function(T, CancelableCompleter<R>) onValue,
-      {void Function(Object, StackTrace, CancelableCompleter<R>)? onError,
-      void Function(CancelableCompleter<R>)? onCancel,
+      FutureOr<void> Function(T, CancelableCompleter<R>) onValue,
+      {FutureOr<void> Function(Object, StackTrace, CancelableCompleter<R>)?
+          onError,
+      FutureOr<void> Function(CancelableCompleter<R>)? onCancel,
       bool propagateCancel = false}) {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
+
+    void forwardError(FutureOr<void> futureOr) async {
+      try {
+        await futureOr;
+      } catch (error, stack) {
+        if (completer.isCanceled) return;
+        // TODO - rethrow?
+        if (completer.isCompleted) return;
+        completer.completeError(error, stack);
+      }
+    }
 
     // if `_completer._inner` completes before `completer` is cancelled
     // call `onValue` or `onError` with the result, and complete `completer`
@@ -231,7 +243,7 @@ class CancelableOperation<T> {
     _completer._inner?.future.then<void>((value) {
       if (completer.isCanceled) return;
       try {
-        onValue(value, completer);
+        forwardError(onValue(value, completer));
       } catch (error, stack) {
         completer.completeError(error, stack);
       }
@@ -241,7 +253,7 @@ class CancelableOperation<T> {
             : (Object error, StackTrace stack) {
                 if (completer.isCanceled) return;
                 try {
-                  onError(error, stack, completer);
+                  forwardError(onError(error, stack, completer));
                 } catch (error2, stack2) {
                   completer.completeError(error2, stack2);
                 }
@@ -251,7 +263,7 @@ class CancelableOperation<T> {
         : () {
             if (completer.isCanceled) return;
             try {
-              onCancel(completer);
+              forwardError(onCancel(completer));
             } catch (error, stack) {
               completer.completeError(error, stack);
             }
