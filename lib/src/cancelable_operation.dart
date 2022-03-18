@@ -150,6 +150,65 @@ class CancelableOperation<T> {
       {FutureOr<R> Function(Object, StackTrace)? onError,
       FutureOr<R> Function()? onCancel,
       bool propagateCancel = false}) {
+    if (onError != null && onCancel != null) {
+      return thenOperation<R>((value, completer) {
+        completer.complete(onValue(value));
+      }, onError: (error, stack, completer) {
+        completer.complete(onError(error, stack));
+      }, onCancel: (completer) {
+        completer.complete(onCancel());
+      }, propagateCancel: propagateCancel);
+    } else if (onError != null) {
+      return thenOperation<R>((value, completer) {
+        completer.complete(onValue(value));
+      }, onError: (error, stack, completer) {
+        completer.complete(onError(error, stack));
+      }, propagateCancel: propagateCancel);
+    } else if (onCancel != null) {
+      return thenOperation<R>((value, completer) {
+        completer.complete(onValue(value));
+      }, onCancel: (completer) {
+        completer.complete(onCancel());
+      }, propagateCancel: propagateCancel);
+    } else {
+      return thenOperation<R>((value, completer) {
+        completer.complete(onValue(value));
+      }, propagateCancel: propagateCancel);
+    }
+  }
+
+  /// Creates a new cancelable operation to be completed
+  /// when this operation completes or is cancelled.
+  ///
+  /// The [onValue] and [onError] callbacks behave in the same way as
+  /// for [Future.then], and the result of those callbacks is used to complete
+  /// the returned cancelable operation.
+  ///
+  /// If this operation completes normally [onValue] is called with the result
+  /// and the [CancelableCompleter] controlling the returned operation.
+  ///
+  /// If this operation completes as an error, and an [onError] callback is
+  /// provided, it is called with the error, stack trace, and the
+  /// [CancelableCompleter] controlling the returned operation.
+  ///
+  /// If this operation is canceled, and an [onCancel] call is provided, it is
+  /// called with the [CancelableCompleter] controlling the returned operation.
+  ///
+  /// If [onCancel] is not provided, and this operation is canceled, then the
+  /// returned operation is also canceled.
+  ///
+  /// At most one of [onValue], [onError], or [onCancel] will be called.
+  /// If any of [onValue], [onError], or [onCancel] cause any asynchronous
+  /// errors, including through a returned `Future`, they will not be handled or
+  /// forwarded through the returned operation.
+  ///
+  /// If [propagateCancel] is `true` and the returned operation is canceled
+  /// then this operation is canceled. The default is `false`.
+  CancelableOperation<R> thenOperation<R>(
+      void Function(T, CancelableCompleter<R>) onValue,
+      {void Function(Object, StackTrace, CancelableCompleter<R>)? onError,
+      void Function(CancelableCompleter<R>)? onCancel,
+      bool propagateCancel = false}) {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
 
@@ -172,7 +231,7 @@ class CancelableOperation<T> {
     _completer._inner?.future.then<void>((value) {
       if (completer.isCanceled) return;
       try {
-        completer.complete(onValue(value));
+        onValue(value, completer);
       } catch (error, stack) {
         completer.completeError(error, stack);
       }
@@ -182,7 +241,7 @@ class CancelableOperation<T> {
             : (Object error, StackTrace stack) {
                 if (completer.isCanceled) return;
                 try {
-                  completer.complete(onError(error, stack));
+                  onError(error, stack, completer);
                 } catch (error2, stack2) {
                   completer.completeError(error2, stack2);
                 }
@@ -192,7 +251,7 @@ class CancelableOperation<T> {
         : () {
             if (completer.isCanceled) return;
             try {
-              completer.complete(onCancel());
+              onCancel(completer);
             } catch (error, stack) {
               completer.completeError(error, stack);
             }
