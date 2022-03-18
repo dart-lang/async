@@ -501,7 +501,6 @@ void main() {
         onValue = expectAsync1((_) {
           called = true;
           fail("onValue unreachable");
-          return "";
         }, count: 0);
 
         await runThen().cancel();
@@ -515,7 +514,6 @@ void main() {
         onError = expectAsync2((_, __) {
           called = true;
           fail("onError unreachable");
-          return "";
         }, count: 0);
 
         await runThen().cancel();
@@ -529,7 +527,6 @@ void main() {
         onCancel = expectAsync0(() {
           called = true;
           fail("onCancel unreachable");
-          return "";
         }, count: 0);
 
         await runThen().cancel();
