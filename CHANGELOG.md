@@ -9,6 +9,8 @@
 * Update `StreamGroup` methods that return a `Future<dynamic>` today to return
   a `Future<void>` instead.
 
+* Deprecated `AsyncCache.fetchStream`.
+
 * Make `AsyncCache.ephemeral` invalidate itself immediately when the returned
   future completes, rather than wait for a later timer event.
 

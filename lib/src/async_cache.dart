@@ -31,7 +31,7 @@ class AsyncCache<T> {
   /// future completes.
   final Duration? _duration;
 
-  /// Cached results of a previous [fetchStream] call.
+  /// Cached results of a previous `fetchStream` call.
   StreamSplitter<T>? _cachedStreamSplitter;
 
   /// Cached results of a previous [fetch] call.
@@ -43,7 +43,7 @@ class AsyncCache<T> {
   /// Creates a cache that invalidates its contents after [duration] has passed.
   ///
   /// The [duration] starts counting after the Future returned by [fetch]
-  /// completes, or after the Stream returned by [fetchStream] emits a done
+  /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
   AsyncCache(Duration duration) : _duration = duration;
 
@@ -80,6 +80,7 @@ class AsyncCache<T> {
   ///
   /// Only starts counting time after the stream has been listened to,
   /// and it has completed with a `done` event.
+  @Deprecated("Feature will be removed")
   Stream<T> fetchStream(Stream<T> Function() callback) {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');
