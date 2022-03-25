@@ -133,25 +133,25 @@ class CancelableOperation<T> {
   /// Creates a new cancelable operation to be completed when this operation
   /// completes normally or as an error, or is cancelled.
   ///
-  /// If this operation completes normally the [value] is passed to [onValue]
+  /// If `this` operation completes normally the [value] is passed to [onValue]
   /// and the returned operation is completed with the result.
   ///
-  /// If this operation completes as an error, and no [onError] callback is
+  /// If `this` operation completes as an error, and no [onError] callback is
   /// provided, the returned operation is completed with the same error and
   /// stack trace.
-  /// If this operation completes as an error, and an [onError] callback is
+  /// If `this` operation completes as an error, and an [onError] callback is
   /// provided, the returned operation is completed with the result.
   ///
-  /// If this operation is canceled, and no [onCancel] callback is provided, the
-  /// returned operation is canceled.
-  /// If this operation is canceled, and an [onCancel] callback is provided, the
-  /// returned operation is completed with the result.
+  /// If `this` operation is canceled, and no [onCancel] callback is provided,
+  /// the returned operation is canceled.
+  /// If `this` operation is canceled, and an [onCancel] callback is provided,
+  /// the returned operation is completed with the result.
   ///
-  /// If the returned operation is canceled before this operation completes or
+  /// If the returned operation is canceled before `this` operation completes or
   /// is canceled, the [onValue], [onError], and [onCancel] callbacks will not
   /// be invoked. If [propagateCancel] is `true` (the default) then this
   /// operation is canceled as well. Pass `false` if there are multiple
-  /// listeners on this operation and canceling the [onValue], [onError], and
+  /// listeners on `this` operation and canceling the [onValue], [onError], and
   /// [onCancel] callbacks should not cancel the other listeners.
   CancelableOperation<R> then<R>(FutureOr<R> Function(T) onValue,
       {FutureOr<R> Function(Object, StackTrace)? onError,
