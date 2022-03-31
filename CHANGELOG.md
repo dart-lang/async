@@ -1,4 +1,4 @@
-## 2.9.0-dev
+## 2.9.0
 
 * **Potentially Breaking** The default `propagateCancel` argument to
   `CancelableOperation.then` changed from `false` to `true`. In most usages this
