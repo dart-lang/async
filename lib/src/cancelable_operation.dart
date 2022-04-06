@@ -154,35 +154,23 @@ class CancelableOperation<T> {
   /// listeners on this operation and canceling the [onValue], [onError], and
   /// [onCancel] callbacks should not cancel the other listeners.
   CancelableOperation<R> then<R>(FutureOr<R> Function(T) onValue,
-      {FutureOr<R> Function(Object, StackTrace)? onError,
-      FutureOr<R> Function()? onCancel,
-      bool propagateCancel = true}) {
-    if (onError != null && onCancel != null) {
-      return thenOperation<R>((value, completer) {
+          {FutureOr<R> Function(Object, StackTrace)? onError,
+          FutureOr<R> Function()? onCancel,
+          bool propagateCancel = true}) =>
+      thenOperation<R>((value, completer) {
         completer.complete(onValue(value));
-      }, onError: (error, stack, completer) {
-        completer.complete(onError(error, stack));
-      }, onCancel: (completer) {
-        completer.complete(onCancel());
-      }, propagateCancel: propagateCancel);
-    } else if (onError != null) {
-      return thenOperation<R>((value, completer) {
-        completer.complete(onValue(value));
-      }, onError: (error, stack, completer) {
-        completer.complete(onError(error, stack));
-      }, propagateCancel: propagateCancel);
-    } else if (onCancel != null) {
-      return thenOperation<R>((value, completer) {
-        completer.complete(onValue(value));
-      }, onCancel: (completer) {
-        completer.complete(onCancel());
-      }, propagateCancel: propagateCancel);
-    } else {
-      return thenOperation<R>((value, completer) {
-        completer.complete(onValue(value));
-      }, propagateCancel: propagateCancel);
-    }
-  }
+      },
+          onError: onError == null
+              ? null
+              : (error, stackTrace, completer) {
+                  completer.complete(onError(error, stackTrace));
+                },
+          onCancel: onCancel == null
+              ? null
+              : (completer) {
+                  completer.complete(onCancel());
+                },
+          propagateCancel: propagateCancel);
 
   /// Creates a new cancelable operation to be completed
   /// when this operation completes or is cancelled.
