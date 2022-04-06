@@ -1,4 +1,4 @@
-## 2.9.0
+## 2.10.0-dev
 
 * **Potentially Breaking** The default `propagateCancel` argument to
   `CancelableOperation.then` changed from `false` to `true`. In most usages this
@@ -7,6 +7,9 @@
   `CancelableOperation` with multiple listeners where canceling subsequent
   computation using `.then` shouldn't also cancel the original operation, pass
   `propagateCancel: false`.
+
+## 2.9.0
+
 * Add `StreamExtensions.firstOrNull`.
 * Add a `CancelableOperation.fromSubscription()` static factory.
 * Add a `CancelableOperation.race()` static method.
