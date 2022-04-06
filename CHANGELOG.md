@@ -1,13 +1,20 @@
-## 2.9.0-dev
+## 2.9.0
 
+* **Potentially Breaking** The default `propagateCancel` argument to
+  `CancelableOperation.then` changed from `false` to `true`. In most usages this
+  won't have a meaningful difference in behavior, but in usages where the
+  behavior is important propagation is the more common need. If there are any
+  `CancelableOperation` with multiple listeners where canceling subsequent
+  computation using `.then` shouldn't also cancel the original operation, pass
+  `propagateCancel: false`.
 * Add `StreamExtensions.firstOrNull`.
-
 * Add a `CancelableOperation.fromSubscription()` static factory.
-
 * Add a `CancelableOperation.race()` static method.
-
 * Update `StreamGroup` methods that return a `Future<dynamic>` today to return
   a `Future<void>` instead.
+* Deprecated `AsyncCache.fetchStream`.
+* Make `AsyncCache.ephemeral` invalidate itself immediately when the returned
+  future completes, rather than wait for a later timer event.
 
 ## 2.8.2
 

@@ -130,26 +130,33 @@ class CancelableOperation<T> {
     return completer.future;
   }
 
-  /// Creates a new cancelable operation to be completed
-  /// when this operation completes or is cancelled.
+  /// Creates a new cancelable operation to be completed when this operation
+  /// completes normally or as an error, or is cancelled.
   ///
-  /// The [onValue] and [onError] callbacks behave in the same way as
-  /// for [Future.then], and the result of those callbacks is used to complete
-  /// the returned cancelable operation.
+  /// If this operation completes normally the [value] is passed to [onValue]
+  /// and the returned operation is completed with the result.
   ///
-  /// If [onCancel] is provided, and the this operation is canceled,
-  /// the [onCancel] callback is called and the returned operation completes
-  /// with the result returned by that call.
+  /// If this operation completes as an error, and no [onError] callback is
+  /// provided, the returned operation is completed with the same error and
+  /// stack trace.
+  /// If this operation completes as an error, and an [onError] callback is
+  /// provided, the returned operation is completed with the result.
   ///
-  /// If [onCancel] is not provided, and this operation is canceled, then the
-  /// returned operation is also canceled.
+  /// If this operation is canceled, and no [onCancel] callback is provided,
+  /// the returned operation is canceled.
+  /// If this operation is canceled, and an [onCancel] callback is provided,
+  /// the returned operation is completed with the result.
   ///
-  /// If [propagateCancel] is `true` and the returned operation is canceled
-  /// then this operation is canceled. The default is `false`.
+  /// If the returned operation is canceled before this operation completes or
+  /// is canceled, the [onValue], [onError], and [onCancel] callbacks will not
+  /// be invoked. If [propagateCancel] is `true` (the default) then this
+  /// operation is canceled as well. Pass `false` if there are multiple
+  /// listeners on this operation and canceling the [onValue], [onError], and
+  /// [onCancel] callbacks should not cancel the other listeners.
   CancelableOperation<R> then<R>(FutureOr<R> Function(T) onValue,
       {FutureOr<R> Function(Object, StackTrace)? onError,
       FutureOr<R> Function()? onCancel,
-      bool propagateCancel = false}) {
+      bool propagateCancel = true}) {
     if (onError != null && onCancel != null) {
       return thenOperation<R>((value, completer) {
         completer.complete(onValue(value));
@@ -204,25 +211,39 @@ class CancelableOperation<T> {
   ///
   /// If [propagateCancel] is `true` and the returned operation is canceled
   /// then this operation is canceled. The default is `false`.
+  /// Creates a new cancelable operation to be completed when this operation
+  /// completes normally or as an error, or is cancelled.
+  ///
+  /// If this operation completes normally the [value] is passed to [onValue]
+  /// with a [CancelableCompleter] controlling the returned operation.
+  ///
+  /// If this operation completes as an error, and no [onError] callback is
+  /// provided, the returned operation is completed with the same error and
+  /// stack trace.
+  /// If this operation completes as an error, and an [onError] callback is
+  /// provided, the error and stack trace are passed to [onError] with a
+  /// [CancelableCompleter] controlling the returned operation.
+  ///
+  /// If this operation is canceled, and no [onCancel] callback is provided,
+  /// the returned operation is canceled.
+  /// If this operation is canceled, and an [onCancel] callback is provided,
+  /// the [onCancel] callback is called with a [CancelableCompleter] controlling
+  /// the returned operation.
+  ///
+  /// If the returned operation is canceled before this operation completes or
+  /// is canceled, the [onValue], [onError], and [onCancel] callbacks will not
+  /// be invoked. If [propagateCancel] is `true` (the default) then this
+  /// operation is canceled as well. Pass `false` if there are multiple
+  /// listeners on this operation and canceling the [onValue], [onError], and
+  /// [onCancel] callbacks should not cancel the other listeners.
   CancelableOperation<R> thenOperation<R>(
       FutureOr<void> Function(T, CancelableCompleter<R>) onValue,
       {FutureOr<void> Function(Object, StackTrace, CancelableCompleter<R>)?
           onError,
       FutureOr<void> Function(CancelableCompleter<R>)? onCancel,
-      bool propagateCancel = false}) {
+      bool propagateCancel = true}) {
     final completer =
         CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
-
-    void forwardError(FutureOr<void> futureOr) async {
-      try {
-        await futureOr;
-      } catch (error, stack) {
-        if (completer.isCanceled) return;
-        // TODO - rethrow?
-        if (completer.isCompleted) return;
-        completer.completeError(error, stack);
-      }
-    }
 
     // if `_completer._inner` completes before `completer` is cancelled
     // call `onValue` or `onError` with the result, and complete `completer`
@@ -240,35 +261,34 @@ class CancelableOperation<T> {
     // completes before `completer` is cancelled,
     // then cancel `cancelCompleter`. (Cancelling twice is safe.)
 
-    _completer._inner?.future.then<void>((value) {
+    _completer._inner?.future.then<void>((value) async {
       if (completer.isCanceled) return;
       try {
-        forwardError(onValue(value, completer));
+        await onValue(value, completer);
       } catch (error, stack) {
         completer.completeError(error, stack);
       }
     },
         onError: onError == null
             ? completer.completeError // Is ignored if already cancelled.
-            : (Object error, StackTrace stack) {
+            : (Object error, StackTrace stack) async {
                 if (completer.isCanceled) return;
                 try {
-                  forwardError(onError(error, stack, completer));
+                  await onError(error, stack, completer);
                 } catch (error2, stack2) {
                   completer.completeError(error2, stack2);
                 }
               });
     _completer._cancelCompleter?.future.whenComplete(onCancel == null
         ? completer._cancel
-        : () {
+        : () async {
             if (completer.isCanceled) return;
             try {
-              forwardError(onCancel(completer));
+              await onCancel(completer);
             } catch (error, stack) {
               completer.completeError(error, stack);
             }
           });
-
     return completer.operation;
   }
 

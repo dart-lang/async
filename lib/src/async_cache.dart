@@ -26,9 +26,12 @@ import 'package:async/async.dart';
 /// [fake_async]: https://pub.dev/packages/fake_async
 class AsyncCache<T> {
   /// How long cached values stay fresh.
-  final Duration _duration;
+  ///
+  /// Set to `null` for ephemeral caches, which only stay alive until the
+  /// future completes.
+  final Duration? _duration;
 
-  /// Cached results of a previous [fetchStream] call.
+  /// Cached results of a previous `fetchStream` call.
   StreamSplitter<T>? _cachedStreamSplitter;
 
   /// Cached results of a previous [fetch] call.
@@ -40,16 +43,16 @@ class AsyncCache<T> {
   /// Creates a cache that invalidates its contents after [duration] has passed.
   ///
   /// The [duration] starts counting after the Future returned by [fetch]
-  /// completes, or after the Stream returned by [fetchStream] emits a done
+  /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
-  AsyncCache(this._duration);
+  AsyncCache(Duration duration) : _duration = duration;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
   /// An ephemeral cache guarantees that a callback function will only be
   /// executed at most once concurrently. This is useful for requests for which
   /// data is updated frequently but stale data is acceptable.
-  factory AsyncCache.ephemeral() => AsyncCache(Duration.zero);
+  AsyncCache.ephemeral() : _duration = null;
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -60,12 +63,8 @@ class AsyncCache<T> {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
-    final result = _cachedValueFuture ??= callback();
-    try {
-      return await result;
-    } finally {
-      _startStaleTimer();
-    }
+    return _cachedValueFuture ??= callback()
+      ..whenComplete(_startStaleTimer).ignore();
   }
 
   /// Returns a cached stream from a previous call to [fetchStream], or runs
@@ -74,6 +73,14 @@ class AsyncCache<T> {
   /// If [fetchStream] has been called recently enough, returns a copy of its
   /// previous return value. Otherwise, runs [callback] and returns its new
   /// return value.
+  ///
+  /// Each call to this function returns a stream which replays the same events,
+  /// which means that all stream events are cached until this cache is
+  /// invalidated.
+  ///
+  /// Only starts counting time after the stream has been listened to,
+  /// and it has completed with a `done` event.
+  @Deprecated("Feature will be removed")
   Stream<T> fetchStream(Stream<T> Function() callback) {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');
@@ -98,6 +105,11 @@ class AsyncCache<T> {
   }
 
   void _startStaleTimer() {
-    _stale = Timer(_duration, invalidate);
+    var duration = _duration;
+    if (duration != null) {
+      _stale = Timer(duration, invalidate);
+    } else {
+      invalidate();
+    }
   }
 }
