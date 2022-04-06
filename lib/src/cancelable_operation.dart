@@ -264,7 +264,8 @@ class CancelableOperation<T> {
                 try {
                   await onError(error, stack, completer);
                 } catch (error2, stack2) {
-                  completer.completeError(error2, stack2);
+                  completer.completeError(
+                      error2, identical(error, error2) ? stack : stack2);
                 }
               });
     _completer._cancelCompleter?.future.whenComplete(onCancel == null
