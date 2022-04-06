@@ -133,7 +133,7 @@ class CancelableOperation<T> {
   /// Creates a new cancelable operation to be completed when this operation
   /// completes normally or as an error, or is cancelled.
   ///
-  /// If this operation completes normally the [value] is passed to [onValue]
+  /// If this operation completes normally the value is passed to [onValue]
   /// and the returned operation is completed with the result.
   ///
   /// If this operation completes as an error, and no [onError] callback is
@@ -146,6 +146,11 @@ class CancelableOperation<T> {
   /// the returned operation is canceled.
   /// If this operation is canceled, and an [onCancel] callback is provided,
   /// the returned operation is completed with the result.
+  ///
+  /// At most one of [onValue], [onError], or [onCancel] will be called.
+  /// If any of [onValue], [onError], or [onCancel] throw a synchronous error,
+  /// or return a `Future` that completes as an error, the error will be
+  /// forwarded through the returned operation.
   ///
   /// If the returned operation is canceled before this operation completes or
   /// is canceled, the [onValue], [onError], and [onCancel] callbacks will not
@@ -175,30 +180,7 @@ class CancelableOperation<T> {
   /// Creates a new cancelable operation to be completed when this operation
   /// completes normally or as an error, or is cancelled.
   ///
-  /// If this operation completes normally [onValue] is called with the result
-  /// and the [CancelableCompleter] controlling the returned operation.
-  ///
-  /// If this operation completes as an error, and an [onError] callback is
-  /// provided, it is called with the error, stack trace, and the
-  /// [CancelableCompleter] controlling the returned operation.
-  ///
-  /// If this operation is canceled, and an [onCancel] call is provided, it is
-  /// called with the [CancelableCompleter] controlling the returned operation.
-  ///
-  /// If [onCancel] is not provided, and this operation is canceled, then the
-  /// returned operation is also canceled.
-  ///
-  /// At most one of [onValue], [onError], or [onCancel] will be called.
-  /// If any of [onValue], [onError], or [onCancel] cause any asynchronous
-  /// errors, including through a returned `Future`, they will not be handled or
-  /// forwarded through the returned operation.
-  ///
-  /// If [propagateCancel] is `true` and the returned operation is canceled
-  /// then this operation is canceled. The default is `false`.
-  /// Creates a new cancelable operation to be completed when this operation
-  /// completes normally or as an error, or is cancelled.
-  ///
-  /// If this operation completes normally the [value] is passed to [onValue]
+  /// If this operation completes normally the value is passed to [onValue]
   /// with a [CancelableCompleter] controlling the returned operation.
   ///
   /// If this operation completes as an error, and no [onError] callback is
@@ -213,6 +195,11 @@ class CancelableOperation<T> {
   /// If this operation is canceled, and an [onCancel] callback is provided,
   /// the [onCancel] callback is called with a [CancelableCompleter] controlling
   /// the returned operation.
+  ///
+  /// At most one of [onValue], [onError], or [onCancel] will be called.
+  /// If any of [onValue], [onError], or [onCancel] throw a synchronous error,
+  /// or return a `Future` that completes as an error, the error will be
+  /// forwarded through the returned operation.
   ///
   /// If the returned operation is canceled before this operation completes or
   /// is canceled, the [onValue], [onError], and [onCancel] callbacks will not
