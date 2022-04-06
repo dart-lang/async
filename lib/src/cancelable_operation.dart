@@ -172,12 +172,8 @@ class CancelableOperation<T> {
                 },
           propagateCancel: propagateCancel);
 
-  /// Creates a new cancelable operation to be completed
-  /// when this operation completes or is cancelled.
-  ///
-  /// The [onValue] and [onError] callbacks behave in the same way as
-  /// for [Future.then], and the result of those callbacks is used to complete
-  /// the returned cancelable operation.
+  /// Creates a new cancelable operation to be completed when this operation
+  /// completes normally or as an error, or is cancelled.
   ///
   /// If this operation completes normally [onValue] is called with the result
   /// and the [CancelableCompleter] controlling the returned operation.
