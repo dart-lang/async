@@ -1,3 +1,8 @@
+## 2.10.0-dev
+
+* Add `CancelableOperation.thenOperation` which gives more flexibility to
+  complete the resulting operation.
+
 ## 2.9.0
 
 * **Potentially Breaking** The default `propagateCancel` argument to
