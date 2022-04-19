@@ -421,8 +421,9 @@ class CancelableCompleter<T> {
   /// Makes this [CancelableCompleter.operation] complete with the same result
   /// as [result].
   ///
-  /// If the operation of this completer is cancelled before [result] completes,
-  /// then if [propagateCancel] is set to true, [result] is also cancelled.
+  /// If [propagateCancel] is `true` (the default), and the [operation] of this
+  /// completer is canceled before [result] completes, then [result] is also
+  /// canceled.
   void completeOperation(CancelableOperation<T> result,
       {bool propagateCancel = true}) {
     if (!_mayComplete) throw StateError("Already completed");
