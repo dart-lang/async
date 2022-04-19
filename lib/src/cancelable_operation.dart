@@ -418,6 +418,34 @@ class CancelableCompleter<T> {
     });
   }
 
+  /// Makes this [CancelableCompleter.operation] complete with the same result
+  /// as [result].
+  ///
+  /// If [propagateCancel] is `true` (the default), and the [operation] of this
+  /// completer is canceled before [result] completes, then [result] is also
+  /// canceled.
+  void completeOperation(CancelableOperation<T> result,
+      {bool propagateCancel = true}) {
+    if (!_mayComplete) throw StateError("Already completed");
+    _mayComplete = false;
+    if (isCanceled) {
+      if (propagateCancel) result.cancel();
+      result.value.ignore();
+      return;
+    }
+    result.then<void>((value) {
+      _inner?.complete(
+          value); // _inner is set to null if this.operation is cancelled.
+    }, onError: (error, stack) {
+      _inner?.completeError(error, stack);
+    }, onCancel: () {
+      operation.cancel();
+    });
+    if (propagateCancel) {
+      _cancelCompleter?.future.whenComplete(result.cancel);
+    }
+  }
+
   /// Completer to use for completing with a result.
   ///
   /// Returns `null` if it's not possible to complete any more.

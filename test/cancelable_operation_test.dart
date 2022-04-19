@@ -54,6 +54,39 @@ void main() {
       expect(completer.operation.isCompleted, isTrue);
     });
 
+    test('sends values from a cancelable operation to the future', () {
+      expect(completer.operation.value, completion(equals(1)));
+      completer
+          .completeOperation(CancelableOperation.fromFuture(Future.value(1)));
+    });
+
+    test('sends values from a completed cancelable operation to the future',
+        () async {
+      final operation = CancelableOperation.fromFuture(Future.value(1));
+      await operation.value;
+      expect(completer.operation.value, completion(equals(1)));
+      completer.completeOperation(operation);
+    });
+
+    test('sends errors from a cancelable operation to the future', () {
+      expect(completer.operation.value, throwsA('error'));
+      completer.completeOperation(
+          CancelableOperation.fromFuture(Future.error('error')..ignore()));
+    });
+
+    test('sends errors from a completed cancelable operation to the future',
+        () async {
+      final operation =
+          CancelableOperation.fromFuture(Future.error('error')..ignore());
+      try {
+        await operation.value;
+      } on Object {
+        // ignore
+      }
+      expect(completer.operation.value, throwsA('error'));
+      completer.completeOperation(operation);
+    });
+
     test('sends values to valueOrCancellation', () {
       expect(completer.operation.valueOrCancellation(), completion(equals(1)));
       completer.complete(1);
@@ -291,6 +324,64 @@ void main() {
       cancelCompleter.complete();
       await flushMicrotasks();
       expect(cancelCompleted, isTrue);
+    });
+
+    group('completeOperation', () {
+      test('sends cancellation from a cancelable operation', () async {
+        final completer = CancelableCompleter<void>();
+        completer.operation.value.whenComplete(expectAsync0(() {}, count: 0));
+        completer
+            .completeOperation(CancelableCompleter<void>().operation..cancel());
+        await completer.operation.valueOrCancellation();
+        expect(completer.operation.isCanceled, true);
+      });
+
+      test('sends errors from a completed cancelable operation to the future',
+          () async {
+        final operation = CancelableCompleter<void>().operation..cancel();
+        await operation.valueOrCancellation();
+        final completer = CancelableCompleter<void>();
+        completer.operation.value.whenComplete(expectAsync0(() {}, count: 0));
+        completer.completeOperation(operation);
+        await completer.operation.valueOrCancellation();
+        expect(completer.operation.isCanceled, true);
+      });
+
+      test('propagates cancellation', () {
+        final completer = CancelableCompleter<void>();
+        final operation =
+            CancelableCompleter<void>(onCancel: expectAsync0(() {}, count: 1))
+                .operation;
+        completer.completeOperation(operation);
+        completer.operation.cancel();
+      });
+
+      test('propagates cancellation from already canceld completer', () async {
+        final completer = CancelableCompleter<void>()..operation.cancel();
+        await completer.operation.valueOrCancellation();
+        final operation =
+            CancelableCompleter<void>(onCancel: expectAsync0(() {}, count: 1))
+                .operation;
+        completer.completeOperation(operation);
+      });
+      test('cancel propagation can be disabled', () {
+        final completer = CancelableCompleter<void>();
+        final operation =
+            CancelableCompleter<void>(onCancel: expectAsync0(() {}, count: 0))
+                .operation;
+        completer.completeOperation(operation, propagateCancel: false);
+        completer.operation.cancel();
+      });
+
+      test('cancel propagation can be disabled from already canceled completed',
+          () async {
+        final completer = CancelableCompleter<void>()..operation.cancel();
+        await completer.operation.valueOrCancellation();
+        final operation =
+            CancelableCompleter<void>(onCancel: expectAsync0(() {}, count: 0))
+                .operation;
+        completer.completeOperation(operation, propagateCancel: false);
+      });
     });
   });
 

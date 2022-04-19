@@ -2,6 +2,7 @@
 
 * Add `CancelableOperation.thenOperation` which gives more flexibility to
   complete the resulting operation.
+* Add `CancelableCompleter.completeOperation`.
 
 ## 2.9.0
 
