@@ -533,7 +533,6 @@ void main() {
         onCancel = () => throw 'error';
 
         expect(runThen().value, throwsA('error'));
-        originalCompleter.operation.cancel();
       });
 
       test('onCancel returns Future that throws error', () {

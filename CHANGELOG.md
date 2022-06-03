@@ -1,8 +1,9 @@
 ## 2.10.0-dev
 
-* Add `CancelableOperation.thenOperation` which gives more flexibility to
+* Adds `CancelableOperation.thenOperation` which gives more flexibility to
   complete the resulting operation.
-* Add `CancelableCompleter.completeOperation`.
+* Adds `CancelableCompleter.completeOperation`.
+* Adds `ObservableValue` for managing a simple observable state change.
 
 ## 2.9.0
 

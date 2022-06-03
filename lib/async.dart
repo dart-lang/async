@@ -21,6 +21,7 @@ export 'src/delegate/stream_subscription.dart';
 export 'src/future_group.dart';
 export 'src/lazy_stream.dart';
 export 'src/null_stream_sink.dart';
+export 'src/observable_value.dart';
 export 'src/restartable_timer.dart';
 export 'src/result/result.dart';
 export 'src/result/error.dart';
