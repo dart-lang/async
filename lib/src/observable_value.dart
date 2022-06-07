@@ -99,7 +99,7 @@ class _ObservableValue<T> implements ObservableValue<T> {
     // to only contain listeners which are still active.
 
     // Since `add` is asynchronous, this loop will not call any user code.
-    int activeCount = 0;
+    var activeCount = 0;
     for (var i = 0; i < _listeners.length; i++) {
       var controller = _listeners[i];
       if (controller.hasListener) {
