@@ -1,4 +1,4 @@
-## 2.10.0-dev
+## 2.10.0
 
 * Add `CancelableOperation.thenOperation` which gives more flexibility to
   complete the resulting operation.
