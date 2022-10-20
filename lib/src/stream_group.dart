@@ -14,7 +14,7 @@ import 'package:collection/collection.dart';
 /// this means that events emitted by broadcast streams will be dropped until
 /// [stream] has a listener.**
 ///
-/// If the `StreamGroup` is constructed using [new StreamGroup], [stream] will
+/// If the `StreamGroup` is constructed using [StreamGroup.new], [stream] will
 /// be single-subscription. In this case, if [stream] is paused or canceled, all
 /// streams in the group will likewise be paused or canceled, respectively.
 ///
@@ -272,7 +272,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
 
   /// Starts actively forwarding events from [stream] to [_controller].
   ///
-  /// This will pause the resulting subscription if [this] is paused.
+  /// This will pause the resulting subscription if `this` is paused.
   StreamSubscription<T> _listenToStream(Stream<T> stream) {
     var subscription = stream.listen(_controller.add,
         onError: _controller.addError, onDone: () => remove(stream));

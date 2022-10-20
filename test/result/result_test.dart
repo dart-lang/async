@@ -335,7 +335,7 @@ class TestSink<T> implements EventSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace? stack]) {
+  void addError(Object error, [StackTrace? stack]) {
     onError(error, stack ?? StackTrace.fromString(''));
   }
 

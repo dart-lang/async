@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:async/async.dart';
+import '../async.dart';
 
 /// Runs asynchronous functions and caches the result for a period of time.
 ///
@@ -21,9 +21,8 @@ import 'package:async/async.dart';
 /// });
 /// ```
 ///
-/// This class's timing can be mocked using [`fake_async`][fake_async].
-///
-/// [fake_async]: https://pub.dev/packages/fake_async
+/// This class's timing can be mocked using
+/// [`fake_async`](https://pub.dev/packages/fake_async).
 class AsyncCache<T> {
   /// How long cached values stay fresh.
   ///
@@ -80,7 +79,7 @@ class AsyncCache<T> {
   ///
   /// Only starts counting time after the stream has been listened to,
   /// and it has completed with a `done` event.
-  @Deprecated("Feature will be removed")
+  @Deprecated('Feature will be removed')
   Stream<T> fetchStream(Stream<T> Function() callback) {
     if (_cachedValueFuture != null) {
       throw StateError('Previously used to cache via `fetch`');

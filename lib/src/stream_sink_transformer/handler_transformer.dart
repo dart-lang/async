@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import '../stream_sink_transformer.dart';
 import '../delegate/stream_sink.dart';
+import '../stream_sink_transformer.dart';
 
 /// The type of the callback for handling data events.
 typedef HandleData<S, T> = void Function(S data, EventSink<T> sink);
@@ -63,7 +63,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     var handleError = _transformer._handleError;
     if (handleError == null) {
       _inner.addError(error, stackTrace);
@@ -98,7 +98,7 @@ class _HandlerSink<S, T> implements StreamSink<S> {
 /// call [close], they don't leave any dangling [Future]s behind that might emit
 /// unhandleable errors.
 class _SafeCloseSink<T> extends DelegatingStreamSink<T> {
-  _SafeCloseSink(StreamSink<T> inner) : super(inner);
+  _SafeCloseSink(super.inner);
 
   @override
   Future close() => super.close().catchError((_) {});

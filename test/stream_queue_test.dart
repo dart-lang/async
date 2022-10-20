@@ -1124,7 +1124,7 @@ void main() {
 
     // Test expecting [startIndex .. startIndex + 9] as events using
     // `next`.
-    void nextTest(startIndex) {
+    void nextTest(int startIndex) {
       for (var i = 0; i < 10; i++) {
         expect(events.next, completion(startIndex + i));
       }
@@ -1137,7 +1137,7 @@ void main() {
 
     // Test expecting [startIndex .. startIndex + 9] as events using
     // `take(10)`.
-    void takeTest(startIndex) {
+    void takeTest(int startIndex) {
       expect(events.take(10),
           completion(List.generate(10, (i) => startIndex + i)));
     }

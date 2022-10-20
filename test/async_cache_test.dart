@@ -45,7 +45,7 @@ void main() {
       // No actual caching is done, just avoid duplicate requests.
       cache = AsyncCache.ephemeral();
 
-      var fetched = cache.fetch(() async => "first");
+      var fetched = cache.fetch(() async => 'first');
       expect(fetched, completion('first'));
       expect(
           cache.fetch(expectAsync0(() async => fail('not called'), count: 0)),
@@ -111,9 +111,7 @@ void main() {
       yield '3';
     }).toList();
     expect(
-        await cache
-            .fetchStream(expectAsync0(() => Stream.empty(), count: 0))
-            .toList(),
+        await cache.fetchStream(expectAsync0(Stream.empty, count: 0)).toList(),
         ['1', '2', '3']);
   });
 

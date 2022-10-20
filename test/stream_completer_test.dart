@@ -285,7 +285,7 @@ void main() {
     await flushMicrotasks();
     expect(lastEvent, '2');
     subscription.onData((value) => lastEvent = -value);
-    subscription.onError((value) => lastEvent = '${-value}');
+    subscription.onError((value) => lastEvent = '${-(value as int)}');
     controller.add(1);
     await flushMicrotasks();
     expect(lastEvent, -1);

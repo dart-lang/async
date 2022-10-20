@@ -1,8 +1,9 @@
-## 2.10.0-dev
+## 2.10.0
 
 * Add `CancelableOperation.thenOperation` which gives more flexibility to
   complete the resulting operation.
 * Add `CancelableCompleter.completeOperation`.
+* Require Dart 2.18
 
 ## 2.9.0
 

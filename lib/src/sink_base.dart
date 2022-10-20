@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 
 import 'async_memoizer.dart';
 
-/// An abstract class that implements [EventSink] in terms of [onData],
+/// An abstract class that implements [EventSink] in terms of [onAdd],
 /// [onError], and [onClose] methods.
 ///
 /// This takes care of ensuring that events can't be added after [close] is
@@ -57,11 +57,11 @@ abstract class EventSinkBase<T> implements EventSink<T> {
   }
 }
 
-/// An abstract class that implements [StreamSink] in terms of [onData],
+/// An abstract class that implements [StreamSink] in terms of [onAdd],
 /// [onError], and [onClose] methods.
 ///
 /// This takes care of ensuring that events can't be added after [close] is
-/// called or during a call to [onStream].
+/// called or during a call to [addStream].
 @Deprecated('Will be removed in the next major release')
 abstract class StreamSinkBase<T> extends EventSinkBase<T>
     implements StreamSink<T> {
@@ -97,23 +97,23 @@ abstract class StreamSinkBase<T> extends EventSinkBase<T>
   }
 }
 
-/// An abstract class that implements `dart:io`'s [IOSink]'s API in terms of
-/// [onData], [onError], [onClose], and [onFlush] methods.
+/// An abstract class that implements `dart:io`'s `IOSink`'s API in terms of
+/// [onAdd], [onError], [onClose], and [onFlush] methods.
 ///
-/// Because [IOSink] is defined in `dart:io`, this can't officially implement
+/// Because `IOSink` is defined in `dart:io`, this can't officially implement
 /// it. However, it's designed to match its API exactly so that subclasses can
-/// implement [IOSink] without any additional modifications.
+/// implement `IOSink` without any additional modifications.
 ///
 /// This takes care of ensuring that events can't be added after [close] is
-/// called or during a call to [onStream].
+/// called or during a call to [addStream].
 @Deprecated('Will be removed in the next major release')
 abstract class IOSinkBase extends StreamSinkBase<List<int>> {
-  /// See [IOSink.encoding] from `dart:io`.
+  /// See `IOSink.encoding` from `dart:io`.
   Encoding encoding;
 
   IOSinkBase([this.encoding = utf8]);
 
-  /// See [IOSink.flush] from `dart:io`.
+  /// See `IOSink.flush` from `dart:io`.
   ///
   /// Because this base class doesn't do any buffering of its own, [flush]
   /// always completes immediately.
@@ -137,14 +137,14 @@ abstract class IOSinkBase extends StreamSinkBase<List<int>> {
   @visibleForOverriding
   Future<void> onFlush();
 
-  /// See [IOSink.write] from `dart:io`.
+  /// See [StringSink.write].
   void write(Object? object) {
     var string = object.toString();
     if (string.isEmpty) return;
     add(encoding.encode(string));
   }
 
-  /// See [IOSink.writeAll] from `dart:io`.
+  /// See [StringSink.writeAll].
   void writeAll(Iterable<Object?> objects, [String separator = '']) {
     var first = true;
     for (var object in objects) {
@@ -158,13 +158,13 @@ abstract class IOSinkBase extends StreamSinkBase<List<int>> {
     }
   }
 
-  /// See [IOSink.writeln] from `dart:io`.
+  /// See [StringSink.writeln].
   void writeln([Object? object = '']) {
     write(object);
     write('\n');
   }
 
-  /// See [IOSink.writeCharCode] from `dart:io`.
+  /// See [StringSink.writeCharCode].
   void writeCharCode(int charCode) {
     write(String.fromCharCode(charCode));
   }

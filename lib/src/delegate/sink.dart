@@ -16,7 +16,7 @@ class DelegatingSink<T> implements Sink<T> {
 
   /// Creates a wrapper that coerces the type of [sink].
   ///
-  /// Unlike [new DelegatingSink], this only requires its argument to be an
+  /// Unlike [DelegatingSink.new], this only requires its argument to be an
   /// instance of `Sink`, not `Sink<T>`. This means that calls to [add] may
   /// throw a [TypeError] if the argument type doesn't match the reified type of
   /// [sink].

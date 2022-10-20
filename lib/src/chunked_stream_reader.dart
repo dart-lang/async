@@ -63,8 +63,8 @@ class ChunkedStreamReader<T> {
   /// Whether a read request is currently being processed.
   ///
   /// Is `true` while a request is in progress.
-  /// While a read request, like [readChunk] or [readStream], is being processed,
-  /// no new requests can be made.
+  /// While a read request, like [readChunk] or [readStream], is being
+  /// processed, no new requests can be made.
   /// New read attempts will throw instead.
   bool _reading = false;
 

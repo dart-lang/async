@@ -21,7 +21,7 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
 
   /// Creates a wrapper that coerces the type of [sink].
   ///
-  /// Unlike [new StreamSink], this only requires its argument to be an instance
+  /// Unlike [StreamSink.new], this only requires its argument to be an instance
   /// of `StreamSink`, not `StreamSink<T>`. This means that calls to [add] may
   /// throw a [TypeError] if the argument type doesn't match the reified type of
   /// [sink].
@@ -36,7 +36,7 @@ class DelegatingStreamSink<T> implements StreamSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 

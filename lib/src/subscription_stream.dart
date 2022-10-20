@@ -68,8 +68,7 @@ class SubscriptionStream<T> extends Stream<T> {
 /// source subscription on the first error.
 class _CancelOnErrorSubscriptionWrapper<T>
     extends DelegatingStreamSubscription<T> {
-  _CancelOnErrorSubscriptionWrapper(StreamSubscription<T> subscription)
-      : super(subscription);
+  _CancelOnErrorSubscriptionWrapper(super.subscription);
 
   @override
   void onError(Function? handleError) {
@@ -80,7 +79,7 @@ class _CancelOnErrorSubscriptionWrapper<T>
         if (handleError is ZoneBinaryCallback) {
           handleError(error, stackTrace);
         } else if (handleError != null) {
-          handleError(error);
+          (handleError as ZoneUnaryCallback)(error);
         }
       });
     });

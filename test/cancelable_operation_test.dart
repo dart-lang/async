@@ -591,7 +591,7 @@ void main() {
         var called = false;
         onValue = expectAsync1((_) {
           called = true;
-          fail("onValue unreachable");
+          fail('onValue unreachable');
         }, count: 0);
 
         await runThen().cancel();
@@ -604,11 +604,11 @@ void main() {
         var called = false;
         onError = expectAsync2((_, __) {
           called = true;
-          fail("onError unreachable");
+          fail('onError unreachable');
         }, count: 0);
 
         await runThen().cancel();
-        originalCompleter.completeError("Error", StackTrace.empty);
+        originalCompleter.completeError('Error', StackTrace.empty);
         await flushMicrotasks();
         expect(called, false);
       });
@@ -617,7 +617,7 @@ void main() {
         var called = false;
         onCancel = expectAsync0(() {
           called = true;
-          fail("onCancel unreachable");
+          fail('onCancel unreachable');
         }, count: 0);
 
         await runThen().cancel();
@@ -844,7 +844,7 @@ void main() {
         onError = expectAsync3((_, __, ___) {}, count: 0);
 
         await runThenOperation().cancel();
-        originalCompleter.completeError("Error", StackTrace.empty);
+        originalCompleter.completeError('Error', StackTrace.empty);
       });
 
       test('onCancel callback not called after cancel', () async {
@@ -893,11 +893,11 @@ void main() {
     });
 
     test('throws the first error to complete', () {
-      completer1.completeError("error 1");
-      completer2.completeError("error 2");
-      completer3.completeError("error 3");
+      completer1.completeError('error 1');
+      completer2.completeError('error 2');
+      completer3.completeError('error 3');
 
-      expect(operation.value, throwsA("error 1"));
+      expect(operation.value, throwsA('error 1'));
     });
 
     test('cancels any completers that haven\'t completed', () async {

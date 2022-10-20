@@ -495,11 +495,11 @@ void main() {
 
   group('regardless of type', () {
     group('single-subscription', () {
-      regardlessOfType(() => StreamGroup<String>());
+      regardlessOfType(StreamGroup<String>.new);
     });
 
     group('broadcast', () {
-      regardlessOfType(() => StreamGroup<String>.broadcast());
+      regardlessOfType(StreamGroup<String>.broadcast);
     });
   });
 

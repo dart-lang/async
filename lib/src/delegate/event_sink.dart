@@ -18,7 +18,7 @@ class DelegatingEventSink<T> implements EventSink<T> {
 
   /// Creates a wrapper that coerces the type of [sink].
   ///
-  /// Unlike [new DelegatingEventSink], this only requires its argument to be an
+  /// Unlike [DelegatingEventSink.new], this only requires its argument to be an
   /// instance of `EventSink`, not `EventSink<T>`. This means that calls to
   /// [add] may throw a [TypeError] if the argument type doesn't match the
   /// reified type of [sink].
@@ -33,7 +33,7 @@ class DelegatingEventSink<T> implements EventSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     _sink.addError(error, stackTrace);
   }
 
