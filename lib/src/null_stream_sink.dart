@@ -8,7 +8,7 @@ import 'dart:async';
 ///
 /// The sink silently drops events until [close] is called, at which point it
 /// throws [StateError]s when events are added. This is the same behavior as a
-/// sink whose remote end has closed, such as when a [WebSocket] connection has
+/// sink whose remote end has closed, such as when a `WebSocket` connection has
 /// been closed.
 ///
 /// This can be used when a sink is needed but no events are actually intended
@@ -41,8 +41,8 @@ class NullStreamSink<T> implements StreamSink<T> {
 
   /// Creates a null sink.
   ///
-  /// If [done] is passed, it's used as the [Sink.done] future. Otherwise, a
-  /// completed future is used.
+  /// If [done] is passed, it's used as the [StreamSink.done] future. Otherwise,
+  /// a completed future is used.
   NullStreamSink({Future? done}) : done = done ?? Future.value();
 
   /// Creates a null sink whose [done] future emits [error].

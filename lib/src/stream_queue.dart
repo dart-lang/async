@@ -9,9 +9,9 @@ import 'package:collection/collection.dart';
 
 import 'cancelable_operation.dart';
 import 'result/result.dart';
-import 'subscription_stream.dart';
 import 'stream_completer.dart';
 import 'stream_splitter.dart';
+import 'subscription_stream.dart';
 
 /// An asynchronous pull-based interface for accessing stream events.
 ///
@@ -573,7 +573,7 @@ class StreamQueueTransaction<T> {
   ///
   /// The parent queue's position is updated to be the same as [queue]'s.
   /// Further requests on all queues created by this transaction, including
-  /// [queue], will complete as though [cancel] were called with `immediate:
+  /// [queue], will complete as though `cancel` were called with `immediate:
   /// true`.
   ///
   /// Throws a [StateError] if [commit] or [reject] have already been called, or
@@ -600,7 +600,7 @@ class StreamQueueTransaction<T> {
   ///
   /// The parent will continue as though [StreamQueue.startTransaction] hadn't
   /// been called. Further requests on all queues created by this transaction
-  /// will complete as though [cancel] were called with `immediate: true`.
+  /// will complete as though `cancel` were called with `immediate: true`.
   ///
   /// Throws a [StateError] if [commit] or [reject] have already been called.
   void reject() {
@@ -625,7 +625,7 @@ class StreamQueueTransaction<T> {
     }
   }
 
-  /// Throws a [StateError] if [accept] or [reject] has already been called.
+  /// Throws a [StateError] if [commit] or [reject] has already been called.
   void _assertActive() {
     if (_committed) {
       throw StateError('This transaction has already been accepted.');
@@ -641,20 +641,20 @@ class StreamQueueTransaction<T> {
 /// an `_EventRequest` object in the request queue.
 ///
 /// Events from the source stream are sent to the first request in the
-/// queue until it reports itself as [isComplete].
+/// queue until it reports itself as `isComplete`.
 ///
 /// When the first request in the queue `isComplete`, either when becoming
-/// the first request or after receiving an event, its [close] methods is
+/// the first request or after receiving an event, its `close` methods is
 /// called.
 ///
-/// The [close] method is also called immediately when the source stream
+/// The `close` method is also called immediately when the source stream
 /// is done.
 abstract class _EventRequest<T> {
   /// Handle available events.
   ///
   /// The available events are provided as a queue. The `update` function
   /// should only remove events from the front of the event queue, e.g.,
-  /// using [removeFirst].
+  /// using `removeFirst`.
   ///
   /// Returns `true` if the request is completed, or `false` if it needs
   /// more events.
@@ -732,7 +732,7 @@ class _SkipRequest<T> implements _EventRequest<T> {
 
   /// Number of remaining events to skip.
   ///
-  /// The request [isComplete] when the values reaches zero.
+  /// The request `isComplete` when the values reaches zero.
   ///
   /// Decremented when an event is seen.
   /// Set to zero when an error is seen since errors abort the skip request.
@@ -774,7 +774,7 @@ abstract class _ListRequest<T> implements _EventRequest<T> {
 
   /// Number of events to capture.
   ///
-  /// The request [isComplete] when the length of [_list] reaches
+  /// The request `isComplete` when the length of [_list] reaches
   /// this value.
   final int _eventsToTake;
 
@@ -786,7 +786,7 @@ abstract class _ListRequest<T> implements _EventRequest<T> {
 
 /// Request for a [StreamQueue.take] call.
 class _TakeRequest<T> extends _ListRequest<T> {
-  _TakeRequest(int eventsToTake) : super(eventsToTake);
+  _TakeRequest(super.eventsToTake);
 
   @override
   bool update(QueueList<Result<T>> events, bool isDone) {
@@ -810,7 +810,7 @@ class _TakeRequest<T> extends _ListRequest<T> {
 
 /// Request for a [StreamQueue.lookAhead] call.
 class _LookAheadRequest<T> extends _ListRequest<T> {
-  _LookAheadRequest(int eventsToTake) : super(eventsToTake);
+  _LookAheadRequest(super.eventsToTake);
 
   @override
   bool update(QueueList<Result<T>> events, bool isDone) {

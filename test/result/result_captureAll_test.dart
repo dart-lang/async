@@ -14,7 +14,7 @@ final someStack = StackTrace.current;
 
 Result<int> res(int n) => Result<int>.value(n);
 
-Result err(n) => ErrorResult('$n', someStack);
+Result err(int n) => ErrorResult('$n', someStack);
 
 /// Helper function creating an iterable of futures.
 Iterable<Future<int>> futures(int count,

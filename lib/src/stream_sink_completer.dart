@@ -12,7 +12,8 @@ import 'null_stream_sink.dart';
 /// until [setDestinationSink] is called, the events will be buffered.
 ///
 /// The same effect can be achieved by using a [StreamController] and adding it
-/// to the sink using [Sink.addStream] when the destination sink is ready. This
+/// to the sink using [StreamConsumer.addStream] when the destination sink is
+/// ready. This
 /// class attempts to shortcut some of the overhead when possible. For example,
 /// if the [sink] only has events added after the destination sink has been set,
 /// those events are added directly to the sink.
@@ -35,7 +36,7 @@ class StreamSinkCompleter<T> {
   /// to the result of the future when the future completes.
   ///
   /// If the future completes with an error, the returned sink will instead
-  /// be closed. Its [Sink.done] future will contain the error.
+  /// be closed. Its [StreamSink.done] future will contain the error.
   static StreamSink<T> fromFuture<T>(Future<StreamSink<T>> sinkFuture) {
     var completer = StreamSinkCompleter<T>();
     sinkFuture.then(completer.setDestinationSink, onError: completer.setError);
@@ -64,7 +65,8 @@ class StreamSinkCompleter<T> {
     _sink._setDestinationSink(destinationSink);
   }
 
-  /// Completes this to a closed sink whose [Sink.done] future emits [error].
+  /// Completes this to a closed sink whose [StreamSink.done] future emits
+  /// [error].
   ///
   /// This is useful when the process of loading the sink fails.
   ///
@@ -118,7 +120,7 @@ class _CompleterSink<T> implements StreamSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     if (_canSendDirectly) {
       _destinationSink!.addError(error, stackTrace);
     } else {

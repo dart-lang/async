@@ -21,7 +21,7 @@ OptionalArgAction unreachable(String name) =>
 
 /// A matcher that runs a callback in its own zone and asserts that that zone
 /// emits an error that matches [matcher].
-Matcher throwsZoned(matcher) => predicate((void Function() callback) {
+Matcher throwsZoned(Matcher matcher) => predicate((void Function() callback) {
       var firstError = true;
       runZonedGuarded(
           callback,
@@ -48,7 +48,8 @@ final throwsTypeError = throwsA(TypeMatcher<TypeError>());
 /// Can be used to test cases where a stream should not be used.
 class UnusableStream<T> extends Stream<T> {
   @override
-  StreamSubscription<T> listen(onData, {onError, onDone, cancelOnError}) {
+  StreamSubscription<T> listen(void Function(T event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     throw UnimplementedError('Gotcha!');
   }
 }
@@ -67,7 +68,7 @@ class CompleterStreamSink<T> implements StreamSink<T> {
   @override
   void add(T event) {}
   @override
-  void addError(error, [StackTrace? stackTrace]) {}
+  void addError(Object error, [StackTrace? stackTrace]) {}
   @override
   Future addStream(Stream<T> stream) async {}
   @override
@@ -103,7 +104,7 @@ class TestSink<T> implements StreamSink<T> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     results.add(Result<T>.error(error, stackTrace));
   }
 

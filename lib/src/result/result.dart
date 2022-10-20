@@ -4,13 +4,13 @@
 
 import 'dart:async';
 
+import '../stream_sink_transformer.dart';
 import 'capture_sink.dart';
 import 'capture_transformer.dart';
 import 'error.dart';
 import 'release_sink.dart';
 import 'release_transformer.dart';
 import 'value.dart';
-import '../stream_sink_transformer.dart';
 
 /// The result of a computation.
 ///
@@ -70,12 +70,12 @@ abstract class Result<T> {
 
   /// Creates a `Result` holding a value.
   ///
-  /// Alias for [ValueResult.ValueResult].
+  /// Alias for [ValueResult.new].
   factory Result.value(T value) = ValueResult<T>;
 
   /// Creates a `Result` holding an error.
   ///
-  /// Alias for [ErrorResult.ErrorResult].
+  /// Alias for [ErrorResult.new].
   factory Result.error(Object error, [StackTrace? stackTrace]) =>
       ErrorResult(error, stackTrace);
 
@@ -84,9 +84,7 @@ abstract class Result<T> {
   /// The resulting future will never have an error.
   /// Errors have been converted to an [ErrorResult] value.
   static Future<Result<T>> capture<T>(Future<T> future) {
-    return future.then((value) => ValueResult(value),
-        onError: (Object error, StackTrace stackTrace) =>
-            ErrorResult(error, stackTrace));
+    return future.then(ValueResult.new, onError: ErrorResult.new);
   }
 
   /// Captures each future in [elements],
@@ -139,7 +137,7 @@ abstract class Result<T> {
   static Stream<Result<T>> captureStream<T>(Stream<T> source) =>
       source.transform(CaptureStreamTransformer<T>());
 
-  /// Releases a stream of [result] values into a stream of the results.
+  /// Releases a stream of [source] values into a stream of the results.
   ///
   /// `Result` values of the source stream become value or error events in
   /// the returned stream as appropriate.

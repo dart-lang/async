@@ -2,15 +2,14 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-@Deprecated("Tests deprecated functionality")
+@Deprecated('Tests deprecated functionality')
 library sink_base_test;
 
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:test/test.dart';
-
 import 'package:async/async.dart';
+import 'package:test/test.dart';
 
 const int letterA = 0x41;
 
@@ -313,15 +312,13 @@ void main() {
       });
 
       test('does nothing after close() is called', () {
-        var sink =
-            _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
+        var sink = _IOSink(onFlush: expectAsync0(Future.value, count: 0));
         expect(sink.close(), completes);
         expect(sink.flush(), completes);
       });
 
       test("can't be called during addStream()", () {
-        var sink =
-            _IOSink(onFlush: expectAsync0(() => Future.value(), count: 0));
+        var sink = _IOSink(onFlush: expectAsync0(Future.value, count: 0));
         sink.addStream(StreamController<List<int>>().stream);
         expect(() => sink.flush(), throwsStateError);
       });
@@ -385,7 +382,7 @@ class _IOSink extends IOSinkBase {
       : _onAdd = onAdd ?? ((_) {}),
         _onError = onError ?? ((_, [__]) {}),
         _onClose = onClose ?? (() {}),
-        _onFlush = onFlush ?? (() => Future.value()),
+        _onFlush = onFlush ?? (Future.value),
         super(encoding);
 
   @override

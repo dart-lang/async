@@ -50,7 +50,7 @@ class _StreamTransformerWrapperSink<S, T> implements StreamSink<S> {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(Object error, [StackTrace? stackTrace]) {
     _controller.addError(error, stackTrace);
   }
 

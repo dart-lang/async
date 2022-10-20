@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'result.dart';
 import 'error.dart';
+import 'result.dart';
 
 /// A result representing a returned value.
 class ValueResult<T> implements Result<T> {

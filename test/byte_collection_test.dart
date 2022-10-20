@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'package:test/test.dart';
 import 'package:async/async.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('collectBytes', () {

@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'result.dart';
 import 'capture_sink.dart';
+import 'result.dart';
 
 /// A stream transformer that captures a stream of events into [Result]s.
 ///
@@ -16,6 +16,5 @@ class CaptureStreamTransformer<T> extends StreamTransformerBase<T, Result<T>> {
 
   @override
   Stream<Result<T>> bind(Stream<T> source) =>
-      Stream<Result<T>>.eventTransformed(
-          source, (sink) => CaptureSink<T>(sink));
+      Stream<Result<T>>.eventTransformed(source, CaptureSink<T>.new);
 }

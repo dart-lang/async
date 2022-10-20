@@ -23,8 +23,8 @@ class RestartableTimer implements Timer {
 
   /// Creates a new timer.
   ///
-  /// The [callback] function is invoked after the given [duration]. Unlike a
-  /// normal non-periodic [Timer], [callback] may be called more than once.
+  /// The [_callback] function is invoked after the given [_duration]. Unlike a
+  /// normal non-periodic [Timer], [_callback] may be called more than once.
   RestartableTimer(this._duration, this._callback)
       : _timer = Timer(_duration, _callback);
 

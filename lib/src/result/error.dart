@@ -50,7 +50,7 @@ class ErrorResult implements Result<Never> {
     if (errorHandler is ZoneBinaryCallback) {
       errorHandler(error, stackTrace);
     } else {
-      errorHandler(error);
+      (errorHandler as ZoneUnaryCallback)(error);
     }
   }
 

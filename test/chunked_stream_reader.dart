@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:test/test.dart';
 import 'package:async/async.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('readChunk() chunk by chunk', () async {

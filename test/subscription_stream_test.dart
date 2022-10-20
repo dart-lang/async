@@ -21,7 +21,7 @@ void main() {
   test('subscription stream after two events', () async {
     var stream = createStream();
     var skips = 0;
-    var completer = Completer();
+    var completer = Completer<SubscriptionStream<int>>();
     late StreamSubscription<int> subscription;
     subscription = stream.listen((value) {
       ++skips;

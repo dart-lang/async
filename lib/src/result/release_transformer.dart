@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'result.dart';
 import 'release_sink.dart';
+import 'result.dart';
 
 /// A transformer that releases result events as data and error events.
 class ReleaseStreamTransformer<T> extends StreamTransformerBase<Result<T>, T> {

@@ -12,7 +12,7 @@ import 'dart:async';
 /// Note that this is identical to [StreamView] in `dart:async`. It's provided
 /// under this name for consistency with other `Delegating*` classes.
 class DelegatingStream<T> extends StreamView<T> {
-  DelegatingStream(Stream<T> stream) : super(stream);
+  DelegatingStream(super.stream);
 
   /// Creates a wrapper which throws if [stream]'s events aren't instances of
   /// `T`.

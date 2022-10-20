@@ -18,7 +18,7 @@ class DelegatingStreamConsumer<T> implements StreamConsumer<T> {
 
   /// Creates a wrapper that coerces the type of [consumer].
   ///
-  /// Unlike [new StreamConsumer], this only requires its argument to be an
+  /// Unlike [StreamConsumer.new], this only requires its argument to be an
   /// instance of `StreamConsumer`, not `StreamConsumer<T>`. This means that
   /// calls to [addStream] may throw a [TypeError] if the argument type doesn't
   /// match the reified type of [consumer].
