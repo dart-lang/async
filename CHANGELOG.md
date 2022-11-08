@@ -3,6 +3,7 @@
 * Add `CancelableOperation.thenOperation` which gives more flexibility to
   complete the resulting operation.
 * Add `CancelableCompleter.completeOperation`.
+* Add `CancelableOperation.fromValue`.
 * Require Dart 2.18
 
 ## 2.9.0
