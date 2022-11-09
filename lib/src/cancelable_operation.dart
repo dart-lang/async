@@ -25,13 +25,22 @@ class CancelableOperation<T> {
   /// If [onCancel] returns a [Future], it will be returned by [cancel].
   ///
   /// The [onCancel] funcion will be called synchronously
-  /// when the new operation is canceled, and will be called at most once.\
+  /// when the new operation is canceled, and will be called at most once.
   ///
   /// Calling this constructor is equivalent to creating a
   /// [CancelableCompleter] and completing it with [result].
   factory CancelableOperation.fromFuture(Future<T> result,
           {FutureOr Function()? onCancel}) =>
       (CancelableCompleter<T>(onCancel: onCancel)..complete(result)).operation;
+
+  /// Creates a [CancelableOperation] which completes to [value].
+  ///
+  /// Canceling this operation does nothing.
+  ///
+  /// Calling this constructor is equivalent to creating a
+  /// [CancelableCompleter] and completing it with [value].
+  factory CancelableOperation.fromValue(T value) =>
+      (CancelableCompleter<T>()..complete(value)).operation;
 
   /// Creates a [CancelableOperation] wrapping [subscription].
   ///
