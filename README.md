@@ -5,6 +5,8 @@
 Contains utility classes in the style of `dart:async` to work with asynchronous
 computations.
 
+## Package API
+
 * The [`AsyncCache`][AsyncCache] class allows expensive asynchronous
   computations values to be cached for a period of time.
 
