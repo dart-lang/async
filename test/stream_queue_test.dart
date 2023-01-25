@@ -926,7 +926,7 @@ void main() {
       test(
           'can reject a transaction where one copy is fully consumed '
           'in a transaction and a second copy is made', () async {
-        // Regression test fort https://github.com/dart-lang/async/issues/229
+        // Regression test for https://github.com/dart-lang/async/issues/229
         final queue = StreamQueue(Stream.fromIterable([0]));
         final transaction = queue.startTransaction();
 
