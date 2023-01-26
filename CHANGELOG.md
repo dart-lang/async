@@ -1,6 +1,9 @@
 ## 2.11.0-dev
 
 * Add `CancelableOperation.fromValue`.
+* Simplify implementation of `StreamQueue`.
+  Remaining queues of committed or rejected transactions now see all events 
+  delivered up to the point where the transaction was completed.
 
 ## 2.10.0
 

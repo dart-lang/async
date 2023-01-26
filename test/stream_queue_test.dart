@@ -878,8 +878,9 @@ void main() {
         var queue = transaction.newQueue();
 
         // This should emit no more events after the transaction is rejected.
+        // Acts like source closed, so stream closes.
         queue.rest.listen(expectAsync1((_) {}, count: 3),
-            onDone: expectAsync0(() {}, count: 0));
+            onDone: expectAsync0(() {}, count: 1));
 
         controller.add(1);
         controller.add(2);
@@ -939,20 +940,22 @@ void main() {
         transaction.commit(queue1);
       });
 
-      test('further child requests act as though the stream was closed',
-          () async {
+      test(
+          'further child requests act as though the stream was closed '
+          'after already delivered events', () async {
+        // Already delivered events are still visible.
         expect(await queue2.next, 2);
         transaction.commit(queue2);
 
-        expect(await queue1.hasNext, isFalse);
-        expect(queue1.next, throwsStateError);
+        expect(await queue1.rest.toList(), [2]);
       });
 
-      test('pending child requests act as though the stream was closed',
-          () async {
+      test(
+          'pending child requests act as though the stream was closed '
+          'after already delivered events', () async {
         expect(await queue2.next, 2);
-        expect(queue1.hasNext, completion(isFalse));
-        expect(queue1.next, throwsStateError);
+        expect(queue1.hasNext, completion(isTrue));
+        expect(queue1.next, completion(2));
         transaction.commit(queue2);
       });
 
