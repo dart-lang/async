@@ -92,3 +92,8 @@ computations.
 [StreamZip]: https://pub.dev/documentation/async/latest/async/StreamZip-class.html
 [SubscriptionStream]: https://pub.dev/documentation/async/latest/async/SubscriptionStream-class.html
 [typedStreamTransformer]: https://pub.dev/documentation/async/latest/async/typedStreamTransformer.html
+
+## Publishing automation
+
+For information about our publishing automation and release process, see
+https://github.com/dart-lang/ecosystem/wiki/Publishing-automation.
