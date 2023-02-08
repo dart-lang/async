@@ -54,4 +54,17 @@ extension StreamExtensions<T> on Stream<T> {
     });
     return completer.future;
   }
+
+  /// Returns a view of this stream that eagerly buffers all events until
+  /// `listen()` is called.
+  Stream<T> buffer() {
+    late StreamSubscription<T> subscription;
+    var controller = StreamController<T>(
+        onPause: () => subscription.pause(),
+        onResume: () => subscription.resume(),
+        onCancel: () => subscription.cancel());
+    subscription = listen(controller.add,
+        onError: controller.addError, onDone: controller.close);
+    return controller.stream;
+  }
 }
