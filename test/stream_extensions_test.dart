@@ -158,7 +158,7 @@ void main() {
     });
 
     test('forwards cancel', () async {
-      var completer = new Completer<void>();
+      var completer = Completer<void>();
       var canceled = false;
       var controller = StreamController<int>(onCancel: () {
         canceled = true;
