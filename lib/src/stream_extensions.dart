@@ -55,16 +55,21 @@ extension StreamExtensions<T> on Stream<T> {
     return completer.future;
   }
 
-  /// Returns a view of this stream that eagerly buffers all events until
-  /// `listen()` is called.
-  Stream<T> buffer() {
-    late StreamSubscription<T> subscription;
-    var controller = StreamController<T>(
-        onPause: () => subscription.pause(),
-        onResume: () => subscription.resume(),
-        onCancel: () => subscription.cancel());
-    subscription = listen(controller.add,
+  /// Eagerly listens to this stream and buffers events until needed.
+  ///
+  /// The returned stream will emit the same events as this stream, starting
+  /// from when this method is called. The events are delayed until the returned
+  /// stream is listened to, at which point all buffered events will be emitted
+  /// in order, and then further events from this stream will be emitted as they
+  /// arrive.
+  Stream<T> bufferUntilListen() {
+    var controller = StreamController<T>(sync: true);
+    var subscription = listen(controller.add,
         onError: controller.addError, onDone: controller.close);
+    controller
+      ..onPause = subscription.pause
+      ..onResume = subscription.resume
+      ..onCancel = subscription.cancel;
     return controller.stream;
   }
 }
