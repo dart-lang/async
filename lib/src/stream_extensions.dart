@@ -62,6 +62,11 @@ extension StreamExtensions<T> on Stream<T> {
   /// stream is listened to, at which point all buffered events will be emitted
   /// in order, and then further events from this stream will be emitted as they
   /// arrive.
+  ///
+  /// The buffer will retain all events until the returned stream is listened
+  /// to, so if the stream can emit arbitrary amounts of data callers should be
+  /// careful to listen to it eventually or call `stream.listen(null).cancel()`
+  /// to discard it if it's not needed.
   Stream<T> bufferUntilListen() {
     var controller = StreamController<T>(sync: true);
     var subscription = listen(controller.add,
