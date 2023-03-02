@@ -94,8 +94,7 @@ void main() {
   });
 
   group('.listenAndBuffer', () {
-    test('emits events added before the listenAndBuffer is listened',
-        () async {
+    test('emits events added before the listenAndBuffer is listened', () async {
       var controller = StreamController<int>()
         ..add(1)
         ..add(2)
@@ -107,8 +106,7 @@ void main() {
       expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
     });
 
-    test('emits events added after the listenAndBuffer is listened',
-        () async {
+    test('emits events added after the listenAndBuffer is listened', () async {
       var controller = StreamController<int>();
       var stream = controller.stream.listenAndBuffer();
       expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
@@ -121,8 +119,7 @@ void main() {
         ..close();
     });
 
-    test(
-        'emits events added before and after the listenAndBuffer is listened',
+    test('emits events added before and after the listenAndBuffer is listened',
         () async {
       var controller = StreamController<int>()
         ..add(1)
