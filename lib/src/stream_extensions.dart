@@ -54,4 +54,28 @@ extension StreamExtensions<T> on Stream<T> {
     });
     return completer.future;
   }
+
+  /// Eagerly listens to this stream and buffers events until needed.
+  ///
+  /// The returned stream will emit the same events as this stream, starting
+  /// from when this method is called. The events are delayed until the returned
+  /// stream is listened to, at which point all buffered events will be emitted
+  /// in order, and then further events from this stream will be emitted as they
+  /// arrive.
+  ///
+  /// The buffer will retain all events until the returned stream is listened
+  /// to, so if the stream can emit arbitrary amounts of data, callers should be
+  /// careful to listen to the stream eventually or call
+  /// `stream.listen(null).cancel()` to discard the buffered data if it becomes
+  /// clear that the data isn't not needed.
+  Stream<T> listenAndBuffer() {
+    var controller = StreamController<T>(sync: true);
+    var subscription = listen(controller.add,
+        onError: controller.addError, onDone: controller.close);
+    controller
+      ..onPause = subscription.pause
+      ..onResume = subscription.resume
+      ..onCancel = subscription.cancel;
+    return controller.stream;
+  }
 }

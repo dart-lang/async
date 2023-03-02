@@ -92,4 +92,94 @@ void main() {
       expect(isCancelled, isTrue);
     });
   });
+
+  group('.listenAndBuffer', () {
+    test('emits events added before the listenAndBuffer is listened', () async {
+      var controller = StreamController<int>()
+        ..add(1)
+        ..add(2)
+        ..add(3)
+        ..close();
+      var stream = controller.stream.listenAndBuffer();
+      await pumpEventQueue();
+
+      expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
+    });
+
+    test('emits events added after the listenAndBuffer is listened', () async {
+      var controller = StreamController<int>();
+      var stream = controller.stream.listenAndBuffer();
+      expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
+      await pumpEventQueue();
+
+      controller
+        ..add(1)
+        ..add(2)
+        ..add(3)
+        ..close();
+    });
+
+    test('emits events added before and after the listenAndBuffer is listened',
+        () async {
+      var controller = StreamController<int>()
+        ..add(1)
+        ..add(2)
+        ..add(3);
+      var stream = controller.stream.listenAndBuffer();
+      expectLater(stream, emitsInOrder([1, 2, 3, 4, 5, 6, emitsDone]));
+      await pumpEventQueue();
+
+      controller
+        ..add(4)
+        ..add(5)
+        ..add(6)
+        ..close();
+    });
+
+    test('listens as soon as listenAndBuffer() is called', () async {
+      var listened = false;
+      var controller = StreamController<int>(onListen: () {
+        listened = true;
+      });
+      controller.stream.listenAndBuffer();
+      expect(listened, isTrue);
+    });
+
+    test('forwards pause and resume', () async {
+      var controller = StreamController<int>();
+      var stream = controller.stream.listenAndBuffer();
+      expect(controller.isPaused, isFalse);
+      var subscription = stream.listen(null);
+      expect(controller.isPaused, isFalse);
+      subscription.pause();
+      expect(controller.isPaused, isTrue);
+      subscription.resume();
+      expect(controller.isPaused, isFalse);
+    });
+
+    test('forwards cancel', () async {
+      var completer = Completer<void>();
+      var canceled = false;
+      var controller = StreamController<int>(onCancel: () {
+        canceled = true;
+        return completer.future;
+      });
+      var stream = controller.stream.listenAndBuffer();
+      expect(canceled, isFalse);
+      var subscription = stream.listen(null);
+      expect(canceled, isFalse);
+
+      var cancelCompleted = false;
+      subscription.cancel().then((_) {
+        cancelCompleted = true;
+      });
+      expect(canceled, isTrue);
+      await pumpEventQueue();
+      expect(cancelCompleted, isFalse);
+
+      completer.complete();
+      await pumpEventQueue();
+      expect(cancelCompleted, isTrue);
+    });
+  });
 }
