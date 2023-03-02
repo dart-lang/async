@@ -64,9 +64,10 @@ extension StreamExtensions<T> on Stream<T> {
   /// arrive.
   ///
   /// The buffer will retain all events until the returned stream is listened
-  /// to, so if the stream can emit arbitrary amounts of data callers should be
-  /// careful to listen to it eventually or call `stream.listen(null).cancel()`
-  /// to discard it if it's not needed.
+  /// to, so if the stream can emit arbitrary amounts of data, callers should be
+  /// careful to listen to the stream eventually or call
+  /// `stream.listen(null).cancel()` to discard the buffered data if it becomes
+  /// clear that the data isn't not needed.
   Stream<T> bufferUntilListen() {
     var controller = StreamController<T>(sync: true);
     var subscription = listen(controller.add,
