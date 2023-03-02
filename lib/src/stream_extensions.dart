@@ -68,7 +68,7 @@ extension StreamExtensions<T> on Stream<T> {
   /// careful to listen to the stream eventually or call
   /// `stream.listen(null).cancel()` to discard the buffered data if it becomes
   /// clear that the data isn't not needed.
-  Stream<T> bufferUntilListen() {
+  Stream<T> listenAndBuffer() {
     var controller = StreamController<T>(sync: true);
     var subscription = listen(controller.add,
         onError: controller.addError, onDone: controller.close);

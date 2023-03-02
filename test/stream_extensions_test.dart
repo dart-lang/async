@@ -93,24 +93,24 @@ void main() {
     });
   });
 
-  group('.bufferUntilListen', () {
-    test('emits events added before the bufferUntilListen is listened',
+  group('.listenAndBuffer', () {
+    test('emits events added before the listenAndBuffer is listened',
         () async {
       var controller = StreamController<int>()
         ..add(1)
         ..add(2)
         ..add(3)
         ..close();
-      var stream = controller.stream.bufferUntilListen();
+      var stream = controller.stream.listenAndBuffer();
       await pumpEventQueue();
 
       expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
     });
 
-    test('emits events added after the bufferUntilListen is listened',
+    test('emits events added after the listenAndBuffer is listened',
         () async {
       var controller = StreamController<int>();
-      var stream = controller.stream.bufferUntilListen();
+      var stream = controller.stream.listenAndBuffer();
       expectLater(stream, emitsInOrder([1, 2, 3, emitsDone]));
       await pumpEventQueue();
 
@@ -122,13 +122,13 @@ void main() {
     });
 
     test(
-        'emits events added before and after the bufferUntilListen is listened',
+        'emits events added before and after the listenAndBuffer is listened',
         () async {
       var controller = StreamController<int>()
         ..add(1)
         ..add(2)
         ..add(3);
-      var stream = controller.stream.bufferUntilListen();
+      var stream = controller.stream.listenAndBuffer();
       expectLater(stream, emitsInOrder([1, 2, 3, 4, 5, 6, emitsDone]));
       await pumpEventQueue();
 
@@ -139,18 +139,18 @@ void main() {
         ..close();
     });
 
-    test('listens as soon as bufferUntilListen() is called', () async {
+    test('listens as soon as listenAndBuffer() is called', () async {
       var listened = false;
       var controller = StreamController<int>(onListen: () {
         listened = true;
       });
-      controller.stream.bufferUntilListen();
+      controller.stream.listenAndBuffer();
       expect(listened, isTrue);
     });
 
     test('forwards pause and resume', () async {
       var controller = StreamController<int>();
-      var stream = controller.stream.bufferUntilListen();
+      var stream = controller.stream.listenAndBuffer();
       expect(controller.isPaused, isFalse);
       var subscription = stream.listen(null);
       expect(controller.isPaused, isFalse);
@@ -167,7 +167,7 @@ void main() {
         canceled = true;
         return completer.future;
       });
-      var stream = controller.stream.bufferUntilListen();
+      var stream = controller.stream.listenAndBuffer();
       expect(canceled, isFalse);
       var subscription = stream.listen(null);
       expect(canceled, isFalse);

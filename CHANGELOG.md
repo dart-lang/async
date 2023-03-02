@@ -2,8 +2,8 @@
 
 * Add `CancelableOperation.fromValue`.
 
-* Add `StreamExtensions.buffer`, which buffers events from a stream before it
-  has a listener.
+* Add `StreamExtensions.listenAndBuffer`, which buffers events from a stream
+  before it has a listener.
 
 ## 2.10.0
 
