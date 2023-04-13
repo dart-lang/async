@@ -81,7 +81,8 @@ class CancelableOperation<T> {
     // they're not actually cancelled by this.
     Future<void> cancelAll() {
       done = true;
-      return Future.wait(operations.map((operation) => operation.cancel()));
+      return Future.wait(operations.map((operation) =>
+          !operation.isCanceled ? operation.cancel() : Future.value()));
     }
 
     var completer = CancelableCompleter<T>(onCancel: cancelAll);
@@ -93,7 +94,7 @@ class CancelableOperation<T> {
           cancelAll()
               .whenComplete(() => completer.completeError(error, stackTrace));
         }
-      });
+      }, propagateCancel: false);
     }
 
     return completer.operation;
@@ -224,8 +225,8 @@ class CancelableOperation<T> {
           onError,
       FutureOr<void> Function(CancelableCompleter<R>)? onCancel,
       bool propagateCancel = true}) {
-    final completer =
-        CancelableCompleter<R>(onCancel: propagateCancel ? cancel : null);
+    final completer = CancelableCompleter<R>(
+        onCancel: propagateCancel ? () => !isCanceled ? cancel() : null : null);
 
     // if `_completer._inner` completes before `completer` is cancelled
     // call `onValue` or `onError` with the result, and complete `completer`
@@ -262,8 +263,8 @@ class CancelableOperation<T> {
                       error2, identical(error, error2) ? stack : stack2);
                 }
               });
-    _completer._cancelCompleter?.future.whenComplete(onCancel == null
-        ? completer._cancel
+    final forwardingCancel = onCancel == null
+        ? () => !completer.isCanceled ? completer._cancel() : Future.value()
         : () async {
             if (completer.isCanceled) return;
             try {
@@ -271,7 +272,12 @@ class CancelableOperation<T> {
             } catch (error, stack) {
               completer.completeError(error, stack);
             }
-          });
+          };
+    if (_completer.isCanceled) {
+      Future(forwardingCancel);
+    } else {
+      _completer._extraOnCancel.add(forwardingCancel);
+    }
     return completer.operation;
   }
 
@@ -341,6 +347,8 @@ class CancelableCompleter<T> {
 
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
+
+  final List<Future<void> Function()> _extraOnCancel = [];
 
   /// Whether [complete] or [completeError] may still be called.
   ///
@@ -497,8 +505,20 @@ class CancelableCompleter<T> {
 
     if (_inner != null) {
       _inner = null;
-      var onCancel = _onCancel;
-      cancelCompleter.complete(onCancel == null ? null : Future.sync(onCancel));
+      Future<Object?> allCancels() async {
+        final onCancel = _onCancel;
+        // Legacy uses may return a value through the `void`.
+        FutureOr<Object?> toReturn;
+        if (onCancel != null) {
+          toReturn = onCancel();
+        }
+        if (_extraOnCancel.isNotEmpty) {
+          await Future.wait(_extraOnCancel.map((c) => c()));
+        }
+        return await toReturn;
+      }
+
+      cancelCompleter.complete(Future.sync(allCancels));
     }
     return cancelCompleter.future;
   }
