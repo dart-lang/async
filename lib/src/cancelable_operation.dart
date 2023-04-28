@@ -263,8 +263,7 @@ class CancelableOperation<T> {
                 try {
                   await onError(error, stack, completer);
                 } catch (error2, stack2) {
-                  if (completer.isCompleted) return;
-                  completer.completeError(
+                  completer.completeErrorIfPending(
                       error2, identical(error, error2) ? stack : stack2);
                 }
               });
