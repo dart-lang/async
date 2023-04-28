@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
 /// An asynchronous operation that can be cancelled.
 ///
 /// The value of this operation is exposed as [value]. When this operation is
@@ -81,8 +83,10 @@ class CancelableOperation<T> {
     // they're not actually cancelled by this.
     Future<void> cancelAll() {
       done = true;
-      return Future.wait(operations.map((operation) =>
-          !operation.isCanceled ? operation.cancel() : Future.value()));
+      return Future.wait([
+        for (var operation in operations)
+          if (!operation.isCanceled) operation.cancel()
+      ]);
     }
 
     var completer = CancelableCompleter<T>(onCancel: cancelAll);
@@ -226,7 +230,8 @@ class CancelableOperation<T> {
       FutureOr<void> Function(CancelableCompleter<R>)? onCancel,
       bool propagateCancel = true}) {
     final completer = CancelableCompleter<R>(
-        onCancel: propagateCancel ? () => !isCanceled ? cancel() : null : null);
+        onCancel:
+            propagateCancel ? (() => !isCanceled ? cancel() : null) : null);
 
     // if `_completer._inner` completes before `completer` is cancelled
     // call `onValue` or `onError` with the result, and complete `completer`
@@ -259,12 +264,13 @@ class CancelableOperation<T> {
                 try {
                   await onError(error, stack, completer);
                 } catch (error2, stack2) {
+                  if (completer.isCompleted) return;
                   completer.completeError(
                       error2, identical(error, error2) ? stack : stack2);
                 }
               });
     final forwardingCancel = onCancel == null
-        ? () => !completer.isCanceled ? completer._cancel() : Future.value()
+        ? (() => !completer.isCanceled ? completer._cancel() : null)
         : () async {
             if (completer.isCanceled) return;
             try {
@@ -348,7 +354,7 @@ class CancelableCompleter<T> {
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
 
-  final List<Future<void> Function()> _extraOnCancel = [];
+  final List<Future<void>? Function()> _extraOnCancel = [];
 
   /// Whether [complete] or [completeError] may still be called.
   ///
@@ -513,7 +519,7 @@ class CancelableCompleter<T> {
           toReturn = onCancel();
         }
         if (_extraOnCancel.isNotEmpty) {
-          await Future.wait(_extraOnCancel.map((c) => c()));
+          await Future.wait(_extraOnCancel.map((c) => c()).whereNotNull());
         }
         return await toReturn;
       }
