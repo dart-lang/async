@@ -4,7 +4,7 @@ description: Utility functions and classes related to the 'dart:async' library.
 repository: https://github.com/dart-lang/async
 
 environment:
-  sdk: ^3.0.0-417
+  sdk: ">=2.18.0 <3.0.0"
 
 dependencies:
   collection: ^1.15.0
