@@ -230,8 +230,7 @@ class CancelableOperation<T> {
       FutureOr<void> Function(CancelableCompleter<R>)? onCancel,
       bool propagateCancel = true}) {
     final completer = CancelableCompleter<R>(
-        onCancel:
-            propagateCancel ? (() => !isCanceled ? cancel() : null) : null);
+        onCancel: propagateCancel ? _cancelIfNotCanceled : null);
 
     // if `_completer._inner` completes before `completer` is cancelled
     // call `onValue` or `onError` with the result, and complete `completer`
@@ -283,6 +282,8 @@ class CancelableOperation<T> {
   /// If this operation [isCompleted] or [isCanceled] this call is ignored.
   /// Returns the result of the `onCancel` callback, if one exists.
   Future cancel() => _completer._cancel();
+
+  Future<void>? _cancelIfNotCanceled() => isCanceled ? null : cancel();
 
   /// Whether this operation has been canceled before it completed.
   bool get isCanceled => _completer._isCanceled;
