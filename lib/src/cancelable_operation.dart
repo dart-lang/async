@@ -528,12 +528,11 @@ class _CancelForwarder<T> {
   final CancelableCompleter<T> completer;
   final FutureOr<void> Function(CancelableCompleter<T>)? onCancel;
   _CancelForwarder(this.completer, this.onCancel);
+
   Future<void>? _forward() {
     if (completer.isCanceled) return null;
     final onCancel = this.onCancel;
-    if (onCancel == null) {
-      return completer._cancel();
-    }
+    if (onCancel == null) return completer._cancel();
     try {
       final result = onCancel(completer);
       if (result is Future) {
