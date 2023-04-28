@@ -269,20 +269,11 @@ class CancelableOperation<T> {
                       error2, identical(error, error2) ? stack : stack2);
                 }
               });
-    final forwardingCancel = onCancel == null
-        ? (() => !completer.isCanceled ? completer._cancel() : null)
-        : () async {
-            if (completer.isCanceled) return;
-            try {
-              await onCancel(completer);
-            } catch (error, stack) {
-              completer.completeError(error, stack);
-            }
-          };
+    final cancelForwarder = _CancelForwarder<R>(completer, onCancel);
     if (_completer.isCanceled) {
-      forwardingCancel();
+      cancelForwarder._forward();
     } else {
-      _completer._extraOnCancel.add(forwardingCancel);
+      _completer._cancelForwarders.add(cancelForwarder);
     }
     return completer.operation;
   }
@@ -354,7 +345,12 @@ class CancelableCompleter<T> {
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
 
-  final List<Future<void>? Function()> _extraOnCancel = [];
+  /// Additional cancellations to forward during cancel;
+  ///
+  /// When a cancelable operation is chained through `then` or `thenOperation` a
+  /// cancellation on the original operation will synchronously cancel the
+  /// chained operations.
+  final List<_CancelForwarder> _cancelForwarders = [];
 
   /// Whether [complete] or [completeError] may still be called.
   ///
@@ -511,21 +507,51 @@ class CancelableCompleter<T> {
 
     if (_inner != null) {
       _inner = null;
-      Future<Object?> allCancels() async {
-        final onCancel = _onCancel;
-        // Legacy uses may return a value through the `void`.
-        FutureOr<Object?> toReturn;
-        if (onCancel != null) {
-          toReturn = onCancel();
-        }
-        if (_extraOnCancel.isNotEmpty) {
-          await Future.wait(_extraOnCancel.map((c) => c()).whereNotNull());
-        }
-        return toReturn is Future ? await toReturn : toReturn;
-      }
-
-      cancelCompleter.complete(allCancels());
+      cancelCompleter.complete(_invokeCancelCallbacks());
     }
     return cancelCompleter.future;
+  }
+
+  /// Invoke [_onCancel] and all callbacks in [_cancelForwarders].
+  ///
+  /// Returns the same value as [_onCancel]. Legacy uses may return a value
+  /// despite the signature having `void` return.
+  Future<Object?> _invokeCancelCallbacks() async {
+    final FutureOr<Object?> toReturn = _onCancel?.call();
+    final forwards = _cancelForwarders.map(_forward).whereNotNull().toList();
+    if (forwards.isNotEmpty) await Future.wait(forwards);
+    return toReturn is Future ? await toReturn : toReturn;
+  }
+}
+
+class _CancelForwarder<T> {
+  final CancelableCompleter<T> completer;
+  final FutureOr<void> Function(CancelableCompleter<T>)? onCancel;
+  _CancelForwarder(this.completer, this.onCancel);
+  Future<void>? _forward() {
+    if (completer.isCanceled) return null;
+    final onCancel = this.onCancel;
+    if (onCancel == null) {
+      return completer._cancel();
+    }
+    try {
+      final result = onCancel(completer);
+      if (result is Future) {
+        return result.catchError(completer.completeErrorIfPending);
+      }
+    } catch (error, stack) {
+      completer.completeErrorIfPending(error, stack);
+    }
+    return null;
+  }
+}
+
+Future<void>? _forward<T>(_CancelForwarder<T> forwarder) =>
+    forwarder._forward();
+
+extension on CancelableCompleter {
+  void completeErrorIfPending(Object error, StackTrace stackTrace) {
+    if (isCompleted) return;
+    completeError(error, stackTrace);
   }
 }
