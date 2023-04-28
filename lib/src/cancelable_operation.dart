@@ -345,7 +345,7 @@ class CancelableCompleter<T> {
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
 
-  /// Additional cancellations to forward during cancel;
+  /// Additional cancellations to forward during cancel.
   ///
   /// When a cancelable operation is chained through `then` or `thenOperation` a
   /// cancellation on the original operation will synchronously cancel the
@@ -512,7 +512,7 @@ class CancelableCompleter<T> {
     return cancelCompleter.future;
   }
 
-  /// Invoke [_onCancel] and all callbacks in [_cancelForwarders].
+  /// Invoke [_onCancel] and forward to other completers in [_cancelForwarders].
   ///
   /// Returns the same value as [_onCancel]. Legacy uses may return a value
   /// despite the signature having `void` return.
