@@ -280,7 +280,7 @@ class CancelableOperation<T> {
             }
           };
     if (_completer.isCanceled) {
-      Future(forwardingCancel);
+      forwardingCancel();
     } else {
       _completer._extraOnCancel.add(forwardingCancel);
     }
