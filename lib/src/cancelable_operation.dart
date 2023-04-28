@@ -349,7 +349,7 @@ class CancelableCompleter<T> {
   /// ever complete.
   /// Set to `null` when [_inner] is completed, because then it's
   /// guaranteed that this completer will never complete.
-  Completer<void>? _cancelCompleter = Completer<void>();
+  Completer<Object?>? _cancelCompleter = Completer<Object?>();
 
   /// The callback to call if the operation is canceled.
   final FutureOr<void> Function()? _onCancel;
@@ -524,7 +524,7 @@ class CancelableCompleter<T> {
         return toReturn is Future ? await toReturn : toReturn;
       }
 
-      cancelCompleter.complete(Future.sync(allCancels));
+      cancelCompleter.complete(allCancels());
     }
     return cancelCompleter.future;
   }
