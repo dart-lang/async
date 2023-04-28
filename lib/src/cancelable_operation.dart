@@ -521,7 +521,7 @@ class CancelableCompleter<T> {
         if (_extraOnCancel.isNotEmpty) {
           await Future.wait(_extraOnCancel.map((c) => c()).whereNotNull());
         }
-        return await toReturn;
+        return toReturn is Future ? await toReturn : toReturn;
       }
 
       cancelCompleter.complete(Future.sync(allCancels));
