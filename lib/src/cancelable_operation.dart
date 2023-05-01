@@ -271,7 +271,7 @@ class CancelableOperation<T> {
     if (_completer.isCanceled) {
       cancelForwarder._forward();
     } else {
-      _completer._cancelForwarders.add(cancelForwarder);
+      (_completer._cancelForwarders ??= []).add(cancelForwarder);
     }
     return completer.operation;
   }
@@ -350,7 +350,7 @@ class CancelableCompleter<T> {
   /// When a cancelable operation is chained through `then` or `thenOperation` a
   /// cancellation on the original operation will synchronously cancel the
   /// chained operations.
-  final List<_CancelForwarder> _cancelForwarders = [];
+  List<_CancelForwarder>? _cancelForwarders;
 
   /// Whether [complete] or [completeError] may still be called.
   ///
