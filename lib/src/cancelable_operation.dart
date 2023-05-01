@@ -518,9 +518,17 @@ class CancelableCompleter<T> {
   /// despite the signature having `void` return.
   Future<Object?> _invokeCancelCallbacks() async {
     final FutureOr<Object?> toReturn = _onCancel?.call();
-    final forwards = _cancelForwarders.map(_forward).whereNotNull().toList();
-    if (forwards.isNotEmpty) await Future.wait(forwards);
-    return toReturn is Future ? await toReturn : toReturn;
+    final isFuture = toReturn is Future;
+    final cancelFutures = <Future<Object?>>[
+      if (isFuture) toReturn,
+      ...?_cancelForwarders?.map(_forward).whereNotNull()
+    ];
+    final results = (isFuture && cancelFutures.length == 1)
+        ? [await toReturn]
+        : cancelFutures.isNotEmpty
+            ? await Future.wait(cancelFutures)
+            : const [];
+    return isFuture ? results.first : toReturn;
   }
 }
 
