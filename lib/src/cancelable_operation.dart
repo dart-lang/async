@@ -553,7 +553,8 @@ class _CancelForwarder<T> {
   }
 }
 
-Future<void>? _forward<T>(_CancelForwarder<T> forwarder) =>
+// Helper function to avoid a closure for  `List<_CancelForwarder>.map`.
+Future<void>? _forward(_CancelForwarder<Object?> forwarder) =>
     forwarder._forward();
 
 extension on CancelableCompleter {
