@@ -568,6 +568,17 @@ void main() {
         expect(operation.value, completion('foo'));
         expect(operation.isCanceled, false);
       });
+
+      test('waits for chained cancellation', () async {
+        var completer = CancelableCompleter<void>();
+        var chainedOperation = completer.operation
+            .then((_) => Future.delayed(Duration(milliseconds: 1)))
+            .then((_) => Future.delayed(Duration(milliseconds: 1)));
+
+        await completer.operation.cancel();
+        expect(completer.operation.isCanceled, true);
+        expect(chainedOperation.isCanceled, true);
+      });
     });
 
     group('returned operation canceled', () {
