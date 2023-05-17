@@ -26,7 +26,7 @@ class CancelableOperation<T> {
   /// or error later produced by [result] will be discarded.
   /// If [onCancel] returns a [Future], it will be returned by [cancel].
   ///
-  /// The [onCancel] funcion will be called synchronously
+  /// The [onCancel] function will be called synchronously
   /// when the new operation is canceled, and will be called at most once.
   ///
   /// Calling this constructor is equivalent to creating a
