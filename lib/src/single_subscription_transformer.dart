@@ -26,6 +26,7 @@ class SingleSubscriptionTransformer<S, T> extends StreamTransformerBase<S, T> {
       // type parameter and avoid this conversion.
       try {
         controller.add(value as T);
+        // ignore: avoid_catching_errors
       } on TypeError catch (error, stackTrace) {
         controller.addError(error, stackTrace);
       }

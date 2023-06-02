@@ -382,7 +382,7 @@ class _IOSink extends IOSinkBase {
       : _onAdd = onAdd ?? ((_) {}),
         _onError = onError ?? ((_, [__]) {}),
         _onClose = onClose ?? (() {}),
-        _onFlush = onFlush ?? (Future.value),
+        _onFlush = onFlush ?? Future.value,
         super(encoding);
 
   @override
