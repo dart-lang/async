@@ -180,9 +180,3 @@ Stream<int> createErrorStream([Completer? onCancel]) async* {
     }
   }
 }
-
-Stream<int> createLongStream() async* {
-  for (var i = 0; i < 200; i++) {
-    yield i;
-  }
-}

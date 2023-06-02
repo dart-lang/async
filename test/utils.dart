@@ -3,6 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 /// Helper utilities for testing.
+library;
+
 import 'dart:async';
 
 import 'package:async/async.dart';
