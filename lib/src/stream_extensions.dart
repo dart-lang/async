@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'condition.dart';
+import 'condition_variable.dart';
 
 /// Utility extensions on [Stream].
 extension StreamExtensions<T> on Stream<T> {
@@ -86,41 +86,58 @@ extension StreamExtensions<T> on Stream<T> {
   /// number of [each] calls at the same time.
   ///
   /// This function will wait for the futures returned by [each] to be resolved
-  /// before completing. If any [each] invocation throws, [boundedForEach] will
+  /// before completing. If any [each] invocation throws, [boundedForEach] stop
+  /// subsequent calls
+  ///
+  /// will
+  /// call [onError], if [onError] throws (it does)
   /// continue subsequent [each] calls, ignore additional errors and throw the
   /// first error encountered.
   Future<void> boundedForEach(
     int concurrency,
-    FutureOr<void> Function(T item) each,
-  ) async {
+    FutureOr<void> Function(T item) each, {
+    FutureOr<void> Function(Object e, StackTrace? st) onError = _throwOnError,
+  }) async {
     Object? firstError;
     StackTrace? firstStackTrace;
 
     var running = 0;
-    final wakeUp = Condition();
-    await for (final item in this) {
-      running += 1;
-      scheduleMicrotask(() async {
-        try {
-          await each(item);
-        } catch (e, st) {
-          if (firstError == null) {
-            firstError = e;
-            firstStackTrace = st;
-          }
-        } finally {
-          running -= 1;
-          wakeUp.notify();
-        }
-      });
+    final wakeUp = ConditionVariable();
 
-      if (running >= concurrency) {
+    try {
+      var doBreak = false;
+      await for (final item in this) {
+        running += 1;
+        scheduleMicrotask(() async {
+          try {
+            await each(item);
+          } catch (e, st) {
+            try {
+              await onError(e, st);
+            } catch (e, st) {
+              doBreak = true;
+              if (firstError == null) {
+                firstError = e;
+                firstStackTrace = st;
+              }
+            }
+          } finally {
+            running -= 1;
+            wakeUp.notify();
+          }
+        });
+
+        if (running >= concurrency) {
+          await wakeUp.wait;
+        }
+        if (doBreak) {
+          break;
+        }
+      }
+    } finally {
+      while (running >= concurrency) {
         await wakeUp.wait;
       }
-    }
-
-    while (running >= concurrency) {
-      await wakeUp.wait;
     }
 
     final firstError_ = firstError;
@@ -129,3 +146,5 @@ extension StreamExtensions<T> on Stream<T> {
     }
   }
 }
+
+Future<void> _throwOnError(Object e, StackTrace? st) => Future.error(e, st);
