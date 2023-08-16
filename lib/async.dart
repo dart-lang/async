@@ -13,6 +13,7 @@ export 'src/async_memoizer.dart';
 export 'src/byte_collector.dart';
 export 'src/cancelable_operation.dart';
 export 'src/chunked_stream_reader.dart';
+export 'src/condition.dart';
 export 'src/delegate/event_sink.dart';
 export 'src/delegate/future.dart';
 export 'src/delegate/sink.dart';

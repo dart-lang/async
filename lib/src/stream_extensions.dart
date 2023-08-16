@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'condition.dart';
+
 /// Utility extensions on [Stream].
 extension StreamExtensions<T> on Stream<T> {
   /// Creates a stream whose elements are contiguous slices of `this`.
@@ -77,5 +79,53 @@ extension StreamExtensions<T> on Stream<T> {
       ..onResume = subscription.resume
       ..onCancel = subscription.cancel;
     return controller.stream;
+  }
+
+  /// Invoke [each] for each item in this stream, and wait for the [Future]
+  /// returned by [each] to be resolved. Running no more than [concurrency]
+  /// number of [each] calls at the same time.
+  ///
+  /// This function will wait for the futures returned by [each] to be resolved
+  /// before completing. If any [each] invocation throws, [boundedForEach] will
+  /// continue subsequent [each] calls, ignore additional errors and throw the
+  /// first error encountered.
+  Future<void> boundedForEach(
+    int concurrency,
+    FutureOr<void> Function(T item) each,
+  ) async {
+    Object? firstError;
+    StackTrace? firstStackTrace;
+
+    var running = 0;
+    final wakeUp = Condition();
+    await for (final item in this) {
+      running += 1;
+      scheduleMicrotask(() async {
+        try {
+          await each(item);
+        } catch (e, st) {
+          if (firstError == null) {
+            firstError = e;
+            firstStackTrace = st;
+          }
+        } finally {
+          running -= 1;
+          wakeUp.notify();
+        }
+      });
+
+      if (running >= concurrency) {
+        await wakeUp.wait;
+      }
+    }
+
+    while (running >= concurrency) {
+      await wakeUp.wait;
+    }
+
+    final firstError_ = firstError;
+    if (firstError_ != null) {
+      return Future.error(firstError_, firstStackTrace);
+    }
   }
 }
