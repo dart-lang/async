@@ -1,9 +1,9 @@
 ## 2.12.0-wip
 
 - Require Dart 2.19
-- Add `ConditionVariable`, allowing tasks to wait for `ConditionVariable.wait`,
-  which is completed the next time `ConditionVariable.notify` is called.
-- Added `StreamExtensions.boundedForEach(N, each)` to enable concurrently
+- Add `Notifier`, allowing micro-tasks to wait for `Notifier.wait`,
+  which is completed the next time `Notifier.notify()` is called.
+- Added `StreamExtensions.parallelForEach(N, each)` to enable concurrently
   running a micro-task for each item in a stream, while never running more
   than `N` micro-tasks concurrently.
 

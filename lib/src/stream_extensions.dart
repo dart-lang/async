@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'condition_variable.dart';
+import 'notifier.dart';
 
 /// Utility extensions on [Stream].
 extension StreamExtensions<T> on Stream<T> {
@@ -81,38 +81,55 @@ extension StreamExtensions<T> on Stream<T> {
     return controller.stream;
   }
 
-  /// Invoke [each] for each item in this stream, and wait for the [Future]
-  /// returned by [each] to be resolved. Running no more than [concurrency]
-  /// number of [each] calls at the same time.
+  /// Call [each] for each item in this stream with [maxParallel] invocations.
   ///
-  /// This function will wait for the futures returned by [each] to be resolved
-  /// before completing. If any [each] invocation throws, [boundedForEach] stop
-  /// subsequent calls
+  /// This method will invoke [each] for each item in this stream, and wait for
+  /// all futures from [each] to be resolved. [parallelForEach] will call [each]
+  /// in parallel, but never more then [maxParallel].
   ///
-  /// will
-  /// call [onError], if [onError] throws (it does)
-  /// continue subsequent [each] calls, ignore additional errors and throw the
-  /// first error encountered.
-  Future<void> boundedForEach(
-    int concurrency,
+  /// If [each] throws and [onError] rethrows (default behavior), then
+  /// [parallelForEach] will wait for ongoing [each] invocations to finish,
+  /// before throw the first error.
+  ///
+  /// If [onError] does not throw, then iteration will not be interrupted and
+  /// errors from [each] will be ignored.
+  ///
+  /// ```dart
+  /// // Count size of all files in the current folder
+  /// var folderSize = 0;
+  /// // Use parallelForEach to read at-most 5 files at the same time.
+  /// await Directory.current.list().parallelForEach(5, (item) async {
+  ///   if (item is File) {
+  ///     final bytes = await item.readAsBytes();
+  ///     folderSize += bytes.length;
+  ///   }
+  /// });
+  /// print('Folder size: $folderSize');
+  /// ```
+  Future<void> parallelForEach(
+    int maxParallel,
     FutureOr<void> Function(T item) each, {
-    FutureOr<void> Function(Object e, StackTrace? st) onError = _throwOnError,
+    FutureOr<void> Function(Object e, StackTrace? st) onError = Future.error,
   }) async {
+    // Track the first error, so we rethrow when we're done.
     Object? firstError;
     StackTrace? firstStackTrace;
 
+    // Track number of running items.
     var running = 0;
-    final wakeUp = ConditionVariable();
+    final itemDone = Notifier();
 
     try {
       var doBreak = false;
       await for (final item in this) {
+        // For each item we increment [running] and call [each]
         running += 1;
-        scheduleMicrotask(() async {
+        unawaited(() async {
           try {
             await each(item);
           } catch (e, st) {
             try {
+              // If [onError] doesn't throw, we'll just continue.
               await onError(e, st);
             } catch (e, st) {
               doBreak = true;
@@ -122,29 +139,31 @@ extension StreamExtensions<T> on Stream<T> {
               }
             }
           } finally {
+            // When [each] is done, we decrement [running] and notify
             running -= 1;
-            wakeUp.notify();
+            itemDone.notify();
           }
-        });
+        }());
 
-        if (running >= concurrency) {
-          await wakeUp.wait;
+        if (running >= maxParallel) {
+          await itemDone.wait;
         }
         if (doBreak) {
           break;
         }
       }
     } finally {
-      while (running >= concurrency) {
-        await wakeUp.wait;
+      // Wait for all items to be finished
+      while (running > 0) {
+        await itemDone.wait;
       }
     }
 
+    // If an error happened, then we rethrow the first one.
     final firstError_ = firstError;
-    if (firstError_ != null) {
-      return Future.error(firstError_, firstStackTrace);
+    final firstStackTrace_ = firstStackTrace;
+    if (firstError_ != null && firstStackTrace_ != null) {
+      Error.throwWithStackTrace(firstError_, firstStackTrace_);
     }
   }
 }
-
-Future<void> _throwOnError(Object e, StackTrace? st) => Future.error(e, st);
