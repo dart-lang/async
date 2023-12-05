@@ -62,8 +62,22 @@ class AsyncCache<T> {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
-    return _cachedValueFuture ??= callback()
-      ..whenComplete(_startStaleTimer).ignore();
+    if(_cachedValueFuture == null){
+      try{
+        ///First we run the callback then we assign the value received
+        ///from [callback] to the [_cachedValueFuture]
+        T value =  await callback();
+        _cachedValueFuture ??= Future.value(value);
+        _startStaleTimer();
+        return _cachedValueFuture!;
+        ///If [callback] generated an exception then we should not cache data
+        ///And propagate exception to the place from where [fetch] is triggered
+      } catch (error){
+        rethrow;
+      }
+    } else{
+      return _cachedValueFuture!;
+    }
   }
 
   /// Returns a cached stream from a previous call to [fetchStream], or runs
