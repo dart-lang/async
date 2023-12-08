@@ -39,8 +39,15 @@ class AsyncMemoizer<T> {
   /// Runs the function, [computation], if it hasn't been run before.
   ///
   /// If [runOnce] has already been called, this returns the original result.
-  Future<T> runOnce(FutureOr<T> Function() computation) {
-    if (!hasRun) _completer.complete(Future.sync(computation));
-    return future;
+  Future<T> runOnce(FutureOr<T> Function() computation) async{
+    if(!hasRun){
+      try{
+        T value =  await computation();
+        _completer.complete(value);
+      } catch (error){
+        rethrow;
+      }
+    }
+      return future;
   }
 }
