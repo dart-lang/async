@@ -1,7 +1,7 @@
 ## 2.12.0-wip
 
 - Require Dart 2.19
-- `fetch` method of `AsyncCache` will no longer store exception.
+- Can decide `fetch` method of `AsyncCache` will store exception or not.
 
 ## 2.11.0
 
