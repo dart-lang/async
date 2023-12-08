@@ -9,6 +9,14 @@ void main() {
   late AsyncMemoizer cache;
   setUp(() => cache = AsyncMemoizer());
 
+  test('should not store exception when callback throws exception', () async {
+    Future<String> asyncFunctionThatThrows() {
+      throw Exception();
+    }
+    var cacheFuture = cache.runOnce(asyncFunctionThatThrows);
+    await expectLater(cacheFuture,throwsA(isException));
+  });
+
   test('runs the function only the first time runOnce() is called', () async {
     var count = 0;
     expect(await cache.runOnce(() => count++), equals(0));
