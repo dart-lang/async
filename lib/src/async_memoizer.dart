@@ -27,6 +27,9 @@ import 'dart:async';
 /// }
 /// ```
 class AsyncMemoizer<T> {
+  AsyncMemoizer({bool canCacheException = true}):
+        _canCacheException = canCacheException;
+
   /// The future containing the method's result.
   ///
   /// This can be accessed at any time, and will fire once [runOnce] is called.
@@ -36,18 +39,28 @@ class AsyncMemoizer<T> {
   /// Whether [runOnce] has been called yet.
   bool get hasRun => _completer.isCompleted;
 
+  ///Default is set to true
+  ///If we set this variable to false
+  ///On the initial run, if callback returned the [Exception]
+  ///Next time, we can reRun the callback for the successful attempt.
+  final bool _canCacheException;
+
   /// Runs the function, [computation], if it hasn't been run before.
   ///
   /// If [runOnce] has already been called, this returns the original result.
-  Future<T> runOnce(FutureOr<T> Function() computation) async{
-    if(!hasRun){
-      try{
-        T value =  await computation();
-        _completer.complete(value);
-      } catch (error){
-        rethrow;
+  Future<T> runOnce(FutureOr<T> Function() computation) async {
+    if (!hasRun) {
+      if (_canCacheException) {
+        _completer.complete(Future.sync(computation));
+      } else {
+        try {
+          T value = await computation();
+          _completer.complete(value);
+        } catch (error) {
+          rethrow;
+        }
       }
     }
-      return future;
+    return future;
   }
 }
