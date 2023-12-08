@@ -5,7 +5,9 @@
 import 'dart:async';
 
 /// A class for running an asynchronous function exactly once and caching its
-/// result.
+/// result. If you doesn't want to cache Exception then you can set
+/// [_canCacheException] to false.
+///
 ///
 /// An `AsyncMemoizer` is used when some function may be run multiple times in
 /// order to get its result, but it only actually needs to be run once for its
@@ -39,9 +41,9 @@ class AsyncMemoizer<T> {
   /// Whether [runOnce] has been called yet.
   bool get hasRun => _completer.isCompleted;
 
-  ///Default is set to true
-  ///If we set this variable to false
-  ///On the initial run, if callback returned the [Exception]
+  ///Default is set to true.
+  ///If we set this variable to false.
+  ///On the initial run, if callback returned the [Exception].
   ///Next time, we can reRun the callback for the successful attempt.
   final bool _canCacheException;
 
