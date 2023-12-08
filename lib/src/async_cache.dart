@@ -7,7 +7,9 @@ import 'dart:async';
 import '../async.dart';
 
 /// Runs asynchronous functions and caches the result for a period of time.
-///
+/// If you doesn't want to cache Exception then you can set
+// [_canCacheException] to false.
+//
 /// This class exists to cover the pattern of having potentially expensive code
 /// such as file I/O, network access, or isolate computation that's unlikely to
 /// change quickly run fewer times. For example:
@@ -36,6 +38,12 @@ class AsyncCache<T> {
   /// Cached results of a previous [fetch] call.
   Future<T>? _cachedValueFuture;
 
+  ///Default is set to true
+  ///If we set this variable to false
+  ///On the initial run, if callback returned the [Exception]
+  ///Next time, we can reRun the callback for the successful attempt.
+  final bool _canCacheException;
+
   /// Fires when the cache should be considered stale.
   Timer? _stale;
 
@@ -44,14 +52,18 @@ class AsyncCache<T> {
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
-  AsyncCache(Duration duration) : _duration = duration;
+  AsyncCache(Duration duration, {bool canCacheException = true})
+      : _duration = duration,
+        _canCacheException = canCacheException;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
   /// An ephemeral cache guarantees that a callback function will only be
   /// executed at most once concurrently. This is useful for requests for which
   /// data is updated frequently but stale data is acceptable.
-  AsyncCache.ephemeral() : _duration = null;
+  AsyncCache.ephemeral()
+      : _duration = null,
+        _canCacheException = true;
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -62,21 +74,27 @@ class AsyncCache<T> {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
-    if(_cachedValueFuture == null){
-      try{
-        ///First we run the callback then we assign the value received
-        ///from [callback] to the [_cachedValueFuture]
-        T value =  await callback();
-        _cachedValueFuture ??= Future.value(value);
-        _startStaleTimer();
+    if (_canCacheException) {
+      return _cachedValueFuture ??= callback()
+        ..whenComplete(_startStaleTimer).ignore();
+    } else {
+      if (_cachedValueFuture == null) {
+        try {
+          ///First we run the callback then we assign the value received
+          ///from [callback] to the [_cachedValueFuture]
+          T value = await callback();
+          _cachedValueFuture ??= Future.value(value);
+          _startStaleTimer();
+          return _cachedValueFuture!;
+
+          ///If [callback] generated an exception then we should not cache data
+          ///And propagate exception to the place from where [fetch] is triggered
+        } catch (error) {
+          rethrow;
+        }
+      } else {
         return _cachedValueFuture!;
-        ///If [callback] generated an exception then we should not cache data
-        ///And propagate exception to the place from where [fetch] is triggered
-      } catch (error){
-        rethrow;
       }
-    } else{
-      return _cachedValueFuture!;
     }
   }
 
