@@ -56,7 +56,7 @@ class AsyncMemoizer<T> {
         _completer.complete(Future.sync(computation));
       } else {
         try {
-          T value = await computation();
+          var value = await computation();
           _completer.complete(value);
         } catch (error) {
           rethrow;
