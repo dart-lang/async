@@ -82,13 +82,12 @@ class AsyncCache<T> {
         try {
           ///First we run the callback then we assign the value received
           ///from [callback] to the [_cachedValueFuture]
-          T value = await callback();
+          var value = await callback();
           _cachedValueFuture ??= Future.value(value);
           _startStaleTimer();
           return _cachedValueFuture!;
-
-          ///If [callback] generated an exception then we should not cache data
-          ///And propagate exception to the place from where [fetch] is triggered
+        ///If [callback] generated an exception then we should not cache data
+        ///And propagate exception to the place from where [fetch] is triggered
         } catch (error) {
           rethrow;
         }
