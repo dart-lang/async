@@ -26,6 +26,7 @@ export 'src/null_stream_sink.dart';
 export 'src/restartable_timer.dart';
 export 'src/result/error.dart';
 export 'src/result/future.dart';
+export 'src/result/future_extension.dart';
 export 'src/result/result.dart';
 export 'src/result/value.dart';
 export 'src/single_subscription_transformer.dart';
