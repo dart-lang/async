@@ -42,7 +42,7 @@ class AsyncCache<T> {
   ///If we set this variable to false
   ///On the initial run, if callback returned the [Exception]
   ///Next time, we can reRun the callback for the successful attempt.
-  final bool _canCacheException;
+  final bool _cacheErrors;
 
   /// Fires when the cache should be considered stale.
   Timer? _stale;
@@ -52,9 +52,9 @@ class AsyncCache<T> {
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
-  AsyncCache(Duration duration, {bool canCacheException = true})
+  AsyncCache(Duration duration, {bool cacheErrors = true})
       : _duration = duration,
-        _canCacheException = canCacheException;
+        _cacheErrors = cacheErrors;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
@@ -63,7 +63,7 @@ class AsyncCache<T> {
   /// data is updated frequently but stale data is acceptable.
   AsyncCache.ephemeral()
       : _duration = null,
-        _canCacheException = true;
+        _cacheErrors = true;
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -74,7 +74,7 @@ class AsyncCache<T> {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
-    if (_canCacheException) {
+    if (_cacheErrors) {
       return _cachedValueFuture ??= callback()
         ..whenComplete(_startStaleTimer).ignore();
     } else {
