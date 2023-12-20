@@ -7,9 +7,7 @@ import 'dart:async';
 import '../async.dart';
 
 /// Runs asynchronous functions and caches the result for a period of time.
-/// If you doesn't want to cache Exception then you can set
-// [_canCacheException] to false.
-//
+///
 /// This class exists to cover the pattern of having potentially expensive code
 /// such as file I/O, network access, or isolate computation that's unlikely to
 /// change quickly run fewer times. For example:
