@@ -38,10 +38,10 @@ class AsyncCache<T> {
   /// Cached results of a previous [fetch] call.
   Future<T>? _cachedValueFuture;
 
-  ///Default is set to true
-  ///If we set this variable to false
-  ///On the initial run, if callback returned the [Exception]
-  ///Next time, we can reRun the callback for the successful attempt.
+  /// Default is set to true
+  /// If this variable is set to false,
+  /// and callback gets completed with an error,
+  /// then the response will not get cached.
   final bool _cacheErrors;
 
   /// Fires when the cache should be considered stale.
