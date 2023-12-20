@@ -81,22 +81,13 @@ class AsyncCache<T> {
       return _cachedValueFuture ??= callback()
         ..whenComplete(_startStaleTimer).ignore();
     } else {
-      if (_cachedValueFuture == null) {
-        try {
-          ///First we run the callback then we assign the value received
-          ///from [callback] to the [_cachedValueFuture]
-          var value = await callback();
-          _cachedValueFuture ??= Future.value(value);
-          _startStaleTimer();
-          return _cachedValueFuture!;
-        ///If [callback] generated an exception then we should not cache data
-        ///And propagate exception to the place from where [fetch] is triggered
-        } catch (error) {
-          rethrow;
-        }
-      } else {
-        return _cachedValueFuture!;
-      }
+      return _cachedValueFuture ??= callback().then((value) {
+        _startStaleTimer();
+        return value;
+      }, onError: (Object error, StackTrace stack) {
+        invalidate();
+        throw error;
+      });
     }
   }
 
