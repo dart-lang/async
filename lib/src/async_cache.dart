@@ -38,10 +38,13 @@ class AsyncCache<T> {
   /// Cached results of a previous [fetch] call.
   Future<T>? _cachedValueFuture;
 
-  /// Default is set to true
-  /// If this variable is set to false,
-  /// and callback gets completed with an error,
-  /// then the response will not get cached.
+  /// Whether the cache will keep a future completed with an error.
+  ///
+  /// If `false`, a non-ephemeral cache will clear the cached future
+  /// immediately if the future completes with an error, as if the
+  /// caching was ephemeral.
+  /// _(Ephemeral caches always clear when the future completes,
+  /// so this flag has no effect on those.)_
   final bool _cacheErrors;
 
   /// Fires when the cache should be considered stale.
