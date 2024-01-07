@@ -17,8 +17,8 @@ import 'value.dart';
 /// Capturing a result (either a returned value or a thrown error) means
 /// converting it into a [Result] - either a [ValueResult] or an [ErrorResult].
 ///
-/// This value can release itself by writing itself either to a [EventSink] or a
-/// [Completer], or by becoming a [Future].
+/// This value can release itself by writing itself either to an [EventSink] or
+/// a [Completer], or by becoming a [Future].
 ///
 /// A [Future] represents a potential result, one that might not have been
 /// computed yet, and a [Result] is always a completed and available result.
