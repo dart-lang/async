@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'notifier.dart';
+
 /// Utility extensions on [Stream].
 extension StreamExtensions<T> on Stream<T> {
   /// Creates a stream whose elements are contiguous slices of `this`.
@@ -77,5 +79,91 @@ extension StreamExtensions<T> on Stream<T> {
       ..onResume = subscription.resume
       ..onCancel = subscription.cancel;
     return controller.stream;
+  }
+
+  /// Call [each] for each item in this stream with [maxParallel] invocations.
+  ///
+  /// This method will invoke [each] for each item in this stream, and wait for
+  /// all futures from [each] to be resolved. [parallelForEach] will call [each]
+  /// in parallel, but never more then [maxParallel].
+  ///
+  /// If [each] throws and [onError] rethrows (default behavior), then
+  /// [parallelForEach] will wait for ongoing [each] invocations to finish,
+  /// before throw the first error.
+  ///
+  /// If [onError] does not throw, then iteration will not be interrupted and
+  /// errors from [each] will be ignored.
+  ///
+  /// ```dart
+  /// // Count size of all files in the current folder
+  /// var folderSize = 0;
+  /// // Use parallelForEach to read at-most 5 files at the same time.
+  /// await Directory.current.list().parallelForEach(5, (item) async {
+  ///   if (item is File) {
+  ///     final bytes = await item.readAsBytes();
+  ///     folderSize += bytes.length;
+  ///   }
+  /// });
+  /// print('Folder size: $folderSize');
+  /// ```
+  Future<void> parallelForEach(
+    int maxParallel,
+    FutureOr<void> Function(T item) each, {
+    FutureOr<void> Function(Object e, StackTrace? st) onError = Future.error,
+  }) async {
+    // Track the first error, so we rethrow when we're done.
+    Object? firstError;
+    StackTrace? firstStackTrace;
+
+    // Track number of running items.
+    var running = 0;
+    final itemDone = Notifier();
+
+    try {
+      var doBreak = false;
+      await for (final item in this) {
+        // For each item we increment [running] and call [each]
+        running += 1;
+        unawaited(() async {
+          try {
+            await each(item);
+          } catch (e, st) {
+            try {
+              // If [onError] doesn't throw, we'll just continue.
+              await onError(e, st);
+            } catch (e, st) {
+              doBreak = true;
+              if (firstError == null) {
+                firstError = e;
+                firstStackTrace = st;
+              }
+            }
+          } finally {
+            // When [each] is done, we decrement [running] and notify
+            running -= 1;
+            itemDone.notify();
+          }
+        }());
+
+        if (running >= maxParallel) {
+          await itemDone.wait;
+        }
+        if (doBreak) {
+          break;
+        }
+      }
+    } finally {
+      // Wait for all items to be finished
+      while (running > 0) {
+        await itemDone.wait;
+      }
+    }
+
+    // If an error happened, then we rethrow the first one.
+    final firstError_ = firstError;
+    final firstStackTrace_ = firstStackTrace;
+    if (firstError_ != null && firstStackTrace_ != null) {
+      Error.throwWithStackTrace(firstError_, firstStackTrace_);
+    }
   }
 }

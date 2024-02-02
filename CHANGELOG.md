@@ -1,6 +1,11 @@
 ## 2.12.0-wip
 
 - Require Dart 2.19
+- Add `Notifier`, allowing micro-tasks to wait for `Notifier.wait`,
+  which is completed the next time `Notifier.notify()` is called.
+- Added `StreamExtensions.parallelForEach(N, each)` to enable concurrently
+  running a micro-task for each item in a stream, while never running more
+  than `N` micro-tasks concurrently.
 
 ## 2.11.0
 
