@@ -162,7 +162,7 @@ void main() {
     test('forwards a cancel future', () async {
       var subscription = streamGroup.stream.listen(null);
 
-      var completer = Completer();
+      var completer = Completer<void>();
       var controller =
           StreamController<String>(onCancel: () => completer.future);
       streamGroup.add(controller.stream);
@@ -231,7 +231,7 @@ void main() {
       });
 
       test('forwards a cancel future', () async {
-        var completer = Completer();
+        var completer = Completer<void>();
         var controller =
             StreamController<String>(onCancel: () => completer.future);
 
@@ -680,7 +680,7 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
       });
 
       test('forwards cancel futures', () async {
-        var completer = Completer();
+        var completer = Completer<void>();
         var controller =
             StreamController<String>(onCancel: () => completer.future);
 
@@ -923,4 +923,4 @@ void regardlessOfType(StreamGroup<String> Function() newStreamGroup) {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future<void>.delayed(Duration.zero);

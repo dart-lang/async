@@ -105,7 +105,7 @@ void main() {
     });
 
     test('is not complete until the result is available', () async {
-      var backingWork = Completer();
+      var backingWork = Completer<void>();
       var operation = CancelableOperation.fromFuture(backingWork.future);
       expect(operation.isCompleted, isFalse);
       backingWork.complete();
@@ -132,17 +132,19 @@ void main() {
 
       test('successfully then with a future', () {
         completer.complete(1);
-        expect(() => completer.complete(Completer().future), throwsStateError);
+        expect(() => completer.complete(Completer<void>().future),
+            throwsStateError);
       });
 
       test('with a future then successfully', () {
-        completer.complete(Completer().future);
+        completer.complete(Completer<void>().future);
         expect(() => completer.complete(1), throwsStateError);
       });
 
       test('with a future twice', () {
-        completer.complete(Completer().future);
-        expect(() => completer.complete(Completer().future), throwsStateError);
+        completer.complete(Completer<void>().future);
+        expect(() => completer.complete(Completer<void>().future),
+            throwsStateError);
       });
     });
 
@@ -185,7 +187,7 @@ void main() {
 
   group('when canceled', () {
     test('causes the future never to fire', () async {
-      var completer = CancelableCompleter();
+      var completer = CancelableCompleter<void>();
       completer.operation.value.whenComplete(expectAsync0(() {}, count: 0));
       completer.operation.cancel();
 
@@ -242,7 +244,7 @@ void main() {
         'does call onCancel if the completer has completed to an unfired '
         'Future', () {
       var completer = CancelableCompleter(onCancel: expectAsync0(() {}));
-      completer.complete(Completer().future);
+      completer.complete(Completer<void>().future);
       expect(completer.operation.cancel(), completes);
     });
 
@@ -257,7 +259,7 @@ void main() {
     });
 
     test('can be completed once after being canceled', () async {
-      var completer = CancelableCompleter();
+      var completer = CancelableCompleter<int>();
       completer.operation.value.whenComplete(expectAsync0(() {}, count: 0));
       await completer.operation.cancel();
       completer.complete(1);
@@ -265,7 +267,7 @@ void main() {
     });
 
     test('fires valueOrCancellation with the given value', () {
-      var completer = CancelableCompleter();
+      var completer = CancelableCompleter<int>();
       expect(completer.operation.valueOrCancellation(1), completion(equals(1)));
       completer.operation.cancel();
     });
@@ -279,7 +281,7 @@ void main() {
     });
 
     test('valueOrCancellation waits on the onCancel future', () async {
-      var innerCompleter = Completer();
+      var innerCompleter = Completer<void>();
       var completer =
           CancelableCompleter(onCancel: () => innerCompleter.future);
 
@@ -389,13 +391,13 @@ void main() {
 
   group('asStream()', () {
     test('emits a value and then closes', () {
-      var completer = CancelableCompleter();
+      var completer = CancelableCompleter<int>();
       expect(completer.operation.asStream().toList(), completion(equals([1])));
       completer.complete(1);
     });
 
     test('emits an error and then closes', () {
-      var completer = CancelableCompleter();
+      var completer = CancelableCompleter<void>();
       var queue = StreamQueue(completer.operation.asStream());
       expect(queue.next, throwsA('error'));
       expect(queue.hasNext, completion(isFalse));
@@ -425,7 +427,7 @@ void main() {
       onError = expectAsync2((e, s) => 'Fake', count: 0, id: 'onError');
       onCancel = expectAsync0(() => 'Fake', count: 0, id: 'onCancel');
       propagateCancel = false;
-      originalCompleter = CancelableCompleter();
+      originalCompleter = CancelableCompleter<int>();
     });
 
     CancelableOperation<String> runThen() {
@@ -574,8 +576,8 @@ void main() {
       test('waits for chained cancellation', () async {
         var completer = CancelableCompleter<void>();
         var chainedOperation = completer.operation
-            .then((_) => Future.delayed(const Duration(milliseconds: 1)))
-            .then((_) => Future.delayed(const Duration(milliseconds: 1)));
+            .then((_) => Future<void>.delayed(const Duration(milliseconds: 1)))
+            .then((_) => Future<void>.delayed(const Duration(milliseconds: 1)));
 
         await completer.operation.cancel();
         expect(completer.operation.isCanceled, true);
@@ -655,7 +657,7 @@ void main() {
       onError = null;
       onCancel = null;
       propagateCancel = false;
-      originalCompleter = CancelableCompleter();
+      originalCompleter = CancelableCompleter<int>();
     });
 
     CancelableOperation<String> runThenOperation() {

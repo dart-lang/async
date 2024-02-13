@@ -391,7 +391,7 @@ void main() {
     });
 
     test('forwards to underlying stream', () async {
-      var cancel = Completer();
+      var cancel = Completer<int>();
       var controller = StreamController<int>(onCancel: () => cancel.future);
       var events = StreamQueue<int>(controller.stream);
       expect(controller.hasListener, isFalse);
@@ -873,7 +873,7 @@ void main() {
 
       // Regression test.
       test('pending child rest requests emit no more events', () async {
-        var controller = StreamController();
+        var controller = StreamController<int>();
         var events = StreamQueue(controller.stream);
         var transaction = events.startTransaction();
         var queue = transaction.newQueue();
@@ -907,7 +907,7 @@ void main() {
       });
 
       test('before the transaction emits any events, does nothing', () async {
-        var controller = StreamController();
+        var controller = StreamController<int>();
         var events = StreamQueue(controller.stream);
 
         // Queue a request before the transaction, but don't let it complete
@@ -1003,7 +1003,7 @@ void main() {
       });
 
       test('before the transaction emits any events, does nothing', () async {
-        var controller = StreamController();
+        var controller = StreamController<int>();
         var events = StreamQueue(controller.stream);
 
         // Queue a request before the transaction, but don't let it complete

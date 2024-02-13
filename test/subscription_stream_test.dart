@@ -76,7 +76,7 @@ void main() {
         late Future
             onCancel; // Completes if source stream is canceled before done.
         setUp(() {
-          var cancelCompleter = Completer();
+          var cancelCompleter = Completer<void>();
           var source = createErrorStream(cancelCompleter);
           onCancel = cancelCompleter.future;
           var sourceSubscription =
@@ -85,7 +85,7 @@ void main() {
         });
 
         test('- subscriptionStream: no', () async {
-          var done = Completer();
+          var done = Completer<void>();
           var events = [];
           subscriptionStream.listen(events.add,
               onError: events.add, onDone: done.complete, cancelOnError: false);
@@ -97,7 +97,7 @@ void main() {
             done.future.then((_) {
               isDone = true;
             });
-            await Future.delayed(const Duration(milliseconds: 5));
+            await Future<void>.delayed(const Duration(milliseconds: 5));
             expect(isDone, false);
           } else {
             expected.add(4);
@@ -107,7 +107,7 @@ void main() {
         });
 
         test('- subscriptionStream: yes', () async {
-          var completer = Completer();
+          var completer = Completer<void>();
           var events = <Object?>[];
           subscriptionStream.listen(events.add,
               onError: (Object? value) {

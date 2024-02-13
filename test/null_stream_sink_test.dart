@@ -17,7 +17,7 @@ void main() {
     });
 
     test('a custom future may be passed to done', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var sink = NullStreamSink(done: completer.future);
 
       var doneFired = false;
@@ -68,7 +68,7 @@ void main() {
       });
 
       test('returns the cancel future', () async {
-        var completer = Completer();
+        var completer = Completer<void>();
         var sink = NullStreamSink();
         var controller = StreamController(onCancel: () => completer.future);
 

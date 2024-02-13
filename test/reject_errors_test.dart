@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 void main() {
   late StreamController controller;
   setUp(() {
-    controller = StreamController();
+    controller = StreamController<void>();
   });
 
   test('passes through data events', () {
@@ -89,7 +89,7 @@ void main() {
 
   group('when the inner sink\'s done future completes', () {
     test('done completes', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var transformed = NullStreamSink(done: completer.future).rejectErrors();
 
       var doneCompleted = false;
@@ -103,7 +103,7 @@ void main() {
     });
 
     test('an outstanding addStream() completes', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var transformed = NullStreamSink(done: completer.future).rejectErrors();
 
       var addStreamCompleted = false;
@@ -119,7 +119,7 @@ void main() {
     });
 
     test('an outstanding addStream()\'s subscription is cancelled', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var transformed = NullStreamSink(done: completer.future).rejectErrors();
 
       var addStreamCancelled = false;
@@ -134,7 +134,7 @@ void main() {
     });
 
     test('forwards an outstanding addStream()\'s cancellation error', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var transformed = NullStreamSink(done: completer.future).rejectErrors();
 
       expect(

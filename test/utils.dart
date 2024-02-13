@@ -11,7 +11,7 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 
 /// A zero-millisecond timer should wait until after all microtasks.
-Future flushMicrotasks() => Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future<void>.delayed(Duration.zero);
 
 typedef OptionalArgAction = void Function([dynamic a, dynamic b]);
 
@@ -62,7 +62,7 @@ class UnusableStream<T> extends Stream<T> {
 /// The [completer] field allows the user to control the future returned by
 /// [done] and [close].
 class CompleterStreamSink<T> implements StreamSink<T> {
-  final completer = Completer();
+  final completer = Completer<void>();
 
   @override
   Future get done => completer.future;
@@ -90,7 +90,7 @@ class TestSink<T> implements StreamSink<T> {
 
   @override
   Future get done => _doneCompleter.future;
-  final _doneCompleter = Completer();
+  final _doneCompleter = Completer<void>();
 
   final void Function() _onDone;
 

@@ -12,7 +12,7 @@ import 'utils.dart';
 void main() {
   late StreamController controller;
   setUp(() {
-    controller = StreamController();
+    controller = StreamController<void>();
   });
 
   group('fromStreamTransformer', () {
