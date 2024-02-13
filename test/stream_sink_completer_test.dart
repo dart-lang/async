@@ -46,7 +46,7 @@ void main() {
       var sink = TestSink();
       completer.setDestinationSink(sink);
 
-      var controller = StreamController<void>();
+      var controller = StreamController<int>();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);
@@ -152,7 +152,7 @@ void main() {
     });
 
     test('addStream is forwarded', () async {
-      var controller = StreamController<void>();
+      var controller = StreamController<int>();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);

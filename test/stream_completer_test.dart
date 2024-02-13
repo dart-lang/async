@@ -38,7 +38,7 @@ void main() {
     var subscription = controller.stream.listen(events.add);
     var done = subscription.asFuture();
     subscription.pause();
-    var sourceController = StreamController<void>();
+    var sourceController = StreamController<int>();
     sourceController
       ..add(1)
       ..add(2)
