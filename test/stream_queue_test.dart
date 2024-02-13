@@ -250,7 +250,8 @@ void main() {
       var skip4 = events.skip(1);
       var index = 0;
       // Check that futures complete in order.
-      Func1Required<int?> sequence(expectedValue, sequenceIndex) => (value) {
+      Func1Required<int?> sequence(int expectedValue, int sequenceIndex) =>
+          (value) {
             expect(value, expectedValue);
             expect(index, sequenceIndex);
             index++;

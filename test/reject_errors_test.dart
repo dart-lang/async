@@ -171,7 +171,7 @@ void main() {
 
     test('throws on addStream()', () {
       var sink = controller.sink.rejectErrors()..close();
-      expect(() => sink.addStream(Stream.empty()), throwsStateError);
+      expect(() => sink.addStream(const Stream.empty()), throwsStateError);
     });
 
     test('allows close()', () {
@@ -196,7 +196,7 @@ void main() {
     test('throws on addStream()', () {
       var sink = controller.sink.rejectErrors()
         ..addStream(StreamController().stream);
-      expect(() => sink.addStream(Stream.empty()), throwsStateError);
+      expect(() => sink.addStream(const Stream.empty()), throwsStateError);
     });
 
     test('throws on close()', () {

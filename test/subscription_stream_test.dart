@@ -108,9 +108,9 @@ void main() {
 
         test('- subscriptionStream: yes', () async {
           var completer = Completer();
-          var events = [];
+          var events = <Object?>[];
           subscriptionStream.listen(events.add,
-              onError: (value) {
+              onError: (Object? value) {
                 events.add(value);
                 completer.complete();
               },

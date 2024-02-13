@@ -274,7 +274,7 @@ void main() {
     var subscription = completer.stream.listen(null);
     Object lastEvent = 0;
     subscription.onData((value) => lastEvent = value);
-    subscription.onError((value) => lastEvent = '$value');
+    subscription.onError((Object value) => lastEvent = '$value');
     subscription.onDone(() => lastEvent = -1);
     completer.setSourceStream(controller.stream);
     await flushMicrotasks();
@@ -285,7 +285,7 @@ void main() {
     await flushMicrotasks();
     expect(lastEvent, '2');
     subscription.onData((value) => lastEvent = -value);
-    subscription.onError((value) => lastEvent = '${-(value as int)}');
+    subscription.onError((Object value) => lastEvent = '${-(value as int)}');
     controller.add(1);
     await flushMicrotasks();
     expect(lastEvent, -1);
@@ -323,7 +323,7 @@ void main() {
     await flushMicrotasks();
     expect(controller.hasListener, isTrue);
     controller.addError(42);
-    await done.then(unreachable('data'), onError: (error) {
+    await done.then(unreachable('data'), onError: (Object error) {
       expect(error, 42);
     });
     expect(controller.hasListener, isFalse);

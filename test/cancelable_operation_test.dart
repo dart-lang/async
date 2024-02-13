@@ -574,8 +574,8 @@ void main() {
       test('waits for chained cancellation', () async {
         var completer = CancelableCompleter<void>();
         var chainedOperation = completer.operation
-            .then((_) => Future.delayed(Duration(milliseconds: 1)))
-            .then((_) => Future.delayed(Duration(milliseconds: 1)));
+            .then((_) => Future.delayed(const Duration(milliseconds: 1)))
+            .then((_) => Future.delayed(const Duration(milliseconds: 1)));
 
         await completer.operation.cancel();
         expect(completer.operation.isCanceled, true);

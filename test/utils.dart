@@ -40,10 +40,10 @@ Matcher throwsZoned(Matcher matcher) => predicate((void Function() callback) {
 
 /// A matcher that runs a callback in its own zone and asserts that that zone
 /// emits a [TypeError].
-final throwsZonedTypeError = throwsZoned(TypeMatcher<TypeError>());
+final throwsZonedTypeError = throwsZoned(isA<TypeError>());
 
 /// A matcher that matches a callback or future that throws a [TypeError].
-final throwsTypeError = throwsA(TypeMatcher<TypeError>());
+final throwsTypeError = throwsA(isA<TypeError>());
 
 /// A badly behaved stream which throws if it's ever listened to.
 ///

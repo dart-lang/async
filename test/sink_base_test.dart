@@ -328,7 +328,7 @@ void main() {
         sink.flush();
         expect(() => sink.add([0]), throwsStateError);
         expect(() => sink.addError('oh no'), throwsStateError);
-        expect(() => sink.addStream(Stream.empty()), throwsStateError);
+        expect(() => sink.addStream(const Stream.empty()), throwsStateError);
         expect(() => sink.flush(), throwsStateError);
         expect(() => sink.close(), throwsStateError);
       });

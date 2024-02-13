@@ -51,7 +51,7 @@ void main() {
 
       expect(() => sink.add(1), throwsStateError);
       expect(() => sink.addError('oh no'), throwsStateError);
-      expect(() => sink.addStream(Stream.empty()), throwsStateError);
+      expect(() => sink.addStream(const Stream.empty()), throwsStateError);
     });
 
     group('addStream', () {
@@ -93,15 +93,15 @@ void main() {
       test('causes events to throw StateErrors until the future completes',
           () async {
         var sink = NullStreamSink();
-        var future = sink.addStream(Stream.empty());
+        var future = sink.addStream(const Stream.empty());
         expect(() => sink.add(1), throwsStateError);
         expect(() => sink.addError('oh no'), throwsStateError);
-        expect(() => sink.addStream(Stream.empty()), throwsStateError);
+        expect(() => sink.addStream(const Stream.empty()), throwsStateError);
 
         await future;
         sink.add(1);
         sink.addError('oh no');
-        expect(sink.addStream(Stream.empty()), completes);
+        expect(sink.addStream(const Stream.empty()), completes);
       });
     });
   });

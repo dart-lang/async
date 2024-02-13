@@ -27,7 +27,7 @@ void main() {
     });
 
     test('transforms a broadcast stream into a broadcast stream', () {
-      expect(Stream<int>.empty().transform(closer).isBroadcast, isTrue);
+      expect(const Stream<int>.empty().transform(closer).isBroadcast, isTrue);
     });
 
     test("doesn't eagerly listen", () {

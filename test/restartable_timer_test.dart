@@ -10,14 +10,14 @@ void main() {
   test('runs the callback once the duration has elapsed', () {
     FakeAsync().run((async) {
       var fired = false;
-      RestartableTimer(Duration(seconds: 5), () {
+      RestartableTimer(const Duration(seconds: 5), () {
         fired = true;
       });
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
 
-      async.elapse(Duration(seconds: 1));
+      async.elapse(const Duration(seconds: 1));
       expect(fired, isTrue);
     });
   });
@@ -25,15 +25,15 @@ void main() {
   test("doesn't run the callback if the timer is canceled", () {
     FakeAsync().run((async) {
       var fired = false;
-      var timer = RestartableTimer(Duration(seconds: 5), () {
+      var timer = RestartableTimer(const Duration(seconds: 5), () {
         fired = true;
       });
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
       timer.cancel();
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
     });
   });
@@ -41,18 +41,18 @@ void main() {
   test('resets the duration if the timer is reset before it fires', () {
     FakeAsync().run((async) {
       var fired = false;
-      var timer = RestartableTimer(Duration(seconds: 5), () {
+      var timer = RestartableTimer(const Duration(seconds: 5), () {
         fired = true;
       });
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
       timer.reset();
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
 
-      async.elapse(Duration(seconds: 1));
+      async.elapse(const Duration(seconds: 1));
       expect(fired, isTrue);
     });
   });
@@ -60,19 +60,19 @@ void main() {
   test('re-runs the callback if the timer is reset after firing', () {
     FakeAsync().run((async) {
       var fired = 0;
-      var timer = RestartableTimer(Duration(seconds: 5), () {
+      var timer = RestartableTimer(const Duration(seconds: 5), () {
         fired++;
       });
 
-      async.elapse(Duration(seconds: 5));
+      async.elapse(const Duration(seconds: 5));
       expect(fired, equals(1));
       timer.reset();
 
-      async.elapse(Duration(seconds: 5));
+      async.elapse(const Duration(seconds: 5));
       expect(fired, equals(2));
       timer.reset();
 
-      async.elapse(Duration(seconds: 5));
+      async.elapse(const Duration(seconds: 5));
       expect(fired, equals(3));
     });
   });
@@ -80,27 +80,28 @@ void main() {
   test('runs the callback if the timer is reset after being canceled', () {
     FakeAsync().run((async) {
       var fired = false;
-      var timer = RestartableTimer(Duration(seconds: 5), () {
+      var timer = RestartableTimer(const Duration(seconds: 5), () {
         fired = true;
       });
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
       timer.cancel();
 
-      async.elapse(Duration(seconds: 4));
+      async.elapse(const Duration(seconds: 4));
       expect(fired, isFalse);
       timer.reset();
 
-      async.elapse(Duration(seconds: 5));
+      async.elapse(const Duration(seconds: 5));
       expect(fired, isTrue);
     });
   });
 
   test("only runs the callback once if the timer isn't reset", () {
     FakeAsync().run((async) {
-      RestartableTimer(Duration(seconds: 5), expectAsync0(() {}, count: 1));
-      async.elapse(Duration(seconds: 10));
+      RestartableTimer(
+          const Duration(seconds: 5), expectAsync0(() {}, count: 1));
+      async.elapse(const Duration(seconds: 10));
     });
   });
 }
