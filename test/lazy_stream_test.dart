@@ -14,7 +14,7 @@ void main() {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
-      return Stream.empty();
+      return const Stream.empty();
     }));
 
     await flushMicrotasks();
@@ -28,7 +28,7 @@ void main() {
     var callbackCalled = false;
     var stream = LazyStream(expectAsync0(() {
       callbackCalled = true;
-      return Stream.empty();
+      return const Stream.empty();
     }));
 
     await flushMicrotasks();
@@ -95,7 +95,7 @@ void main() {
     late LazyStream stream;
     stream = LazyStream(expectAsync0(() {
       expect(() => stream.listen(null), throwsStateError);
-      return Stream.empty();
+      return const Stream.empty();
     }));
     stream.listen(null);
   });

@@ -12,7 +12,7 @@ void main() {
   late Completer completer;
   late ResultFuture future;
   setUp(() {
-    completer = Completer();
+    completer = Completer<void>();
     future = ResultFuture(completer.future);
   });
 

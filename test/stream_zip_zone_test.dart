@@ -11,11 +11,11 @@ import 'package:test/test.dart';
 
 void main() {
   StreamController controller;
-  controller = StreamController();
+  controller = StreamController<void>();
   testStream('singlesub-async', controller, controller.stream);
   controller = StreamController.broadcast();
   testStream('broadcast-async', controller, controller.stream);
-  controller = StreamController();
+  controller = StreamController<void>();
   testStream(
       'asbroadcast-async', controller, controller.stream.asBroadcastStream());
 

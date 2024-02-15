@@ -342,7 +342,7 @@ void main() {
     final r = ChunkedStreamReader(() async* {
       yield [1, 2, 3];
       // This will hang forever, so we will call cancel()
-      await Completer().future;
+      await Completer<void>().future;
       yield [4]; // this should never be reachable
       fail('unreachable!');
     }());
@@ -362,7 +362,7 @@ void main() {
     final r = ChunkedStreamReader(() async* {
       yield [1, 2, 3];
       // This will hang forever, so we will call cancel()
-      await Completer().future;
+      await Completer<void>().future;
       yield [4]; // this should never be reachable
       fail('unreachable!');
     }());

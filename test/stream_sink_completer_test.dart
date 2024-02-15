@@ -12,7 +12,7 @@ import 'utils.dart';
 void main() {
   late StreamSinkCompleter completer;
   setUp(() {
-    completer = StreamSinkCompleter();
+    completer = StreamSinkCompleter<void>();
   });
 
   group('when a stream is linked before events are added', () {
@@ -46,7 +46,7 @@ void main() {
       var sink = TestSink();
       completer.setDestinationSink(sink);
 
-      var controller = StreamController();
+      var controller = StreamController<int>();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('the future from the inner close() is returned', () async {
-      var closeCompleter = Completer();
+      var closeCompleter = Completer<void>();
       var sink = TestSink(onDone: () => closeCompleter.future);
       completer.setDestinationSink(sink);
 
@@ -152,7 +152,7 @@ void main() {
     });
 
     test('addStream is forwarded', () async {
-      var controller = StreamController();
+      var controller = StreamController<int>();
       completer.sink.addStream(controller.stream);
 
       controller.add(1);
@@ -191,7 +191,7 @@ void main() {
       }));
       await flushMicrotasks();
 
-      var closeCompleter = Completer();
+      var closeCompleter = Completer<void>();
       var sink = TestSink(onDone: () => closeCompleter.future);
       completer.setDestinationSink(sink);
       await flushMicrotasks();

@@ -73,7 +73,7 @@ class _CancelOnErrorSubscriptionWrapper<T>
   @override
   void onError(Function? handleError) {
     // Cancel when receiving an error.
-    super.onError((error, StackTrace stackTrace) {
+    super.onError((Object error, StackTrace stackTrace) {
       // Wait for the cancel to complete before sending the error event.
       super.cancel().whenComplete(() {
         if (handleError is ZoneBinaryCallback) {

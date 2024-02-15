@@ -12,7 +12,7 @@ import 'utils.dart';
 void main() {
   late StreamController controller;
   setUp(() {
-    controller = StreamController();
+    controller = StreamController<void>();
   });
 
   group('fromStreamTransformer', () {
@@ -43,7 +43,7 @@ void main() {
 
       var results = [];
       controller.stream.listen(expectAsync1((_) {}, count: 0),
-          onError: (error, stackTrace) {
+          onError: (Object error, stackTrace) {
         results.add(error);
       }, onDone: expectAsync0(() {
         expect(results, equals([2, 4, 6]));
@@ -142,7 +142,7 @@ void main() {
 
       var results = [];
       controller.stream.listen(expectAsync1((_) {}, count: 0),
-          onError: (error, stackTrace) {
+          onError: (Object error, stackTrace) {
         results.add(error);
       }, onDone: expectAsync0(() {
         expect(results, equals([2, 4, 6]));

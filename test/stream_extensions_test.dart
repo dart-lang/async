@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 void main() {
   group('.slices', () {
     test('empty', () {
-      expect(Stream.empty().slices(1).toList(), completion(equals([])));
+      expect(const Stream.empty().slices(1).toList(), completion(equals([])));
     });
 
     test('with the same length as the iterable', () {
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('returns null for an empty stream', () {
-      expect(Stream.empty().firstOrNull, completion(isNull));
+      expect(const Stream.empty().firstOrNull, completion(isNull));
     });
 
     test('cancels the subscription after an event', () async {
