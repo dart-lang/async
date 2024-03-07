@@ -59,3 +59,8 @@ jobs:
       - name: Run VM tests
         run: dart test --platform vm
         if: always() && steps.install.outcome == 'success'
+      - run: dart test --platform chrome --compiler dart2js
+        if: always() && steps.install.outcome == 'success'
+      - run: dart test --platform chrome --compiler dart2wasm
+        # TODO: drop `dev` filter when dart2wasm is working on stable
+        if: always() && steps.install.outcome == 'success' && matrix.sdk == 'dev'
