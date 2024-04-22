@@ -287,4 +287,4 @@ void main() {
 }
 
 /// Wait for all microtasks to complete.
-Future flushMicrotasks() => Future.delayed(Duration.zero);
+Future flushMicrotasks() => Future<void>.delayed(Duration.zero);

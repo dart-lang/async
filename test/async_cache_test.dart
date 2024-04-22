@@ -75,7 +75,7 @@ void main() {
       Future<String> throwingCall() async => throw Exception();
       await expectLater(cache.fetch(throwingCall), throwsA(isException));
       // To let the timer invalidate the cache
-      await Future.delayed(Duration(milliseconds: 5));
+      await Future<void>.delayed(const Duration(milliseconds: 5));
 
       Future<String> call() async => 'Completed';
       expect(await cache.fetch(call), 'Completed', reason: 'Cache invalidates');

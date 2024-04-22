@@ -147,7 +147,7 @@ void main() {
 
       expect(all, completion(expected));
 
-      var completeFunctions = List<Function()>.generate(n, (i) {
+      var completeFunctions = List<void Function()>.generate(n, (i) {
         var c = cs[i];
         return () =>
             throws(i) ? c.completeError('$i', someStack) : c.complete(i);

@@ -67,9 +67,9 @@ void main() {
   });
 
   test('completes once all contained futures complete', () async {
-    var completer1 = Completer();
-    var completer2 = Completer();
-    var completer3 = Completer();
+    var completer1 = Completer<void>();
+    var completer2 = Completer<void>();
+    var completer3 = Completer<void>();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -93,9 +93,9 @@ void main() {
   });
 
   test('completes to the values of the futures in order of addition', () {
-    var completer1 = Completer();
-    var completer2 = Completer();
-    var completer3 = Completer();
+    var completer1 = Completer<int>();
+    var completer2 = Completer<int>();
+    var completer3 = Completer<int>();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -112,9 +112,9 @@ void main() {
 
   test("completes to the first error to be emitted, even if it's not closed",
       () {
-    var completer1 = Completer();
-    var completer2 = Completer();
-    var completer3 = Completer();
+    var completer1 = Completer<void>();
+    var completer2 = Completer<void>();
+    var completer3 = Completer<void>();
 
     futureGroup.add(completer1.future);
     futureGroup.add(completer2.future);
@@ -130,9 +130,9 @@ void main() {
       var idle = false;
       futureGroup.onIdle.listen((_) => idle = true);
 
-      var completer1 = Completer();
-      var completer2 = Completer();
-      var completer3 = Completer();
+      var completer1 = Completer<void>();
+      var completer2 = Completer<void>();
+      var completer3 = Completer<void>();
 
       futureGroup.add(completer1.future);
       futureGroup.add(completer2.future);
@@ -162,7 +162,7 @@ void main() {
       var idle = false;
       futureGroup.onIdle.listen((_) => idle = true);
 
-      var completer = Completer();
+      var completer = Completer<void>();
       futureGroup.add(completer.future);
 
       completer.complete();
@@ -171,7 +171,7 @@ void main() {
       expect(futureGroup.isIdle, isTrue);
 
       idle = false;
-      completer = Completer();
+      completer = Completer<void>();
       futureGroup.add(completer.future);
 
       await flushMicrotasks();
@@ -206,7 +206,7 @@ void main() {
         futureFired = true;
       }));
 
-      var completer = Completer();
+      var completer = Completer<void>();
       futureGroup.add(completer.future);
       futureGroup.close();
 

@@ -225,7 +225,7 @@ void main() {
   });
 
   test('Error after first end', () {
-    var controller = StreamController();
+    var controller = StreamController<int>();
     controller
       ..add(7)
       ..add(8)
@@ -289,7 +289,7 @@ void main() {
     }).then((hasMore) {
       expect(hasMore, isTrue);
       expect(it.current, equals([5, 6]));
-      Future.delayed(ms25).then((_) {
+      Future<void>.delayed(ms25).then((_) {
         c2.add(8);
       });
       return it.moveNext();
@@ -323,10 +323,10 @@ void main() {
     sub = sz.listen(expectAsync1((v) {
       expect(v, equals([ctr * 2, ctr * 2 + 1]));
       if (ctr == 1) {
-        sub.pause(Future.delayed(const Duration(milliseconds: 25)));
+        sub.pause(Future<void>.delayed(const Duration(milliseconds: 25)));
       } else if (ctr == 2) {
         sub.pause();
-        Future.delayed(const Duration(milliseconds: 25)).then((_) {
+        Future<void>.delayed(const Duration(milliseconds: 25)).then((_) {
           sub.resume();
         });
       }

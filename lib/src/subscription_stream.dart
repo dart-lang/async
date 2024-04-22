@@ -14,7 +14,7 @@ import 'delegate/stream_subscription.dart';
 /// then it is resumed and the events are passed on to the
 /// stream's new subscription.
 ///
-/// This class assumes that is has control over the original subscription.
+/// This class assumes that it has control over the original subscription.
 /// If other code is accessing the subscription, results may be unpredictable.
 class SubscriptionStream<T> extends Stream<T> {
   /// The subscription providing the events for this stream.
@@ -73,7 +73,7 @@ class _CancelOnErrorSubscriptionWrapper<T>
   @override
   void onError(Function? handleError) {
     // Cancel when receiving an error.
-    super.onError((error, StackTrace stackTrace) {
+    super.onError((Object error, StackTrace stackTrace) {
       // Wait for the cancel to complete before sending the error event.
       super.cancel().whenComplete(() {
         if (handleError is ZoneBinaryCallback) {

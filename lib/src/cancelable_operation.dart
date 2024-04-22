@@ -69,7 +69,7 @@ class CancelableOperation<T> {
   ///
   /// Once any of [operations] completes, its result is forwarded to the
   /// new [CancelableOperation] and the rest are cancelled. If the
-  /// bew operation is cancelled, all the [operations] are cancelled as
+  /// new operation is cancelled, all the [operations] are cancelled as
   /// well.
   static CancelableOperation<T> race<T>(
       Iterable<CancelableOperation<T>> operations) {
