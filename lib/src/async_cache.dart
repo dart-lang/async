@@ -53,6 +53,8 @@ class AsyncCache<T> {
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
+  /// If [cacheErrors] is `false` the cache will be invalidated if the [Future]
+  /// returned by the callback completes as an error.
   AsyncCache(Duration duration, {bool cacheErrors = true})
       : _duration = duration,
         _cacheErrors = cacheErrors;
