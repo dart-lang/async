@@ -19,7 +19,6 @@ void main() {
   });
 
   test('should not fetch when callback throws exception', () async {
-
     cache = AsyncCache(const Duration(hours: 1), cacheErrors: false);
 
     Future<String> asyncFunctionThatThrows() {
