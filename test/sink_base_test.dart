@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @Deprecated('Tests deprecated functionality')
-library sink_base_test;
+library;
 
 import 'dart:async';
 import 'dart:convert';
