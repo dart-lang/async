@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-
 /// An asynchronous operation that can be cancelled.
 ///
 /// The value of this operation is exposed as [value]. When this operation is
@@ -521,7 +519,7 @@ class CancelableCompleter<T> {
     final isFuture = toReturn is Future;
     final cancelFutures = <Future<Object?>>[
       if (isFuture) toReturn,
-      ...?_cancelForwarders?.map(_forward).whereNotNull()
+      ...?_cancelForwarders?.map(_forward).nonNulls
     ];
     final results = (isFuture && cancelFutures.length == 1)
         ? [await toReturn]

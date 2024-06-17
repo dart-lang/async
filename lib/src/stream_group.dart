@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-
 /// A collection of streams whose events are unified and sent through a central
 /// stream.
 ///
@@ -239,7 +237,7 @@ class StreamGroup<T> implements Sink<Stream<T>> {
             return null;
           }
         })
-        .whereNotNull()
+        .nonNulls
         .toList();
 
     _subscriptions.clear();
