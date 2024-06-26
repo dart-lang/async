@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @Deprecated('Tests deprecated functionality')
-library sink_base_test;
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -80,7 +80,7 @@ void main() {
     });
 
     test('all invocations of close() return the same future', () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var sink = _StreamSink(onClose: expectAsync0(() => completer.future));
 
       var close1Completed = false;
@@ -106,7 +106,7 @@ void main() {
 
     test('done returns a future that completes once close() completes',
         () async {
-      var completer = Completer();
+      var completer = Completer<void>();
       var sink = _StreamSink(onClose: expectAsync0(() => completer.future));
 
       var doneCompleted = false;
@@ -297,7 +297,7 @@ void main() {
 
     group('flush()', () {
       test('returns a future that completes when onFlush() is done', () async {
-        var completer = Completer();
+        var completer = Completer<void>();
         var sink = _IOSink(onFlush: expectAsync0(() => completer.future));
 
         var flushDone = false;
@@ -324,11 +324,12 @@ void main() {
       });
 
       test('locks the sink as though a stream was being added', () {
-        var sink = _IOSink(onFlush: expectAsync0(() => Completer().future));
+        var sink =
+            _IOSink(onFlush: expectAsync0(() => Completer<void>().future));
         sink.flush();
         expect(() => sink.add([0]), throwsStateError);
         expect(() => sink.addError('oh no'), throwsStateError);
-        expect(() => sink.addStream(Stream.empty()), throwsStateError);
+        expect(() => sink.addStream(const Stream.empty()), throwsStateError);
         expect(() => sink.flush(), throwsStateError);
         expect(() => sink.close(), throwsStateError);
       });

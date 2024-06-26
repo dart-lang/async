@@ -1,7 +1,6 @@
 ## 2.12.0-wip
-
-- Require Dart 2.19
-- Can decide `runOnce` method of `AsyncMemoizer` will store exception or not.
+* Can decide `runOnce` method of `AsyncMemoizer` will store exception or not.
+* Require Dart 3.4
 
 ## 2.11.0
 

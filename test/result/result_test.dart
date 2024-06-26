@@ -61,7 +61,7 @@ void main() {
     var c = Completer<int>();
     c.future.then(expectAsync1((int v) {
       expect(v, equals(42));
-    }), onError: (e, s) {
+    }), onError: (Object? e, s) {
       fail('Unexpected error');
     });
     result.complete(c);
@@ -100,7 +100,7 @@ void main() {
     Result<int> result = ValueResult<int>(42);
     result.asFuture.then(expectAsync1((int v) {
       expect(v, equals(42));
-    }), onError: (e, s) {
+    }), onError: (Object? e, s) {
       fail('Unexpected error');
     });
   });
@@ -122,7 +122,7 @@ void main() {
       expect(result.isError, isFalse);
       var value = result.asValue!;
       expect(value.value, equals(42));
-    }), onError: (e, s) {
+    }), onError: (Object? e, s) {
       fail('Unexpected error: $e');
     });
   });
@@ -135,7 +135,7 @@ void main() {
       var error = result.asError!;
       expect(error.error, equals('BAD'));
       expect(error.stackTrace, same(stack));
-    }), onError: (e, s) {
+    }), onError: (Object? e, s) {
       fail('Unexpected error: $e');
     });
   });
@@ -144,7 +144,7 @@ void main() {
     var future = Future<Result<int>>.value(Result<int>.value(42));
     Result.release(future).then(expectAsync1((v) {
       expect(v, equals(42));
-    }), onError: (e, s) {
+    }), onError: (Object? e, s) {
       fail('Unexpected error: $e');
     });
   });
@@ -207,7 +207,7 @@ void main() {
       expect(v, equals(expected.asValue!.value));
     }
 
-    void errorListener(error, StackTrace stackTrace) {
+    void errorListener(Object error, StackTrace stackTrace) {
       expect(expectedList.isEmpty, isFalse);
       Result expected = expectedList.removeFirst();
       expect(expected.isError, isTrue);
@@ -263,7 +263,7 @@ void main() {
   test('handle unary', () {
     var result = ErrorResult('error', stack);
     var called = false;
-    result.handle((error) {
+    result.handle((Object? error) {
       called = true;
       expect(error, 'error');
     });
@@ -273,7 +273,7 @@ void main() {
   test('handle binary', () {
     var result = ErrorResult('error', stack);
     var called = false;
-    result.handle((error, stackTrace) {
+    result.handle((Object? error, Object? stackTrace) {
       called = true;
       expect(error, 'error');
       expect(stackTrace, same(stack));
@@ -284,7 +284,7 @@ void main() {
   test('handle unary and binary', () {
     var result = ErrorResult('error', stack);
     var called = false;
-    result.handle((error, [stackTrace]) {
+    result.handle((Object? error, [Object? stackTrace]) {
       called = true;
       expect(error, 'error');
       expect(stackTrace, same(stack));
@@ -344,11 +344,11 @@ class TestSink<T> implements EventSink<T> {
     onDone();
   }
 
-  static void _nullData(value) {
+  static void _nullData(dynamic value) {
     fail('Unexpected sink add: $value');
   }
 
-  static void _nullError(e, StackTrace s) {
+  static void _nullError(dynamic e, StackTrace s) {
     fail('Unexpected sink addError: $e');
   }
 
