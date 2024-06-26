@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' show QueueList;
 
 import 'cancelable_operation.dart';
 import 'result/result.dart';

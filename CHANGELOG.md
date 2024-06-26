@@ -1,8 +1,6 @@
 ## 2.12.0-wip
-
-* Require Dart 3.2
 * Can decide `fetch` method of `AsyncCache` will store exception or not.
-
+* Require Dart 3.2
 
 ## 2.11.0
 
