@@ -18,6 +18,20 @@ void main() {
     cache = AsyncCache(const Duration(hours: 1));
   });
 
+  test('should not fetch when callback throws exception', () async {
+    cache = AsyncCache(const Duration(hours: 1), cacheErrors: false);
+
+    Future<String> asyncFunctionThatThrows() {
+      throw Exception();
+    }
+
+    var errorThrowingFuture = cache.fetch(asyncFunctionThatThrows);
+    await expectLater(errorThrowingFuture, throwsA(isException));
+
+    var valueFuture = cache.fetch(() async => 'Success');
+    expect(await valueFuture, 'Success');
+  });
+
   test('should fetch via a callback when no cache exists', () async {
     expect(await cache.fetch(() async => 'Expensive'), 'Expensive');
   });
