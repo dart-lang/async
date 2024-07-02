@@ -27,6 +27,7 @@ export 'src/restartable_timer.dart';
 export 'src/result/error.dart';
 export 'src/result/future.dart';
 export 'src/result/result.dart';
+export 'src/result/result_extensions.dart';
 export 'src/result/value.dart';
 export 'src/single_subscription_transformer.dart';
 export 'src/sink_base.dart';
