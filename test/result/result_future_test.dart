@@ -41,4 +41,25 @@ void main() {
       expect(error.stackTrace, equals(trace));
     });
   });
+  test('capture any future into a result', () async {
+    final future = Future.value(1).capture();
+
+    expect(future, isA<Future<Result<int>>>());
+    final result = await future;
+    expect(result, isA<Result<int>>());
+    expect(result.isError, false);
+    expect(result.asValue?.value, 1);
+  });
+  test('error on capture future are captured properly', () async {
+    final future = <int>() async {
+      throw Exception('custome exception');
+    }()
+        .capture();
+
+    expect(future, isA<Future<Result<int>>>());
+    final result = await future;
+    expect(result, isA<Result<int>>());
+    expect(result.isError, true);
+    expect(result.asError?.error, isA<Exception>());
+  });
 }
