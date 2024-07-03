@@ -32,7 +32,7 @@ void main() {
       () async {
         final error = Exception();
         final stacktrace = StackTrace.current;
-        final result = Result.error(error,stacktrace);
+        final result = Result.error(error, stacktrace);
 
         expect(
           () => result.requireValue,
@@ -47,21 +47,19 @@ void main() {
   });
 
   group('test valueOrNull', () {
-    test('return null when result is error', (){
+    test('return null when result is error', () {
       final result = Result.error('error');
       expect(result.valueOrNull, null);
     });
 
-    test('return value when result is value ', (){
+    test('return value when result is value ', () {
       final result = Result.value(10);
       expect(result.valueOrNull, 10);
     });
-    
-    test('return nullable value when result is nullable value ', (){
+
+    test('return nullable value when result is nullable value ', () {
       final result = Result<int?>.value(null);
       expect(result.valueOrNull, null);
     });
-    
   });
-
 }
