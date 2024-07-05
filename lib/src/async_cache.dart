@@ -36,6 +36,15 @@ class AsyncCache<T> {
   /// Cached results of a previous [fetch] call.
   Future<T>? _cachedValueFuture;
 
+  /// Whether the cache will keep a future completed with an error.
+  ///
+  /// If `false`, a non-ephemeral cache will clear the cached future
+  /// immediately if the future completes with an error, as if the
+  /// caching was ephemeral.
+  /// _(Ephemeral caches always clear when the future completes,
+  /// so this flag has no effect on those.)_
+  final bool _cacheErrors;
+
   /// Fires when the cache should be considered stale.
   Timer? _stale;
 
@@ -44,14 +53,20 @@ class AsyncCache<T> {
   /// The [duration] starts counting after the Future returned by [fetch]
   /// completes, or after the Stream returned by `fetchStream` emits a done
   /// event.
-  AsyncCache(Duration duration) : _duration = duration;
+  /// If [cacheErrors] is `false` the cache will be invalidated if the [Future]
+  /// returned by the callback completes as an error.
+  AsyncCache(Duration duration, {bool cacheErrors = true})
+      : _duration = duration,
+        _cacheErrors = cacheErrors;
 
   /// Creates a cache that invalidates after an in-flight request is complete.
   ///
   /// An ephemeral cache guarantees that a callback function will only be
   /// executed at most once concurrently. This is useful for requests for which
   /// data is updated frequently but stale data is acceptable.
-  AsyncCache.ephemeral() : _duration = null;
+  AsyncCache.ephemeral()
+      : _duration = null,
+        _cacheErrors = true;
 
   /// Returns a cached value from a previous call to [fetch], or runs [callback]
   /// to compute a new one.
@@ -62,8 +77,18 @@ class AsyncCache<T> {
     if (_cachedStreamSplitter != null) {
       throw StateError('Previously used to cache via `fetchStream`');
     }
-    return _cachedValueFuture ??= callback()
-      ..whenComplete(_startStaleTimer).ignore();
+    if (_cacheErrors) {
+      return _cachedValueFuture ??= callback()
+        ..whenComplete(_startStaleTimer).ignore();
+    } else {
+      return _cachedValueFuture ??= callback().then((value) {
+        _startStaleTimer();
+        return value;
+      }, onError: (Object error, StackTrace stack) {
+        invalidate();
+        throw error;
+      });
+    }
   }
 
   /// Returns a cached stream from a previous call to [fetchStream], or runs
