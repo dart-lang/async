@@ -42,4 +42,5 @@ export 'src/stream_splitter.dart';
 export 'src/stream_subscription_transformer.dart';
 export 'src/stream_zip.dart';
 export 'src/subscription_stream.dart';
+export 'src/timed_async_memoizer.dart';
 export 'src/typed_stream_transformer.dart';
