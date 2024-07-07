@@ -1,6 +1,8 @@
 ## 2.12.0-wip
 
 - Require Dart 3.4
+- Add `TimedAsyncMemoizer`, a variant of `AsyncMemoizer` that can run the
+  function again when it has expired.
 
 ## 2.11.0
 
