@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> This repo has moved to https://github.com/dart-lang/core/tree/main/pkgs/async
+
 [![Dart CI](https://github.com/dart-lang/async/actions/workflows/test-package.yml/badge.svg)](https://github.com/dart-lang/async/actions/workflows/test-package.yml)
 [![pub package](https://img.shields.io/pub/v/async.svg)](https://pub.dev/packages/async)
 [![package publisher](https://img.shields.io/pub/publisher/async.svg)](https://pub.dev/packages/async/publisher)
